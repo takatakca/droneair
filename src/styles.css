@@ -19,6 +19,18 @@
  */
 
 @theme inline {
+  --font-display: "Chakra Petch", ui-sans-serif, sans-serif;
+  --font-body: "Inter", ui-sans-serif, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --color-silver: var(--silver);
+  --color-gold: var(--gold);
+  --color-waypoint: var(--waypoint);
+  --color-graphite: var(--graphite);
+  --animate-scan: scan-sweep 6s linear infinite;
+  --animate-drift: drift 26s ease-in-out infinite;
+  --animate-hover-drone: hover-drone 6s ease-in-out infinite;
+  --animate-pulse-way: pulse-way 2.6s ease-in-out infinite;
+  --animate-fade-up: fade-up 0.7s ease-out both;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
