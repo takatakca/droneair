@@ -1,0 +1,18 @@
+import type { ReactNode } from "react";
+
+import { ContactStrip } from "@/components/ContactStrip";
+import { LoadingScreen } from "@/components/LoadingScreen";
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
+
+export function SiteLayout({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex min-h-screen flex-col bg-background">
+      <LoadingScreen />
+      <SiteHeader />
+      <main className="flex-1">{children}</main>
+      <ContactStrip />
+      <SiteFooter />
+    </div>
+  );
+}
