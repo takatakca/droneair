@@ -1,24 +1,42 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+import { Hero } from "@/components/Hero";
+import { SiteLayout } from "@/components/SiteLayout";
+import { ProcessSection, SolutionsSection } from "@/components/SolutionsSection";
+import { localBusinessJsonLd } from "@/lib/company";
+
+const title = "DRONE R’AIR | Inspection, points de passage et données aériennes";
+const description =
+  "DRONE R’AIR — missions aériennes par points de passage, inspection de bâtiments, cartographie de terrains et données organisées. Lachine, Québec. (514) 448-2825.";
+
 export const Route = createFileRoute("/")({
   component: Index,
+  head: () => ({
+    meta: [
+      { title },
+      { name: "description", content: description },
+      { property: "og:title", content: title },
+      { property: "og:description", content: description },
+      { property: "og:url", content: "/" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: description },
+    ],
+    links: [{ rel: "canonical", href: "/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(localBusinessJsonLd("fr")),
+      },
+    ],
+  }),
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <SiteLayout>
+      <Hero />
+      <SolutionsSection />
+      <ProcessSection />
+    </SiteLayout>
   );
 }
