@@ -7,9 +7,9 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { COMPANY, localBusinessJsonLd } from "@/lib/company";
 import { useLang } from "@/lib/i18n";
 
-const title = "DRONE R’AIR | Waypoint Missions, Inspections and Aerial Data";
+const title = "DRONE AIR | Waypoint Missions, Inspections and Aerial Data";
 const description =
-  "Contactez DRONE R’AIR — 4625 Rue Fairway, Lachine, Québec H8T 1B7. Téléphone (514) 448-2825, courriel info@dronair.ca.";
+  "Contactez DRONE AIR — 4625 Rue Fairway, Lachine, Québec H8T 1B7. Téléphone (514) 448-2825, courriel info@dronair.ca.";
 
 export const Route = createFileRoute("/contact")({
   component: ContactPage,

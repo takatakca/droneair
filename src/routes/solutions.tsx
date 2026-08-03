@@ -4,9 +4,9 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { ProcessSection, SolutionsSection } from "@/components/SolutionsSection";
 import { useLang } from "@/lib/i18n";
 
-const title = "Solutions | DRONE R’AIR — Waypoint Missions & Aerial Data";
+const title = "Solutions | DRONE AIR — Waypoint Missions & Aerial Data";
 const description =
-  "Inspection de bâtiments, cartographie de terrains, suivi de chantier et livrables de données aériennes par DRONE R’AIR.";
+  "Inspection de bâtiments, cartographie de terrains, suivi de chantier et livrables de données aériennes par DRONE AIR.";
 
 export const Route = createFileRoute("/solutions")({
   component: SolutionsPage,

@@ -78,8 +78,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { name: "author", content: "DRONE R’AIR" },
-      { property: "og:site_name", content: "DRONE R’AIR" },
+      { name: "author", content: "DRONE AIR" },
+      { property: "og:site_name", content: "DRONE AIR" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
