@@ -9,7 +9,7 @@ export function SolutionsSection() {
         {t.solutions.title}
       </h2>
       <span className="rule-gold mt-6 block max-w-24 opacity-70" />
-      <div className="mt-10 grid gap-5 sm:grid-cols-2">
+      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {t.solutions.items.map((item, i) => (
           <article
             key={item.title}
@@ -26,6 +26,7 @@ export function SolutionsSection() {
           </article>
         ))}
       </div>
+      <p className="mt-8 max-w-3xl text-xs leading-relaxed text-muted-foreground">{t.solutions.note}</p>
     </section>
   );
 }
@@ -39,7 +40,7 @@ export function ProcessSection() {
         <h2 className="mt-3 text-2xl font-semibold text-foreground sm:text-3xl">
           {t.process.title}
         </h2>
-        <ol className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
           {t.process.steps.map((step, i) => (
             <li key={step.title} className="border-t border-border pt-5">
               <span className="text-gold font-display text-3xl font-bold">

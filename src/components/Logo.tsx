@@ -1,4 +1,4 @@
-import mark from "@/assets/drone-rair-mark.png";
+import mark from "@/assets/drone-air-mark.png";
 import { COMPANY } from "@/lib/company";
 import { cn } from "@/lib/utils";
 

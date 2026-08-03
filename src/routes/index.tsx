@@ -5,9 +5,9 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { ProcessSection, SolutionsSection } from "@/components/SolutionsSection";
 import { localBusinessJsonLd } from "@/lib/company";
 
-const title = "DRONE R’AIR | Inspection, points de passage et données aériennes";
+const title = "DRONE AIR | Inspection, points de passage et données aériennes";
 const description =
-  "DRONE R’AIR — missions aériennes par points de passage, inspection de bâtiments, cartographie de terrains et données organisées. Lachine, Québec. (514) 448-2825.";
+  "DRONE AIR offre des solutions d’inspection aérienne, de planification par points de passage, de cartographie et de collecte de données pour les terrains, propriétés et infrastructures.";
 
 export const Route = createFileRoute("/")({
   component: Index,

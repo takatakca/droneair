@@ -89,9 +89,12 @@ export function Hero() {
             <Logo size="lg" />
           </div>
           <h1 className="mt-8 max-w-2xl text-3xl font-semibold leading-[1.15] text-foreground sm:text-[2.6rem]">
-            {t.hero.statement}
+            {t.hero.heading}
           </h1>
-          <p className="mt-5 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
+          <p className="text-silver mt-5 max-w-xl text-base font-medium leading-relaxed sm:text-lg">
+            {t.hero.statement}
+          </p>
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
             {t.hero.lead}
           </p>
           <div className="mt-10 flex flex-wrap gap-3">
@@ -101,12 +104,12 @@ export function Hero() {
             >
               {t.cta.primary}
             </Link>
-            <Link
-              to="/solutions"
+            <a
+              href="#solutions"
               className="rounded-sm border border-border px-6 py-3 font-mono text-[0.72rem] uppercase tracking-[0.2em] text-foreground transition-colors hover:border-accent hover:text-accent"
             >
               {t.cta.secondary}
-            </Link>
+            </a>
           </div>
         </div>
 
