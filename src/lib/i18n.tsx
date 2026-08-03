@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -9,43 +10,64 @@ import {
 
 export type Lang = "fr" | "en";
 
+const STORAGE_KEY = "drone-air-lang";
+
 export const copy = {
   fr: {
-    nav: { home: "Accueil", solutions: "Solutions", contact: "Contact" },
+    htmlLang: "fr-CA",
+    nav: {
+      home: "Accueil",
+      solutions: "Solutions",
+      contact: "Contact",
+      privacy: "Politique de confidentialité",
+      terms: "Conditions d’utilisation",
+    },
     cta: { primary: "Planifier une mission", secondary: "Découvrir nos solutions" },
     strip: { call: "Appelez-nous", email: "Envoyez un courriel", plan: "Planifier une mission" },
     loading: "Initialisation de la mission",
     hero: {
-      eyebrow: "Missions par points de passage",
+      eyebrow: "INSPECTION • CARTOGRAPHIE • DONNÉES AÉRIENNES",
+      heading: "Voyez votre terrain sous un nouvel angle.",
       statement:
         "Des missions aériennes précises. Des données organisées. Des décisions mieux informées.",
-      lead: "Planification de vol, imagerie aérienne et collecte de données pour terrains, propriétés et infrastructures.",
+      lead: "DRONE AIR planifie des missions aériennes précises pour inspecter, cartographier, mesurer et documenter vos terrains, propriétés et infrastructures.",
       hud: {
         altitude: "Altitude",
         route: "Trajectoire planifiée",
         waypoints: "Points de passage",
         scan: "Balayage du terrain",
+        progress: "Progression de la mission",
+        capture: "Captures d’images",
       },
     },
     solutions: {
       label: "Nos solutions",
       title: "Ce que nous documentons",
+      note: "Les technologies spécialisées (thermique, LiDAR, capteurs additionnels) sont offertes selon l’équipement, les exigences de la mission, l’emplacement et après confirmation.",
       items: [
         {
-          title: "Inspection de bâtiments",
-          body: "Toitures, façades et structures documentées en imagerie haute définition, sans échafaudage.",
+          title: "Inspection de terrains et propriétés",
+          body: "Toitures, façades, structures et terrains documentés en imagerie haute définition, sans échafaudage.",
         },
         {
-          title: "Cartographie de terrains",
-          body: "Relevés de terrain, limites de propriété et modèles visuels issus de vols par points de passage.",
+          title: "Missions par points de passage",
+          body: "Vols planifiés avec points de passage, altitude et couverture définis pour des résultats répétables.",
+        },
+        {
+          title: "Cartographie et mesures",
+          body: "Vues d’ensemble, orthophotos et mesures approximatives issues des images captées (sans arpentage légal).",
         },
         {
           title: "Suivi de chantier",
           body: "Séries d’images comparables dans le temps pour suivre l’avancement des travaux.",
         },
         {
-          title: "Données et livrables",
-          body: "Images, orthophotos et rapports organisés, prêts à être partagés avec vos équipes.",
+          title: "Observation agricole et environnementale",
+          body: "Survols de parcelles et de zones naturelles pour observer l’état du couvert et repérer les secteurs à vérifier.",
+        },
+        {
+          title: "Extraction de données aériennes",
+          body: "Images, orthophotos et rapports visuels organisés, prêts à être partagés avec vos équipes.",
         },
       ],
     },
@@ -53,76 +75,147 @@ export const copy = {
       label: "Déroulement",
       title: "De la demande aux données",
       steps: [
-        { title: "Évaluation", body: "Emplacement, objectifs, espace aérien et conditions de sécurité." },
-        { title: "Planification", body: "Points de passage, altitude, couverture et paramètres de capture." },
-        { title: "Vol", body: "Mission exécutée selon le plan approuvé et les restrictions applicables." },
-        { title: "Livraison", body: "Données traitées, organisées et transmises avec un sommaire clair." },
+        { title: "Définition de la zone", body: "Emplacement, limites de la zone, objectifs et conditions de sécurité." },
+        { title: "Planification des points de passage", body: "Points de passage, altitude, couverture et paramètres de capture." },
+        { title: "Collecte des images et données", body: "Mission exécutée selon le plan approuvé et les restrictions applicables." },
+        { title: "Traitement et organisation", body: "Tri, assemblage et contrôle de qualité des images et des données." },
+        { title: "Livraison des résultats", body: "Livrables transmis avec un sommaire clair et exploitable." },
       ],
     },
     contact: {
       title: "Parlez-nous de votre mission",
       intro:
-        "Vous avez un terrain, une propriété, un bâtiment ou une zone à inspecter? Expliquez-nous votre projet. L’équipe de DRONE R’AIR pourra évaluer l’emplacement, les objectifs de la mission et les données dont vous avez besoin.",
+        "Vous avez un terrain, une propriété, un bâtiment ou une zone à inspecter? Expliquez-nous votre projet. L’équipe de DRONE AIR pourra évaluer l’emplacement, les objectifs de la mission et les données dont vous avez besoin.",
       details: "Coordonnées",
       phoneLabel: "Téléphone",
       emailLabel: "Courriel",
       form: {
         name: "Nom",
+        company: "Entreprise (facultatif)",
         email: "Courriel",
         phone: "Téléphone",
-        location: "Emplacement de la mission",
-        message: "Décrivez votre projet",
+        prefLang: "Langue préférée",
+        location: "Emplacement du projet",
+        service: "Type de service",
+        servicePlaceholder: "Choisir un service",
+        area: "Superficie approximative (facultatif)",
+        date: "Date souhaitée (facultatif)",
+        message: "Description du projet",
+        file: "Pièce jointe ou image (facultatif)",
+        consent:
+          "J’accepte que DRONE AIR utilise ces renseignements pour évaluer ma demande de mission.",
         submit: "Envoyer la demande",
+        sending: "Transmission…",
+        required: "Ce champ est requis.",
+        invalidEmail: "Adresse courriel invalide.",
+        consentRequired: "Votre consentement est requis.",
+        errorTitle: "La demande n’a pas pu être transmise",
+        errorBody: "Veuillez réessayer, ou nous joindre directement par téléphone ou courriel.",
+        noBackend:
+          "Aucun système d’envoi automatisé n’est encore connecté : votre demande est préparée localement dans le navigateur. Pour une réponse rapide, contactez-nous directement.",
         confirmTitle: "Demande de mission reçue",
         confirmBody:
-          "Merci. Votre demande a été enregistrée. Pour une réponse plus rapide, contactez-nous directement :",
+          "Merci. Votre demande de mission a été transmise à DRONE AIR. Notre équipe examinera les renseignements fournis et communiquera avec vous concernant les prochaines étapes.",
         again: "Envoyer une autre demande",
+        services: [
+          "Inspection de terrain",
+          "Inspection de propriété",
+          "Mission par points de passage",
+          "Cartographie",
+          "Mesures",
+          "Suivi de chantier",
+          "Observation agricole",
+          "Inspection thermique",
+          "Photographie ou vidéo aérienne",
+          "Extraction de données",
+          "Autre",
+        ],
       },
     },
     footer: {
       description:
-        "DRONE R’AIR utilise la planification par points de passage, l’imagerie aérienne et les technologies de collecte de données pour inspecter, documenter et mieux comprendre les terrains, propriétés et infrastructures.",
-      legalLabel: "Avis légal et sécurité",
+        "DRONE AIR utilise la planification par points de passage, l’imagerie aérienne et les technologies de collecte de données pour inspecter, documenter et mieux comprendre les terrains, propriétés et infrastructures.",
+      legalLabel: "Avis de sécurité",
       legal:
         "La disponibilité des services dépend de l’emplacement, des conditions météorologiques, de l’espace aérien, des restrictions applicables et des exigences de sécurité. Chaque demande de mission doit être évaluée avant le vol.",
       contactLabel: "Coordonnées",
+      navLabel: "Navigation",
+      servicesLabel: "Services",
+      langLabel: "Langue",
+    },
+    privacy: {
+      title: "Politique de confidentialité",
+      body: [
+        "DRONE AIR recueille uniquement les renseignements que vous fournissez dans le formulaire de demande de mission : nom, entreprise, courriel, téléphone, emplacement du projet et description du projet.",
+        "Ces renseignements servent exclusivement à évaluer votre demande, à planifier la mission et à communiquer avec vous. Ils ne sont ni vendus, ni loués, ni échangés.",
+        "Les images et données captées lors d’une mission demeurent liées au mandat convenu avec le client.",
+        "Pour toute question ou pour demander la suppression de vos renseignements, écrivez à info@dronair.ca ou téléphonez au (514) 448-2825.",
+      ],
+    },
+    terms: {
+      title: "Conditions d’utilisation",
+      body: [
+        "Le contenu de ce site est fourni à titre informatif. Il ne constitue ni une offre contractuelle, ni une garantie de disponibilité de service.",
+        "Chaque mission est soumise à une évaluation préalable : emplacement, espace aérien, conditions météorologiques, restrictions applicables et exigences de sécurité.",
+        "Les livrables aériens ne remplacent pas un arpentage légal, une expertise d’ingénierie ou une certification cadastrale.",
+        "Les textes, images et éléments visuels de ce site appartiennent à DRONE AIR.",
+      ],
     },
   },
   en: {
-    nav: { home: "Home", solutions: "Solutions", contact: "Contact" },
+    htmlLang: "en-CA",
+    nav: {
+      home: "Home",
+      solutions: "Solutions",
+      contact: "Contact",
+      privacy: "Privacy policy",
+      terms: "Terms of use",
+    },
     cta: { primary: "Plan a Mission", secondary: "Explore Our Solutions" },
     strip: { call: "Call Us", email: "Send an Email", plan: "Plan a Mission" },
     loading: "Initializing mission",
     hero: {
-      eyebrow: "Waypoint missions",
+      eyebrow: "INSPECTION • MAPPING • AERIAL DATA",
+      heading: "See your land from a new perspective.",
       statement: "Precise aerial missions. Organized data. Better-informed decisions.",
-      lead: "Flight planning, aerial imaging, and data collection for land, properties, and infrastructure.",
+      lead: "DRONE AIR plans precise aerial missions to inspect, map, measure, and document land, properties, and infrastructure.",
       hud: {
         altitude: "Altitude",
         route: "Planned route",
         waypoints: "Waypoints",
         scan: "Terrain scan",
+        progress: "Mission progress",
+        capture: "Image capture",
       },
     },
     solutions: {
       label: "Our solutions",
       title: "What we document",
+      note: "Specialized technologies (thermal, LiDAR, additional sensors) are available depending on equipment, mission requirements, location, and confirmation.",
       items: [
         {
-          title: "Building inspection",
-          body: "Roofs, façades, and structures documented in high-definition imagery, without scaffolding.",
+          title: "Land and Property Inspection",
+          body: "Roofs, façades, structures, and land documented in high-definition imagery, without scaffolding.",
         },
         {
-          title: "Land mapping",
-          body: "Terrain surveys, property boundaries, and visual models produced from waypoint flights.",
+          title: "Waypoint Missions",
+          body: "Flights planned with defined waypoints, altitude, and coverage for repeatable results.",
         },
         {
-          title: "Site progress",
+          title: "Mapping and Measurements",
+          body: "Overviews, orthophotos, and approximate measurements derived from captured imagery (not legal surveying).",
+        },
+        {
+          title: "Construction Monitoring",
           body: "Repeatable image sets over time so construction progress stays comparable.",
         },
         {
-          title: "Data and deliverables",
-          body: "Images, orthophotos, and organized reports ready to share with your teams.",
+          title: "Agricultural and Environmental Observation",
+          body: "Flights over parcels and natural areas to observe ground cover and flag zones to verify.",
+        },
+        {
+          title: "Aerial Data Extraction",
+          body: "Images, orthophotos, and organized visual reports ready to share with your teams.",
         },
       ],
     },
@@ -130,39 +223,91 @@ export const copy = {
       label: "Process",
       title: "From request to data",
       steps: [
-        { title: "Evaluation", body: "Location, objectives, airspace, and safety conditions." },
-        { title: "Planning", body: "Waypoints, altitude, coverage, and capture parameters." },
-        { title: "Flight", body: "Mission flown to the approved plan and applicable restrictions." },
-        { title: "Delivery", body: "Processed data, organized and delivered with a clear summary." },
+        { title: "Area Definition", body: "Location, area boundaries, objectives, and safety conditions." },
+        { title: "Waypoint Planning", body: "Waypoints, altitude, coverage, and capture parameters." },
+        { title: "Image and Data Capture", body: "Mission flown to the approved plan and applicable restrictions." },
+        { title: "Processing and Organization", body: "Sorting, assembly, and quality control of images and data." },
+        { title: "Delivery of Results", body: "Deliverables handed over with a clear, usable summary." },
       ],
     },
     contact: {
       title: "Tell Us About Your Mission",
       intro:
-        "Do you have land, a property, a building, or a specific area that needs to be inspected? Tell us about your project. The DRONE R’AIR team can evaluate the location, mission objectives, and the type of information you need.",
+        "Do you have land, a property, a building, or a specific area that needs to be inspected? Tell us about your project. The DRONE AIR team can evaluate the location, mission objectives, and the type of information you need.",
       details: "Company details",
       phoneLabel: "Telephone",
       emailLabel: "Email",
       form: {
         name: "Name",
+        company: "Company (optional)",
         email: "Email",
         phone: "Telephone",
-        location: "Mission location",
-        message: "Describe your project",
+        prefLang: "Preferred language",
+        location: "Project location",
+        service: "Service type",
+        servicePlaceholder: "Select a service",
+        area: "Approximate area or property size (optional)",
+        date: "Desired date (optional)",
+        message: "Project description",
+        file: "File or image attachment (optional)",
+        consent:
+          "I agree that DRONE AIR may use this information to evaluate my mission request.",
         submit: "Send request",
+        sending: "Sending…",
+        required: "This field is required.",
+        invalidEmail: "Invalid email address.",
+        consentRequired: "Your consent is required.",
+        errorTitle: "The request could not be sent",
+        errorBody: "Please try again, or reach us directly by telephone or email.",
+        noBackend:
+          "No automated delivery system is connected yet: your request is prepared locally in the browser. For a fast reply, contact us directly.",
         confirmTitle: "Mission request received",
         confirmBody:
-          "Thank you. Your request has been recorded. For a faster reply, reach us directly:",
+          "Thank you. Your mission request has been sent to DRONE AIR. Our team will review the information provided and contact you regarding the next steps.",
         again: "Send another request",
+        services: [
+          "Land inspection",
+          "Property inspection",
+          "Waypoint mission",
+          "Mapping",
+          "Measurements",
+          "Construction monitoring",
+          "Agricultural observation",
+          "Thermal inspection",
+          "Aerial photography or video",
+          "Data extraction",
+          "Other",
+        ],
       },
     },
     footer: {
       description:
-        "DRONE R’AIR uses waypoint planning, aerial imaging, and data-collection technology to inspect, document, and better understand land, properties, and infrastructure.",
-      legalLabel: "Legal and safety notice",
+        "DRONE AIR uses waypoint planning, aerial imaging, and data-collection technology to inspect, document, and better understand land, properties, and infrastructure.",
+      legalLabel: "Safety notice",
       legal:
         "Service availability depends on location, weather conditions, airspace, applicable restrictions, and safety requirements. Every mission request must be evaluated before flight.",
       contactLabel: "Contact",
+      navLabel: "Navigation",
+      servicesLabel: "Services",
+      langLabel: "Language",
+    },
+    privacy: {
+      title: "Privacy policy",
+      body: [
+        "DRONE AIR collects only the information you provide in the mission request form: name, company, email, telephone, project location, and project description.",
+        "This information is used solely to evaluate your request, plan the mission, and contact you. It is never sold, rented, or traded.",
+        "Images and data captured during a mission remain tied to the mandate agreed with the client.",
+        "For any question, or to request deletion of your information, write to info@dronair.ca or call (514) 448-2825.",
+      ],
+    },
+    terms: {
+      title: "Terms of use",
+      body: [
+        "The content of this site is provided for information purposes. It is not a contractual offer nor a guarantee of service availability.",
+        "Every mission is subject to prior evaluation: location, airspace, weather conditions, applicable restrictions, and safety requirements.",
+        "Aerial deliverables do not replace legal land surveying, engineering expertise, or cadastral certification.",
+        "Text, images, and visual elements on this site belong to DRONE AIR.",
+      ],
     },
   },
 } as const;
@@ -173,7 +318,25 @@ const LangContext = createContext<Ctx | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("fr");
-  const setLang = useCallback((l: Lang) => setLangState(l), []);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (stored === "fr" || stored === "en") setLangState(stored);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = copy[lang].htmlLang;
+  }, [lang]);
+
+  const setLang = useCallback((l: Lang) => {
+    setLangState(l);
+    try {
+      window.localStorage.setItem(STORAGE_KEY, l);
+    } catch {
+      /* storage unavailable */
+    }
+  }, []);
+
   const value = useMemo<Ctx>(
     () => ({ lang, setLang, t: copy[lang] as (typeof copy)["fr"] }),
     [lang, setLang],
