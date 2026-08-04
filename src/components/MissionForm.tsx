@@ -3,10 +3,21 @@ import { useState } from "react";
 import { COMPANY } from "@/lib/company";
 import { useLang } from "@/lib/i18n";
 
-type Errors = Partial<Record<"name" | "email" | "phone" | "location" | "service" | "message" | "consent", string>>;
+type FieldKey =
+  | "name"
+  | "email"
+  | "phone"
+  | "location"
+  | "service"
+  | "message"
+  | "consent"
+  | "attachment";
+type Errors = Partial<Record<FieldKey, string>>;
+
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
 
 const field =
-  "w-full rounded-sm border border-input bg-graphite/60 px-3 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-accent focus-visible:ring-2 focus-visible:ring-accent/50";
+  "w-full border-0 border-b border-input bg-transparent px-0 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus-visible:border-primary";
 
 export function MissionForm() {
   const { lang, t } = useLang();
@@ -24,6 +35,13 @@ export function MissionForm() {
     if (!email) e.email = f.required;
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) e.email = f.invalidEmail;
     if (!data.get("consent")) e.consent = f.consentRequired;
+
+    const file = data.get("attachment");
+    if (file instanceof File && file.size > 0) {
+      const ok = file.type.startsWith("image/") || file.type === "application/pdf";
+      if (!ok) e.attachment = f.fileType;
+      else if (file.size > MAX_FILE_BYTES) e.attachment = f.fileTooLarge;
+    }
     return e;
   }
 
@@ -51,16 +69,20 @@ export function MissionForm() {
 
   if (status === "sent") {
     return (
-      <div className="panel rounded-md p-6" aria-live="polite">
-        <p className="label-tech">{f.confirmTitle}</p>
-        <h2 className="mt-3 text-xl font-semibold text-foreground">{f.confirmTitle}</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{f.confirmBody}</p>
-        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{f.noBackend}</p>
-        <div className="mt-5 space-y-2 font-mono text-sm">
-          <a href={COMPANY.phoneHref} className="block text-primary">
+      <div aria-live="polite">
+        <p className="label-tech text-primary">{f.confirmTitle}</p>
+        <h2 className="mt-4 font-display text-2xl font-semibold text-foreground">
+          {f.confirmTitle}
+        </h2>
+        <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
+          {f.confirmBody}
+        </p>
+        <p className="mt-4 max-w-md text-xs leading-relaxed text-muted-foreground">{f.noBackend}</p>
+        <div className="hairline mt-8 space-y-2 pt-6 font-mono text-sm">
+          <a href={COMPANY.phoneHref} className="block text-foreground hover:text-primary">
             {COMPANY.phoneDisplay}
           </a>
-          <a href={COMPANY.emailHref} className="block break-all text-primary">
+          <a href={COMPANY.emailHref} className="block break-all text-foreground hover:text-primary">
             {COMPANY.email}
           </a>
           <address className="not-italic leading-relaxed text-muted-foreground">
@@ -79,7 +101,7 @@ export function MissionForm() {
             setStatus("idle");
             setErrors({});
           }}
-          className="mt-6 rounded-sm border border-border px-5 py-2.5 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-foreground hover:border-accent hover:text-accent"
+          className="link-arrow mt-8"
         >
           {f.again}
         </button>
@@ -87,48 +109,86 @@ export function MissionForm() {
     );
   }
 
-  const err = (key: keyof Errors) =>
+  const err = (key: FieldKey) =>
     errors[key] ? (
-      <span className="mt-1 block font-mono text-[0.65rem] text-destructive">{errors[key]}</span>
+      <span
+        id={`${key}-error`}
+        className="mt-2 block font-mono text-[0.65rem] text-destructive"
+      >
+        {errors[key]}
+      </span>
     ) : null;
 
+  const described = (key: FieldKey) => (errors[key] ? `${key}-error` : undefined);
+
   return (
-    <form className="panel space-y-4 rounded-md p-6" onSubmit={onSubmit} noValidate>
-      <div className="grid gap-4 sm:grid-cols-2">
+    <form className="space-y-8" onSubmit={onSubmit} noValidate>
+      <div className="grid gap-8 sm:grid-cols-2">
         <label className="block">
-          <span className="label-tech mb-2 block">{f.name}</span>
-          <input name="name" autoComplete="name" aria-invalid={!!errors.name} className={field} />
+          <span className="label-tech mb-1 block">{f.name}</span>
+          <input
+            name="name"
+            autoComplete="name"
+            aria-invalid={!!errors.name}
+            aria-describedby={described("name")}
+            className={field}
+          />
           {err("name")}
         </label>
         <label className="block">
-          <span className="label-tech mb-2 block">{f.company}</span>
+          <span className="label-tech mb-1 block">{f.company}</span>
           <input name="company" autoComplete="organization" className={field} />
         </label>
         <label className="block">
-          <span className="label-tech mb-2 block">{f.email}</span>
-          <input name="email" type="email" autoComplete="email" aria-invalid={!!errors.email} className={field} />
+          <span className="label-tech mb-1 block">{f.email}</span>
+          <input
+            name="email"
+            type="email"
+            autoComplete="email"
+            aria-invalid={!!errors.email}
+            aria-describedby={described("email")}
+            className={field}
+          />
           {err("email")}
         </label>
         <label className="block">
-          <span className="label-tech mb-2 block">{f.phone}</span>
-          <input name="phone" type="tel" autoComplete="tel" aria-invalid={!!errors.phone} className={field} />
+          <span className="label-tech mb-1 block">{f.phone}</span>
+          <input
+            name="phone"
+            type="tel"
+            autoComplete="tel"
+            aria-invalid={!!errors.phone}
+            aria-describedby={described("phone")}
+            className={field}
+          />
           {err("phone")}
         </label>
         <label className="block">
-          <span className="label-tech mb-2 block">{f.prefLang}</span>
+          <span className="label-tech mb-1 block">{f.prefLang}</span>
           <select name="preferredLanguage" defaultValue={lang} className={field}>
             <option value="fr">Français</option>
             <option value="en">English</option>
           </select>
         </label>
         <label className="block">
-          <span className="label-tech mb-2 block">{f.location}</span>
-          <input name="location" aria-invalid={!!errors.location} className={field} />
+          <span className="label-tech mb-1 block">{f.location}</span>
+          <input
+            name="location"
+            aria-invalid={!!errors.location}
+            aria-describedby={described("location")}
+            className={field}
+          />
           {err("location")}
         </label>
         <label className="block">
-          <span className="label-tech mb-2 block">{f.service}</span>
-          <select name="service" defaultValue="" aria-invalid={!!errors.service} className={field}>
+          <span className="label-tech mb-1 block">{f.service}</span>
+          <select
+            name="service"
+            defaultValue=""
+            aria-invalid={!!errors.service}
+            aria-describedby={described("service")}
+            className={field}
+          >
             <option value="" disabled>
               {f.servicePlaceholder}
             </option>
@@ -141,22 +201,39 @@ export function MissionForm() {
           {err("service")}
         </label>
         <label className="block">
-          <span className="label-tech mb-2 block">{f.area}</span>
+          <span className="label-tech mb-1 block">{f.area}</span>
           <input name="area" className={field} />
         </label>
         <label className="block">
-          <span className="label-tech mb-2 block">{f.date}</span>
+          <span className="label-tech mb-1 block">{f.date}</span>
           <input name="date" type="date" className={field} />
         </label>
         <label className="block">
-          <span className="label-tech mb-2 block">{f.file}</span>
-          <input name="attachment" type="file" accept="image/*,.pdf" className={field} />
+          <span className="label-tech mb-1 block">{f.file}</span>
+          <input
+            name="attachment"
+            type="file"
+            accept="image/*,application/pdf"
+            aria-invalid={!!errors.attachment}
+            aria-describedby={described("attachment")}
+            className="w-full border-b border-input py-2.5 text-xs text-muted-foreground file:mr-4 file:border-0 file:bg-transparent file:font-mono file:text-[0.65rem] file:uppercase file:tracking-[0.18em] file:text-primary"
+          />
+          <span className="mt-2 block font-mono text-[0.6rem] uppercase tracking-[0.16em] text-muted-foreground">
+            {f.fileHint}
+          </span>
+          {err("attachment")}
         </label>
       </div>
 
       <label className="block">
-        <span className="label-tech mb-2 block">{f.message}</span>
-        <textarea name="message" rows={5} aria-invalid={!!errors.message} className={field} />
+        <span className="label-tech mb-1 block">{f.message}</span>
+        <textarea
+          name="message"
+          rows={5}
+          aria-invalid={!!errors.message}
+          aria-describedby={described("message")}
+          className={field}
+        />
         {err("message")}
       </label>
 
@@ -166,6 +243,7 @@ export function MissionForm() {
           type="checkbox"
           className="mt-0.5 size-4 shrink-0 accent-[var(--primary)]"
           aria-invalid={!!errors.consent}
+          aria-describedby={described("consent")}
         />
         <span>
           {f.consent}
@@ -176,7 +254,7 @@ export function MissionForm() {
       <p className="text-xs leading-relaxed text-muted-foreground">{f.noBackend}</p>
 
       {status === "error" && (
-        <div role="alert" className="rounded-sm border border-destructive/50 p-3">
+        <div role="alert" className="border-l-2 border-destructive pl-4">
           <p className="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-destructive">
             {f.errorTitle}
           </p>
@@ -184,11 +262,7 @@ export function MissionForm() {
         </div>
       )}
 
-      <button
-        type="submit"
-        disabled={status === "sending"}
-        className="min-h-11 rounded-sm bg-primary px-6 py-3 font-mono text-[0.72rem] uppercase tracking-[0.2em] text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
-      >
+      <button type="submit" disabled={status === "sending"} className="btn-solid disabled:opacity-60">
         {status === "sending" ? f.sending : f.submit}
       </button>
     </form>

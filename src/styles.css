@@ -235,6 +235,102 @@
   color: var(--muted-foreground);
 }
 
+/* Editorial building blocks — lines and type instead of boxes. */
+@utility hairline {
+  border-top: 1px solid var(--color-border);
+}
+
+@utility display-xl {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  font-size: clamp(2.25rem, 7vw, 5.25rem);
+}
+
+@utility display-lg {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  font-size: clamp(1.875rem, 4.6vw, 3.5rem);
+}
+
+@utility link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--foreground);
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--foreground) 35%, transparent);
+  transition:
+    border-color 0.3s ease,
+    color 0.3s ease;
+
+  & svg {
+    transition: transform 0.3s ease;
+  }
+
+  &:hover {
+    color: var(--primary);
+    border-color: var(--primary);
+  }
+
+  &:hover svg {
+    transform: translateX(4px);
+  }
+}
+
+@utility btn-solid {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.875rem;
+  padding: 0.85rem 1.6rem;
+  border-radius: 2px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    opacity: 0.92;
+  }
+}
+
+@utility reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@utility reveal-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
 @utility waypoint-dot {
   border-radius: 9999px;
   background: var(--waypoint);

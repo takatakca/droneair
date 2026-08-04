@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://dronair.ca/sitemap.xml
+Sitemap: https://drone-air.ca/sitemap.xml
