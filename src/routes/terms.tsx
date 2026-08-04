@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { absUrl } from "@/lib/company";
 import { LegalPage } from "@/components/LegalPage";
+import { absUrl } from "@/lib/company";
 import { useLang } from "@/lib/i18n";
 
 const title = "Conditions d’utilisation | DRONE AIR";
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/terms")({
     meta: [
       { title },
       { name: "description", content: description },
+      { property: "og:type", content: "website" },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:url", content: url },
