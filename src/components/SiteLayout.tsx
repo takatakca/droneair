@@ -5,11 +5,17 @@ import { LoadingScreen } from "@/components/LoadingScreen";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 
-export function SiteLayout({ children }: { children: ReactNode }) {
+export function SiteLayout({
+  children,
+  overlayHeader = false,
+}: {
+  children: ReactNode;
+  overlayHeader?: boolean;
+}) {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <LoadingScreen />
-      <SiteHeader />
+      <SiteHeader overlay={overlayHeader} />
       <main className="flex-1">{children}</main>
       <ContactStrip />
       <SiteFooter />
