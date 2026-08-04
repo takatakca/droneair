@@ -16,7 +16,7 @@ export function SiteLayout({
     <div className="flex min-h-screen flex-col bg-background">
       <LoadingScreen />
       <SiteHeader overlay={overlayHeader} />
-      <main className="flex-1">{children}</main>
+      <main className={overlayHeader ? "flex-1" : "flex-1 pt-16"}>{children}</main>
       <ContactStrip />
       <SiteFooter />
     </div>
