@@ -1,15 +1,31 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, Phone, Mail, X } from "lucide-react";
-import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Logo } from "@/components/Logo";
 import { COMPANY } from "@/lib/company";
 import { useLang } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
-export function SiteHeader() {
+export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   const { t } = useLang();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   const links = [
     { to: "/", label: t.nav.home },
@@ -17,19 +33,29 @@ export function SiteHeader() {
     { to: "/contact", label: t.nav.contact },
   ];
 
+  const solid = scrolled || !overlay || open;
+
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-        <Link to="/" aria-label={COMPANY.name} onClick={() => setOpen(false)}>
+    <header
+      className={cn(
+        "fixed inset-x-0 top-0 z-50 transition-colors duration-500",
+        solid
+          ? "border-b border-border bg-background/88 backdrop-blur-xl"
+          : "border-b border-transparent bg-transparent",
+      )}
+    >
+      <div className="mx-auto flex h-16 max-w-[92rem] items-center justify-between gap-4 px-5 sm:px-8">
+        <Link to="/" aria-label={COMPANY.name} onClick={() => setOpen(false)} className="min-w-0">
           <Logo size="sm" />
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-10 md:flex">
           {links.map((l) => (
             <Link
               key={l.to}
               to={l.to}
-              className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground [&.active]:text-primary"
+              activeOptions={{ exact: l.to === "/" }}
+              className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground"
             >
               {l.label}
             </Link>
@@ -37,7 +63,7 @@ export function SiteHeader() {
           <LanguageToggle />
           <Link
             to="/contact"
-            className="rounded-sm border border-primary/60 px-4 py-2 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+            className="border-b border-primary/70 pb-1 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-primary transition-colors hover:border-foreground hover:text-foreground"
           >
             {t.cta.primary}
           </Link>
@@ -45,7 +71,7 @@ export function SiteHeader() {
 
         <button
           type="button"
-          className="text-foreground md:hidden"
+          className="-mr-2 flex size-11 items-center justify-center text-foreground md:hidden"
           aria-label="Menu"
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
@@ -55,33 +81,32 @@ export function SiteHeader() {
       </div>
 
       {open && (
-        <div className="border-t border-border bg-background/95 px-5 py-6 md:hidden">
-          <Logo size="md" className="mb-6" />
-          <nav className="flex flex-col gap-4">
+        <div className="fixed inset-x-0 top-16 bottom-0 z-50 flex flex-col justify-between overflow-y-auto bg-background px-5 pb-10 pt-8 md:hidden">
+          <nav className="flex flex-col">
             {links.map((l) => (
               <Link
                 key={l.to}
                 to={l.to}
                 onClick={() => setOpen(false)}
-                className="font-display text-lg tracking-wide text-foreground"
+                className="hairline py-5 font-display text-3xl tracking-tight text-foreground first:border-t-0 first:pt-0"
               >
                 {l.label}
               </Link>
             ))}
-          </nav>
-          <div className="mt-6 space-y-3 border-t border-border pt-5">
-            <a
-              href={COMPANY.phoneHref}
-              className="flex items-center gap-3 text-sm text-foreground"
+            <Link
+              to="/contact"
+              onClick={() => setOpen(false)}
+              className="hairline py-5 font-display text-3xl tracking-tight text-primary"
             >
-              <Phone className="size-4 text-primary" />
+              {t.cta.primary}
+            </Link>
+          </nav>
+
+          <div className="hairline mt-10 space-y-4 pt-6">
+            <a href={COMPANY.phoneHref} className="block font-mono text-base text-foreground">
               {COMPANY.phoneDisplay}
             </a>
-            <a
-              href={COMPANY.emailHref}
-              className="flex items-center gap-3 text-sm text-foreground"
-            >
-              <Mail className="size-4 text-primary" />
+            <a href={COMPANY.emailHref} className="block break-all font-mono text-base text-foreground">
               {COMPANY.email}
             </a>
             <address className="not-italic text-sm leading-relaxed text-muted-foreground">
@@ -91,7 +116,7 @@ export function SiteHeader() {
               <br />
               {COMPANY.country}
             </address>
-            <LanguageToggle className="mt-2" />
+            <LanguageToggle />
           </div>
         </div>
       )}
