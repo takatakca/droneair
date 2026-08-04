@@ -132,6 +132,9 @@ export const copy = {
         required: "Ce champ est requis.",
         invalidEmail: "Adresse courriel invalide.",
         consentRequired: "Votre consentement est requis.",
+        fileTooLarge: "Le fichier dépasse 10 Mo.",
+        fileType: "Format accepté : image ou PDF.",
+        fileHint: "Image ou PDF, 10 Mo maximum.",
         errorTitle: "La demande n’a pas pu être transmise",
         errorBody: "Veuillez réessayer, ou nous joindre directement par téléphone ou courriel.",
         noBackend:
@@ -304,6 +307,9 @@ export const copy = {
         required: "This field is required.",
         invalidEmail: "Invalid email address.",
         consentRequired: "Your consent is required.",
+        fileTooLarge: "The file exceeds 10 MB.",
+        fileType: "Accepted formats: image or PDF.",
+        fileHint: "Image or PDF, 10 MB maximum.",
         errorTitle: "The request could not be sent",
         errorBody: "Please try again, or reach us directly by telephone or email.",
         noBackend:
