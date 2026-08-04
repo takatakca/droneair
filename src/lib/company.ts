@@ -1,3 +1,5 @@
+export const SITE_URL = "https://drone-air.ca";
+
 export const COMPANY = {
   name: "DRONE AIR",
   tagline: "PRECISION. WAYPOINT. SOLUTIONS.",
@@ -10,8 +12,13 @@ export const COMPANY = {
   phoneE164: "+1-514-448-2825",
   email: "info@dronair.ca",
   emailHref: "mailto:info@dronair.ca",
-  website: "https://dronair.ca",
+  website: SITE_URL,
+  websiteDisplay: "drone-air.ca",
 } as const;
+
+/** Absolute URL for canonical / og:url tags. */
+export const absUrl = (path: string) =>
+  `${SITE_URL}${path === "/" ? "/" : path.replace(/\/$/, "")}`;
 
 export const localBusinessJsonLd = (lang: "fr" | "en") => ({
   "@context": "https://schema.org",
@@ -23,7 +30,9 @@ export const localBusinessJsonLd = (lang: "fr" | "en") => ({
       : "Professional drone services and aerial data solutions",
   telephone: COMPANY.phoneE164,
   email: COMPANY.email,
-  url: COMPANY.website,
+  url: SITE_URL,
+  image: `${SITE_URL}/apple-touch-icon.png`,
+  areaServed: lang === "fr" ? "Québec, Canada" : "Quebec, Canada",
   address: {
     "@type": "PostalAddress",
     streetAddress: COMPANY.street,
