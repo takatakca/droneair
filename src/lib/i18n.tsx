@@ -31,6 +31,8 @@ export const copy = {
       statement:
         "Des missions aériennes précises. Des données organisées. Des décisions mieux informées.",
       lead: "DRONE AIR planifie des missions aériennes précises pour inspecter, cartographier, mesurer et documenter vos terrains, propriétés et infrastructures.",
+      scroll: "Faites défiler",
+      example: "Données de mission — exemple",
       hud: {
         altitude: "Altitude",
         route: "Trajectoire planifiée",
@@ -38,11 +40,16 @@ export const copy = {
         scan: "Balayage du terrain",
         progress: "Progression de la mission",
         capture: "Captures d’images",
+        area: "Zone balayée",
+        duration: "Durée du vol",
+        status: "Traitement",
+        statusValue: "Terminé",
       },
     },
     solutions: {
       label: "Nos solutions",
       title: "Ce que nous documentons",
+      chapter: "Service",
       note: "Les technologies spécialisées (thermique, LiDAR, capteurs additionnels) sont offertes selon l’équipement, les exigences de la mission, l’emplacement et après confirmation.",
       items: [
         {
@@ -74,12 +81,28 @@ export const copy = {
     process: {
       label: "Déroulement",
       title: "De la demande aux données",
+      lead: "Une seule mission, cinq étapes contrôlées, du repérage de la zone jusqu’à la remise des livrables.",
       steps: [
         { title: "Définition de la zone", body: "Emplacement, limites de la zone, objectifs et conditions de sécurité." },
         { title: "Planification des points de passage", body: "Points de passage, altitude, couverture et paramètres de capture." },
         { title: "Collecte des images et données", body: "Mission exécutée selon le plan approuvé et les restrictions applicables." },
         { title: "Traitement et organisation", body: "Tri, assemblage et contrôle de qualité des images et des données." },
         { title: "Livraison des résultats", body: "Livrables transmis avec un sommaire clair et exploitable." },
+      ],
+    },
+    tech: {
+      label: "Données aériennes",
+      title: "De l’image brute au document annoté.",
+      lead: "Chaque mission produit une série d’images géolocalisées. Le traitement les assemble en une vue d’ensemble sur laquelle les limites, les repères et les mesures approximatives peuvent être annotés.",
+      before: "Capture brute",
+      after: "Résultat annoté",
+      hint: "Glissez pour comparer",
+      note: "Vue de démonstration produite à partir de données de mission données à titre d’exemple. Les mesures aériennes sont approximatives et ne remplacent pas un arpentage légal.",
+      overlays: [
+        "Limites de la propriété",
+        "Points de capture",
+        "Ligne de mesure",
+        "Coordonnées de référence",
       ],
     },
     contact: {
@@ -142,6 +165,7 @@ export const copy = {
       navLabel: "Navigation",
       servicesLabel: "Services",
       langLabel: "Langue",
+      websiteLabel: "Site Web",
     },
     privacy: {
       title: "Politique de confidentialité",
@@ -179,6 +203,8 @@ export const copy = {
       heading: "See your land from a new perspective.",
       statement: "Precise aerial missions. Organized data. Better-informed decisions.",
       lead: "DRONE AIR plans precise aerial missions to inspect, map, measure, and document land, properties, and infrastructure.",
+      scroll: "Scroll",
+      example: "Example mission data",
       hud: {
         altitude: "Altitude",
         route: "Planned route",
@@ -186,11 +212,16 @@ export const copy = {
         scan: "Terrain scan",
         progress: "Mission progress",
         capture: "Image capture",
+        area: "Area scanned",
+        duration: "Flight duration",
+        status: "Processing",
+        statusValue: "Complete",
       },
     },
     solutions: {
       label: "Our solutions",
       title: "What we document",
+      chapter: "Service",
       note: "Specialized technologies (thermal, LiDAR, additional sensors) are available depending on equipment, mission requirements, location, and confirmation.",
       items: [
         {
@@ -222,12 +253,28 @@ export const copy = {
     process: {
       label: "Process",
       title: "From request to data",
+      lead: "One mission, five controlled stages, from defining the area to handing over the deliverables.",
       steps: [
         { title: "Area Definition", body: "Location, area boundaries, objectives, and safety conditions." },
         { title: "Waypoint Planning", body: "Waypoints, altitude, coverage, and capture parameters." },
         { title: "Image and Data Capture", body: "Mission flown to the approved plan and applicable restrictions." },
         { title: "Processing and Organization", body: "Sorting, assembly, and quality control of images and data." },
         { title: "Delivery of Results", body: "Deliverables handed over with a clear, usable summary." },
+      ],
+    },
+    tech: {
+      label: "Aerial data",
+      title: "From raw capture to annotated document.",
+      lead: "Every mission produces a series of geolocated images. Processing assembles them into a single overview where boundaries, reference points, and approximate measurements can be annotated.",
+      before: "Raw capture",
+      after: "Annotated result",
+      hint: "Drag to compare",
+      note: "Demonstration view built from mission data shown as an example. Aerial measurements are approximate and do not replace legal land surveying.",
+      overlays: [
+        "Property boundaries",
+        "Capture points",
+        "Measurement line",
+        "Reference coordinates",
       ],
     },
     contact: {
@@ -290,6 +337,7 @@ export const copy = {
       navLabel: "Navigation",
       servicesLabel: "Services",
       langLabel: "Language",
+      websiteLabel: "Website",
     },
     privacy: {
       title: "Privacy policy",
