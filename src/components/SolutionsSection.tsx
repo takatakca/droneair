@@ -5,7 +5,6 @@ import svcInspection from "@/assets/svc-inspection.jpg";
 import svcMapping from "@/assets/svc-mapping.jpg";
 import svcWaypoint from "@/assets/svc-waypoint.jpg";
 import { Reveal } from "@/components/Reveal";
-import mapping from "@/assets/svc-mapping.jpg";
 import { useLang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -87,7 +86,7 @@ export function ProcessSection() {
   return (
     <section id="process" className="relative isolate scroll-mt-16 overflow-hidden">
       <img
-        src={mapping}
+        src={svcMapping}
         alt=""
         width={1280}
         height={960}
