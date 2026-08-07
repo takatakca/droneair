@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { DataSection } from "@/components/DataSection";
 import { SiteLayout } from "@/components/SiteLayout";
 import { ProcessSection, SolutionsSection } from "@/components/SolutionsSection";
-import { absUrl } from "@/lib/company";
+import { OG_IMAGE, absUrl } from "@/lib/company";
 import { useLang } from "@/lib/i18n";
 
 const title = "Solutions | DRONE AIR — Missions par points de passage et données aériennes";
@@ -24,6 +24,8 @@ export const Route = createFileRoute("/solutions")({
       { property: "og:url", content: url },
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: description },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [{ rel: "canonical", href: url }],
   }),

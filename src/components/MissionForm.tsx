@@ -1,7 +1,13 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { COMPANY } from "@/lib/company";
 import { useLang } from "@/lib/i18n";
+import {
+  ATTACHMENT_ACCEPT,
+  EMAIL_RE,
+  MAX_ATTACHMENT_BYTES,
+  isAllowedAttachment,
+} from "@/lib/mission-request";
 
 type FieldKey =
   | "name"
@@ -14,8 +20,6 @@ type FieldKey =
   | "attachment";
 type Errors = Partial<Record<FieldKey, string>>;
 
-const MAX_FILE_BYTES = 10 * 1024 * 1024;
-
 const field =
   "w-full border-0 border-b border-input bg-transparent px-0 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus-visible:border-primary";
 
@@ -23,7 +27,9 @@ export function MissionForm() {
   const { lang, t } = useLang();
   const f = t.contact.form;
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string>(f.errorBody);
   const [errors, setErrors] = useState<Errors>({});
+  const startedAt = useRef<number>(Date.now());
 
   function validate(data: FormData): Errors {
     const e: Errors = {};
@@ -33,14 +39,13 @@ export function MissionForm() {
     });
     const email = String(data.get("email") ?? "").trim();
     if (!email) e.email = f.required;
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) e.email = f.invalidEmail;
+    else if (!EMAIL_RE.test(email)) e.email = f.invalidEmail;
     if (!data.get("consent")) e.consent = f.consentRequired;
 
     const file = data.get("attachment");
     if (file instanceof File && file.size > 0) {
-      const ok = file.type.startsWith("image/") || file.type === "application/pdf";
-      if (!ok) e.attachment = f.fileType;
-      else if (file.size > MAX_FILE_BYTES) e.attachment = f.fileTooLarge;
+      if (!isAllowedAttachment(file.type)) e.attachment = f.fileType;
+      else if (file.size > MAX_ATTACHMENT_BYTES) e.attachment = f.fileTooLarge;
     }
     return e;
   }
@@ -48,29 +53,52 @@ export function MissionForm() {
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (status === "sending") return;
-    const data = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const data = new FormData(form);
     const found = validate(data);
     setErrors(found);
     if (Object.keys(found).length > 0) return;
 
+    data.set("elapsedMs", String(Date.now() - startedAt.current));
+    data.set("sourcePage", window.location.pathname);
+
     setStatus("sending");
     try {
-      // No backend is connected yet: the request is only kept in this browser session.
-      const payload = Object.fromEntries(
-        Array.from(data.entries()).filter(([, v]) => typeof v === "string"),
+      const response = await fetch("/api/public/mission-request", {
+        method: "POST",
+        body: data,
+      });
+      const payload = (await response.json().catch(() => null)) as
+        | { ok?: boolean; error?: string }
+        | null;
+
+      if (response.ok && payload?.ok) {
+        setStatus("sent");
+        return;
+      }
+
+      setErrorMessage(
+        payload?.error === "rate_limited"
+          ? f.rateLimited
+          : payload?.error === "attachment_failed"
+            ? f.attachmentFailed
+            : payload?.error === "attachment_type"
+              ? f.fileType
+              : payload?.error === "attachment_size"
+                ? f.fileTooLarge
+                : f.errorBody,
       );
-      window.sessionStorage.setItem("drone-air-mission-request", JSON.stringify(payload));
-      await new Promise((r) => setTimeout(r, 600));
-      setStatus("sent");
+      setStatus("error");
     } catch {
+      setErrorMessage(f.errorBody);
       setStatus("error");
     }
   }
 
   if (status === "sent") {
     return (
-      <div aria-live="polite">
-        <p className="label-tech text-primary">{f.confirmTitle}</p>
+      <div aria-live="polite" role="status">
+        <p className="label-tech text-primary">{f.confirmLabel}</p>
         <h2 className="mt-4 font-display text-2xl font-semibold text-foreground">
           {f.confirmTitle}
         </h2>
@@ -100,6 +128,7 @@ export function MissionForm() {
           onClick={() => {
             setStatus("idle");
             setErrors({});
+            startedAt.current = Date.now();
           }}
           className="link-arrow mt-8"
         >
@@ -123,6 +152,13 @@ export function MissionForm() {
 
   return (
     <form className="space-y-8" onSubmit={onSubmit} noValidate>
+      {/* Honeypot: hidden from humans, commonly filled by bots. */}
+      <div aria-hidden className="absolute left-[-9999px] size-0 overflow-hidden">
+        <label>
+          Website
+          <input name="honeypot" type="text" tabIndex={-1} autoComplete="off" />
+        </label>
+      </div>
       <div className="grid gap-8 sm:grid-cols-2">
         <label className="block">
           <span className="label-tech mb-1 block">{f.name}</span>
@@ -213,7 +249,7 @@ export function MissionForm() {
           <input
             name="attachment"
             type="file"
-            accept="image/*,application/pdf"
+            accept={ATTACHMENT_ACCEPT}
             aria-invalid={!!errors.attachment}
             aria-describedby={described("attachment")}
             className="w-full border-b border-input py-2.5 text-xs text-muted-foreground file:mr-4 file:border-0 file:bg-transparent file:font-mono file:text-[0.65rem] file:uppercase file:tracking-[0.18em] file:text-primary"
@@ -254,15 +290,20 @@ export function MissionForm() {
       <p className="text-xs leading-relaxed text-muted-foreground">{f.noBackend}</p>
 
       {status === "error" && (
-        <div role="alert" className="border-l-2 border-destructive pl-4">
+        <div role="alert" aria-live="assertive" className="border-l-2 border-destructive pl-4">
           <p className="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-destructive">
             {f.errorTitle}
           </p>
-          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{f.errorBody}</p>
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{errorMessage}</p>
         </div>
       )}
 
-      <button type="submit" disabled={status === "sending"} className="btn-solid disabled:opacity-60">
+      <button
+        type="submit"
+        disabled={status === "sending"}
+        aria-busy={status === "sending"}
+        className="btn-solid disabled:cursor-not-allowed disabled:opacity-60"
+      >
         {status === "sending" ? f.sending : f.submit}
       </button>
     </form>

@@ -4,7 +4,7 @@ import { DataSection } from "@/components/DataSection";
 import { Hero } from "@/components/Hero";
 import { SiteLayout } from "@/components/SiteLayout";
 import { ProcessSection, SolutionsSection } from "@/components/SolutionsSection";
-import { absUrl, localBusinessJsonLd } from "@/lib/company";
+import { OG_IMAGE, absUrl, localBusinessJsonLd } from "@/lib/company";
 
 const title = "DRONE AIR | Inspection, cartographie et données aériennes";
 const description =
@@ -23,6 +23,8 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: url },
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: description },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [{ rel: "canonical", href: url }],
     scripts: [

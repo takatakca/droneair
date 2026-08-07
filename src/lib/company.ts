@@ -16,6 +16,9 @@ export const COMPANY = {
   websiteDisplay: "drone-air.ca",
 } as const;
 
+/** Absolute 1200x630 sharing image served from the production domain. */
+export const OG_IMAGE = `${SITE_URL}/og-drone-air.jpg`;
+
 /** Absolute URL for canonical / og:url tags. */
 export const absUrl = (path: string) =>
   `${SITE_URL}${path === "/" ? "/" : path.replace(/\/$/, "")}`;
@@ -31,7 +34,7 @@ export const localBusinessJsonLd = (lang: "fr" | "en") => ({
   telephone: COMPANY.phoneE164,
   email: COMPANY.email,
   url: SITE_URL,
-  image: `${SITE_URL}/apple-touch-icon.png`,
+  image: `${SITE_URL}/og-drone-air.jpg`,
   areaServed: lang === "fr" ? "Québec, Canada" : "Quebec, Canada",
   address: {
     "@type": "PostalAddress",

@@ -133,13 +133,18 @@ export const copy = {
         invalidEmail: "Adresse courriel invalide.",
         consentRequired: "Votre consentement est requis.",
         fileTooLarge: "Le fichier dépasse 10 Mo.",
-        fileType: "Format accepté : image ou PDF.",
-        fileHint: "Image ou PDF, 10 Mo maximum.",
+        fileType: "Formats acceptés : PDF, JPG, PNG ou WEBP.",
+        fileHint: "PDF, JPG, PNG ou WEBP — 10 Mo maximum.",
         errorTitle: "La demande n’a pas pu être transmise",
         errorBody: "Veuillez réessayer, ou nous joindre directement par téléphone ou courriel.",
+        rateLimited:
+          "Trop de demandes ont été envoyées depuis cet appareil. Réessayez dans quelques minutes ou joignez-nous par téléphone.",
+        attachmentFailed:
+          "La pièce jointe n’a pas pu être téléversée. Réessayez, ou envoyez la demande sans pièce jointe.",
         noBackend:
-          "Aucun système d’envoi automatisé n’est encore connecté : votre demande est préparée localement dans le navigateur. Pour une réponse rapide, contactez-nous directement.",
+          "Votre demande est enregistrée de façon sécurisée et consultée par DRONE AIR. Pour une réponse immédiate, appelez-nous.",
         confirmTitle: "Demande de mission reçue",
+        confirmLabel: "Statut de la demande",
         confirmBody:
           "Merci. Votre demande de mission a été transmise à DRONE AIR. Notre équipe examinera les renseignements fournis et communiquera avec vous concernant les prochaines étapes.",
         again: "Envoyer une autre demande",
@@ -187,6 +192,13 @@ export const copy = {
         "Les livrables aériens ne remplacent pas un arpentage légal, une expertise d’ingénierie ou une certification cadastrale.",
         "Les textes, images et éléments visuels de ce site appartiennent à DRONE AIR.",
       ],
+    },
+    notFound: {
+      label: "Erreur 404",
+      title: "Page introuvable",
+      body: "Cette trajectoire ne mène à aucune page. Le lien est peut-être expiré ou mal saisi.",
+      home: "Retour à l’accueil",
+      contact: "Planifier une mission",
     },
   },
   en: {
@@ -308,13 +320,18 @@ export const copy = {
         invalidEmail: "Invalid email address.",
         consentRequired: "Your consent is required.",
         fileTooLarge: "The file exceeds 10 MB.",
-        fileType: "Accepted formats: image or PDF.",
-        fileHint: "Image or PDF, 10 MB maximum.",
+        fileType: "Accepted formats: PDF, JPG, PNG or WEBP.",
+        fileHint: "PDF, JPG, PNG or WEBP — 10 MB maximum.",
         errorTitle: "The request could not be sent",
         errorBody: "Please try again, or reach us directly by telephone or email.",
+        rateLimited:
+          "Too many requests have been sent from this device. Try again in a few minutes, or call us.",
+        attachmentFailed:
+          "The attachment could not be uploaded. Try again, or send the request without an attachment.",
         noBackend:
-          "No automated delivery system is connected yet: your request is prepared locally in the browser. For a fast reply, contact us directly.",
+          "Your request is stored securely and reviewed by DRONE AIR. For an immediate answer, call us.",
         confirmTitle: "Mission request received",
+        confirmLabel: "Request status",
         confirmBody:
           "Thank you. Your mission request has been sent to DRONE AIR. Our team will review the information provided and contact you regarding the next steps.",
         again: "Send another request",
@@ -362,6 +379,13 @@ export const copy = {
         "Aerial deliverables do not replace legal land surveying, engineering expertise, or cadastral certification.",
         "Text, images, and visual elements on this site belong to DRONE AIR.",
       ],
+    },
+    notFound: {
+      label: "Error 404",
+      title: "Page not found",
+      body: "This route does not lead to a page. The link may have expired or been mistyped.",
+      home: "Back to home",
+      contact: "Plan a Mission",
     },
   },
 } as const;
