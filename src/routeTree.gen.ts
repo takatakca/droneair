@@ -14,6 +14,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SolutionsRouteImport } from './routes/solutions'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as ApiPublicMissionRequestRouteImport } from './routes/api/public/mission-request'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,6 +41,11 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMissionRequestRoute = ApiPublicMissionRequestRouteImport.update({
+  id: '/api/public/mission-request',
+  path: '/api/public/mission-request',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/solutions': typeof SolutionsRoute
   '/terms': typeof TermsRoute
+  '/api/public/mission-request': typeof ApiPublicMissionRequestRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/solutions': typeof SolutionsRoute
   '/terms': typeof TermsRoute
+  '/api/public/mission-request': typeof ApiPublicMissionRequestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,33 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/solutions': typeof SolutionsRoute
   '/terms': typeof TermsRoute
+  '/api/public/mission-request': typeof ApiPublicMissionRequestRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/contact' | '/privacy' | '/solutions' | '/terms'
+  fullPaths:
+    | '/'
+    | '/contact'
+    | '/privacy'
+    | '/solutions'
+    | '/terms'
+    | '/api/public/mission-request'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/contact' | '/privacy' | '/solutions' | '/terms'
-  id: '__root__' | '/' | '/contact' | '/privacy' | '/solutions' | '/terms'
+  to:
+    | '/'
+    | '/contact'
+    | '/privacy'
+    | '/solutions'
+    | '/terms'
+    | '/api/public/mission-request'
+  id:
+    | '__root__'
+    | '/'
+    | '/contact'
+    | '/privacy'
+    | '/solutions'
+    | '/terms'
+    | '/api/public/mission-request'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +105,7 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   SolutionsRoute: typeof SolutionsRoute
   TermsRoute: typeof TermsRoute
+  ApiPublicMissionRequestRoute: typeof ApiPublicMissionRequestRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/mission-request': {
+      id: '/api/public/mission-request'
+      path: '/api/public/mission-request'
+      fullPath: '/api/public/mission-request'
+      preLoaderRoute: typeof ApiPublicMissionRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,17 +161,8 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   SolutionsRoute: SolutionsRoute,
   TermsRoute: TermsRoute,
+  ApiPublicMissionRequestRoute: ApiPublicMissionRequestRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

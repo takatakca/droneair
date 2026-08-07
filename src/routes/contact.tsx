@@ -2,10 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { MissionForm } from "@/components/MissionForm";
 import { SiteLayout } from "@/components/SiteLayout";
-import { COMPANY, absUrl, localBusinessJsonLd } from "@/lib/company";
+import { COMPANY, OG_IMAGE, absUrl, localBusinessJsonLd } from "@/lib/company";
 import { useLang } from "@/lib/i18n";
 
-const title = "Contact | DRONE AIR — Planifier une mission aérienne";
+const title = "Planifier une mission | DRONE AIR";
 const description =
   "Planifiez une mission avec DRONE AIR : inspection aérienne, points de passage, cartographie et collecte de données. Lachine, Québec — (514) 448-2825.";
 const url = absUrl("/contact");
@@ -22,6 +22,8 @@ export const Route = createFileRoute("/contact")({
       { property: "og:url", content: url },
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: description },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [{ rel: "canonical", href: url }],
     scripts: [
