@@ -14,59 +14,145 @@ export type Database = {
   }
   public: {
     Tables: {
+      mission_email_events: {
+        Row: {
+          created_at: string
+          error_code: string | null
+          error_summary: string | null
+          event_type: string
+          id: string
+          mission_request_id: string
+          provider: string | null
+          provider_message_id: string | null
+          recipient: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          error_code?: string | null
+          error_summary?: string | null
+          event_type: string
+          id?: string
+          mission_request_id: string
+          provider?: string | null
+          provider_message_id?: string | null
+          recipient?: string | null
+          status: string
+        }
+        Update: {
+          created_at?: string
+          error_code?: string | null
+          error_summary?: string | null
+          event_type?: string
+          id?: string
+          mission_request_id?: string
+          provider?: string | null
+          provider_message_id?: string | null
+          recipient?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mission_email_events_mission_request_id_fkey"
+            columns: ["mission_request_id"]
+            isOneToOne: false
+            referencedRelation: "mission_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mission_requests: {
         Row: {
+          ai_draft_created_at: string | null
+          ai_draft_reply: string | null
+          ai_follow_up_questions: string[] | null
+          ai_response_status: string
+          ai_summary: string | null
           approximate_area: string | null
           attachment_url: string | null
           company: string | null
           consent: boolean
           created_at: string
+          customer_ack_status: string
           description: string
           desired_date: string | null
           email: string
+          email_attempts: number
+          email_notification_status: string
+          email_thread_id: string | null
+          human_review_required: boolean
           id: string
           ip_hash: string | null
+          lead_priority: string
+          lead_type: string
           name: string
           preferred_language: string
           project_location: string
+          reply_received_at: string | null
           service_type: string
           source_page: string | null
           submission_status: string
           telephone: string
         }
         Insert: {
+          ai_draft_created_at?: string | null
+          ai_draft_reply?: string | null
+          ai_follow_up_questions?: string[] | null
+          ai_response_status?: string
+          ai_summary?: string | null
           approximate_area?: string | null
           attachment_url?: string | null
           company?: string | null
           consent?: boolean
           created_at?: string
+          customer_ack_status?: string
           description: string
           desired_date?: string | null
           email: string
+          email_attempts?: number
+          email_notification_status?: string
+          email_thread_id?: string | null
+          human_review_required?: boolean
           id?: string
           ip_hash?: string | null
+          lead_priority?: string
+          lead_type?: string
           name: string
           preferred_language?: string
           project_location: string
+          reply_received_at?: string | null
           service_type: string
           source_page?: string | null
           submission_status?: string
           telephone: string
         }
         Update: {
+          ai_draft_created_at?: string | null
+          ai_draft_reply?: string | null
+          ai_follow_up_questions?: string[] | null
+          ai_response_status?: string
+          ai_summary?: string | null
           approximate_area?: string | null
           attachment_url?: string | null
           company?: string | null
           consent?: boolean
           created_at?: string
+          customer_ack_status?: string
           description?: string
           desired_date?: string | null
           email?: string
+          email_attempts?: number
+          email_notification_status?: string
+          email_thread_id?: string | null
+          human_review_required?: boolean
           id?: string
           ip_hash?: string | null
+          lead_priority?: string
+          lead_type?: string
           name?: string
           preferred_language?: string
           project_location?: string
+          reply_received_at?: string | null
           service_type?: string
           source_page?: string | null
           submission_status?: string
