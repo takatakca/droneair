@@ -146,7 +146,7 @@ export const copy = {
         confirmTitle: "Demande de mission reçue",
         confirmLabel: "Statut de la demande",
         confirmBody:
-          "Merci. Votre demande de mission a été transmise à DRONE AIR. Notre équipe examinera les renseignements fournis et communiquera avec vous concernant les prochaines étapes.",
+          "Merci. Votre demande de mission a été transmise à DRONE AIR et une confirmation vous est envoyée par courriel. Notre équipe examinera les renseignements fournis et communiquera avec vous concernant les prochaines étapes.",
         again: "Envoyer une autre demande",
         services: [
           "Inspection de terrain",
@@ -181,7 +181,8 @@ export const copy = {
         "DRONE AIR recueille uniquement les renseignements que vous fournissez dans le formulaire de demande de mission : nom, entreprise, courriel, téléphone, emplacement du projet et description du projet.",
         "Ces renseignements servent exclusivement à évaluer votre demande, à planifier la mission et à communiquer avec vous. Ils ne sont ni vendus, ni loués, ni échangés.",
         "Les images et données captées lors d’une mission demeurent liées au mandat convenu avec le client.",
-        "Pour toute question ou pour demander la suppression de vos renseignements, écrivez à info@dronair.ca ou téléphonez au (514) 448-2825.",
+        "Après l’envoi du formulaire, un courriel de confirmation vous est transmis et une notification interne est envoyée à DRONE AIR. Un traitement automatisé peut résumer et classer votre demande afin d’en accélérer l’évaluation; aucune mission, aucun prix et aucune disponibilité ne sont confirmés automatiquement. Chaque demande est révisée par une personne.",
+        "Pour toute question ou pour demander la suppression de vos renseignements, écrivez à info@drone-air.ca ou téléphonez au (514) 448-2825.",
       ],
     },
     terms: {
@@ -333,7 +334,7 @@ export const copy = {
         confirmTitle: "Mission request received",
         confirmLabel: "Request status",
         confirmBody:
-          "Thank you. Your mission request has been sent to DRONE AIR. Our team will review the information provided and contact you regarding the next steps.",
+          "Thank you. Your mission request has been sent to DRONE AIR and a confirmation email is on its way to you. Our team will review the information provided and contact you regarding the next steps.",
         again: "Send another request",
         services: [
           "Land inspection",
@@ -368,7 +369,8 @@ export const copy = {
         "DRONE AIR collects only the information you provide in the mission request form: name, company, email, telephone, project location, and project description.",
         "This information is used solely to evaluate your request, plan the mission, and contact you. It is never sold, rented, or traded.",
         "Images and data captured during a mission remain tied to the mandate agreed with the client.",
-        "For any question, or to request deletion of your information, write to info@dronair.ca or call (514) 448-2825.",
+        "After the form is submitted, a confirmation email is sent to you and an internal notification is sent to DRONE AIR. Automated processing may summarize and classify your request to speed up evaluation; no mission, price, or availability is ever confirmed automatically. Every request is reviewed by a person.",
+        "For any question, or to request deletion of your information, write to info@drone-air.ca or call (514) 448-2825.",
       ],
     },
     terms: {

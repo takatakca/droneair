@@ -10,8 +10,8 @@ export const COMPANY = {
   phoneDisplay: "(514) 448-2825",
   phoneHref: "tel:+15144482825",
   phoneE164: "+1-514-448-2825",
-  email: "info@dronair.ca",
-  emailHref: "mailto:info@dronair.ca",
+  email: "info@drone-air.ca",
+  emailHref: "mailto:info@drone-air.ca",
   website: SITE_URL,
   websiteDisplay: "drone-air.ca",
 } as const;
