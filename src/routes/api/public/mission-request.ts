@@ -10,10 +10,15 @@ import {
   extensionFor,
   isAllowedAttachment,
 } from "@/lib/mission-request";
+import { triageMissionRequest } from "@/lib/ai/mission-ai.server";
+import { sendMissionEmail, type EmailEventType } from "@/lib/email/send.server";
+import { customerAcknowledgment, internalNotification, type MissionEmailData } from "@/lib/email/templates.server";
+import { COMPANY } from "@/lib/company";
 
 const BUCKET = "mission-attachments";
 const RATE_WINDOW_MINUTES = 10;
 const RATE_MAX_PER_WINDOW = 3;
+const ATTACHMENT_LINK_TTL_SECONDS = 60 * 60 * 24 * 7;
 
 const schema = z.object({
   name: z.string().trim().min(1).max(LIMITS.name),
@@ -147,10 +152,134 @@ export const Route = createFileRoute("/api/public/mission-request")({
           return json({ ok: false, error: "store_failed" }, 500);
         }
 
-        // Email notification to info@dronair.ca is not wired yet: this project has
-        // no verified sender domain, so nothing is simulated here. The request is
-        // stored and the client reports delivery honestly.
-        return json({ ok: true, id: inserted.id, emailSent: false });
+        // Spam-classified rows are stored only: no email, no AI processing.
+        if (suspicious) {
+          return json({ ok: true, id: inserted.id, emailSent: false });
+        }
+
+        type EventRow = {
+          mission_request_id: string;
+          event_type: EmailEventType;
+          recipient: string;
+          provider: string;
+          status: string;
+          provider_message_id?: string;
+          error_code?: string;
+          error_summary?: string;
+        };
+        const events: EventRow[] = [];
+
+        // 1. Assisted triage (never blocks storage; failure means human review).
+        const triage = await triageMissionRequest({
+          name: data.name,
+          company: data.company || null,
+          preferredLanguage: data.preferredLanguage,
+          location: data.location,
+          service: data.service,
+          area: data.area || null,
+          desiredDate: data.date || null,
+          description: data.message,
+        });
+
+        // 2. Time-limited signed link so the attachment is never emailed as a file.
+        let attachmentLink: string | null = null;
+        if (attachmentPath) {
+          const { data: signed } = await supabaseAdmin.storage
+            .from(BUCKET)
+            .createSignedUrl(attachmentPath, ATTACHMENT_LINK_TTL_SECONDS);
+          attachmentLink = signed?.signedUrl ?? null;
+        }
+
+        const emailData: MissionEmailData = {
+          id: inserted.id,
+          createdAt: new Date().toISOString(),
+          name: data.name,
+          company: data.company || null,
+          email: data.email.toLowerCase(),
+          telephone: data.phone,
+          preferredLanguage: data.preferredLanguage,
+          location: data.location,
+          service: data.service,
+          area: data.area || null,
+          desiredDate: data.date || null,
+          description: data.message,
+          hasAttachment: Boolean(attachmentPath),
+          attachmentLink,
+          status: "new",
+          sourcePage: data.sourcePage,
+          leadPriority: triage.leadPriority,
+          leadType: triage.leadType,
+          aiSummary: triage.summary || null,
+          aiQuestions: triage.followUpQuestions,
+        };
+
+        // 3. Internal notification to DRONE AIR.
+        const internal = internalNotification(emailData);
+        const internalResult = await sendMissionEmail({
+          to: COMPANY.email,
+          subject: internal.subject,
+          html: internal.html,
+          text: internal.text,
+          idempotencyKey: `mission-internal-${inserted.id}`,
+          label: "internal_notification",
+        });
+        events.push({
+          mission_request_id: inserted.id,
+          event_type: "internal_notification",
+          recipient: COMPANY.email,
+          provider: "lovable",
+          status: internalResult.status,
+          ...(internalResult.providerMessageId ? { provider_message_id: internalResult.providerMessageId } : {}),
+          ...(internalResult.errorCode ? { error_code: internalResult.errorCode } : {}),
+          ...(internalResult.errorSummary ? { error_summary: internalResult.errorSummary } : {}),
+        });
+
+        // 4. Customer acknowledgment in the requester's language.
+        const ack = customerAcknowledgment(emailData, triage.customerParagraph);
+        const ackResult = await sendMissionEmail({
+          to: emailData.email,
+          subject: ack.subject,
+          html: ack.html,
+          text: ack.text,
+          idempotencyKey: `mission-ack-${inserted.id}`,
+          label: "customer_acknowledgment",
+        });
+        events.push({
+          mission_request_id: inserted.id,
+          event_type: "customer_acknowledgment",
+          recipient: emailData.email,
+          provider: "lovable",
+          status: ackResult.status,
+          ...(ackResult.providerMessageId ? { provider_message_id: ackResult.providerMessageId } : {}),
+          ...(ackResult.errorCode ? { error_code: ackResult.errorCode } : {}),
+          ...(ackResult.errorSummary ? { error_summary: ackResult.errorSummary } : {}),
+        });
+
+        await supabaseAdmin.from("mission_email_events").insert(events);
+        await supabaseAdmin
+          .from("mission_requests")
+          .update({
+            lead_priority: triage.leadPriority,
+            lead_type: triage.leadType,
+            ai_summary: triage.summary || null,
+            ai_follow_up_questions: triage.followUpQuestions,
+            ai_response_status: triage.ok ? "sent" : "human_review",
+            ai_draft_reply: triage.customerParagraph,
+            ai_draft_created_at: triage.ok ? new Date().toISOString() : null,
+            human_review_required: true,
+            email_notification_status: internalResult.status,
+            customer_ack_status: ackResult.status,
+            email_attempts: 1,
+          })
+          .eq("id", inserted.id);
+
+        // Storage already succeeded: a delivery failure must not lose the lead.
+        return json({
+          ok: true,
+          id: inserted.id,
+          emailSent: internalResult.status === "sent",
+          acknowledgmentSent: ackResult.status === "sent",
+        });
       },
     },
   },
