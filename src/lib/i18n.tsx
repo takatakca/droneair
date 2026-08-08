@@ -181,7 +181,7 @@ export const copy = {
         "DRONE AIR recueille uniquement les renseignements que vous fournissez dans le formulaire de demande de mission : nom, entreprise, courriel, téléphone, emplacement du projet et description du projet.",
         "Ces renseignements servent exclusivement à évaluer votre demande, à planifier la mission et à communiquer avec vous. Ils ne sont ni vendus, ni loués, ni échangés.",
         "Les images et données captées lors d’une mission demeurent liées au mandat convenu avec le client.",
-        "Pour toute question ou pour demander la suppression de vos renseignements, écrivez à info@dronair.ca ou téléphonez au (514) 448-2825.",
+        "Pour toute question ou pour demander la suppression de vos renseignements, écrivez à info@drone-air.ca ou téléphonez au (514) 448-2825.",
       ],
     },
     terms: {
@@ -368,7 +368,7 @@ export const copy = {
         "DRONE AIR collects only the information you provide in the mission request form: name, company, email, telephone, project location, and project description.",
         "This information is used solely to evaluate your request, plan the mission, and contact you. It is never sold, rented, or traded.",
         "Images and data captured during a mission remain tied to the mandate agreed with the client.",
-        "For any question, or to request deletion of your information, write to info@dronair.ca or call (514) 448-2825.",
+        "For any question, or to request deletion of your information, write to info@drone-air.ca or call (514) 448-2825.",
       ],
     },
     terms: {
