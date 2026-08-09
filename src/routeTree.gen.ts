@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
@@ -18,11 +19,16 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SolutionsRouteImport } from './routes/solutions'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as AuthenticatedClientRouteImport } from './routes/_authenticated/client'
 import { Route as ApiPublicMissionRequestRouteImport } from './routes/api/public/mission-request'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -65,6 +71,11 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedClientRoute = AuthenticatedClientRouteImport.update({
+  id: '/client',
+  path: '/client',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiPublicMissionRequestRoute = ApiPublicMissionRequestRouteImport.update({
   id: '/api/public/mission-request',
   path: '/api/public/mission-request',
@@ -81,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/solutions': typeof SolutionsRoute
   '/terms': typeof TermsRoute
+  '/client': typeof AuthenticatedClientRoute
   '/api/public/mission-request': typeof ApiPublicMissionRequestRoute
 }
 export interface FileRoutesByTo {
@@ -93,11 +105,13 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/solutions': typeof SolutionsRoute
   '/terms': typeof TermsRoute
+  '/client': typeof AuthenticatedClientRoute
   '/api/public/mission-request': typeof ApiPublicMissionRequestRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/contact': typeof ContactRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
@@ -106,6 +120,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/solutions': typeof SolutionsRoute
   '/terms': typeof TermsRoute
+  '/_authenticated/client': typeof AuthenticatedClientRoute
   '/api/public/mission-request': typeof ApiPublicMissionRequestRoute
 }
 export interface FileRouteTypes {
@@ -120,6 +135,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/solutions'
     | '/terms'
+    | '/client'
     | '/api/public/mission-request'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -132,10 +148,12 @@ export interface FileRouteTypes {
     | '/signup'
     | '/solutions'
     | '/terms'
+    | '/client'
     | '/api/public/mission-request'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/contact'
     | '/forgot-password'
     | '/login'
@@ -144,11 +162,13 @@ export interface FileRouteTypes {
     | '/signup'
     | '/solutions'
     | '/terms'
+    | '/_authenticated/client'
     | '/api/public/mission-request'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ContactRoute: typeof ContactRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
@@ -167,6 +187,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -225,6 +252,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/client': {
+      id: '/_authenticated/client'
+      path: '/client'
+      fullPath: '/client'
+      preLoaderRoute: typeof AuthenticatedClientRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/mission-request': {
       id: '/api/public/mission-request'
       path: '/api/public/mission-request'
@@ -235,8 +269,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedClientRoute: typeof AuthenticatedClientRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedClientRoute: AuthenticatedClientRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ContactRoute: ContactRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
