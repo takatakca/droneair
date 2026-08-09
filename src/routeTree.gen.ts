@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SolutionsRouteImport } from './routes/solutions'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ApiPublicMissionRequestRouteImport } from './routes/api/public/mission-request'
@@ -37,6 +38,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SolutionsRoute = SolutionsRouteImport.update({
   id: '/solutions',
   path: '/solutions',
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
+  '/signup': typeof SignupRoute
   '/solutions': typeof SolutionsRoute
   '/terms': typeof TermsRoute
   '/api/public/mission-request': typeof ApiPublicMissionRequestRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
+  '/signup': typeof SignupRoute
   '/solutions': typeof SolutionsRoute
   '/terms': typeof TermsRoute
   '/api/public/mission-request': typeof ApiPublicMissionRequestRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/login': typeof LoginRoute
   '/privacy': typeof PrivacyRoute
+  '/signup': typeof SignupRoute
   '/solutions': typeof SolutionsRoute
   '/terms': typeof TermsRoute
   '/api/public/mission-request': typeof ApiPublicMissionRequestRoute
@@ -88,6 +97,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/login'
     | '/privacy'
+    | '/signup'
     | '/solutions'
     | '/terms'
     | '/api/public/mission-request'
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/login'
     | '/privacy'
+    | '/signup'
     | '/solutions'
     | '/terms'
     | '/api/public/mission-request'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/login'
     | '/privacy'
+    | '/signup'
     | '/solutions'
     | '/terms'
     | '/api/public/mission-request'
@@ -116,6 +128,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   LoginRoute: typeof LoginRoute
   PrivacyRoute: typeof PrivacyRoute
+  SignupRoute: typeof SignupRoute
   SolutionsRoute: typeof SolutionsRoute
   TermsRoute: typeof TermsRoute
   ApiPublicMissionRequestRoute: typeof ApiPublicMissionRequestRoute
@@ -151,6 +164,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/solutions': {
       id: '/solutions'
       path: '/solutions'
@@ -180,6 +200,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   LoginRoute: LoginRoute,
   PrivacyRoute: PrivacyRoute,
+  SignupRoute: SignupRoute,
   SolutionsRoute: SolutionsRoute,
   TermsRoute: TermsRoute,
   ApiPublicMissionRequestRoute: ApiPublicMissionRequestRoute,
