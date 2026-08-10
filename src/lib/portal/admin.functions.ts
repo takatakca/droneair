@@ -5,7 +5,7 @@ import {
   FILE_CATEGORIES,
   MAX_UPLOAD_BYTES,
   PROJECT_STATUSES,
-  isAllowedUploadMime,
+  isAllowedUpload,
 } from "@/lib/portal/constants";
 
 export interface AdminFile {
@@ -307,7 +307,9 @@ export const createUploadTicket = createServerFn({ method: "POST" })
       if (!data?.clientId) throw new Error("Missing client id");
       const displayName = trimmed(data?.displayName, 160) || trimmed(data?.filename, 160);
       if (!displayName) throw new Error("A file name is required");
-      if (!isAllowedUploadMime(data?.mimeType ?? "")) throw new Error("Unsupported file type");
+      if (!isAllowedUpload(data?.filename ?? "", data?.mimeType ?? "")) {
+        throw new Error("Unsupported file type");
+      }
       if (!Number.isFinite(data?.sizeBytes) || data.sizeBytes <= 0 || data.sizeBytes > MAX_UPLOAD_BYTES) {
         throw new Error("File is too large");
       }
