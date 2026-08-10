@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -38,7 +39,7 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   ];
 
   const solid = scrolled || !overlay || open;
-  const accountTo = signedIn ? "/client" : "/login";
+  const accountTo = signedIn ? ("/client" as const) : ("/login" as const);
   const accountLabel = signedIn ? access.signedIn : access.signedOut;
 
   return (
@@ -66,12 +67,12 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
               {l.label}
             </LocalLink>
           ))}
-          <a
-            href={accountTo}
+          <Link
+            to={accountTo}
             className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
           >
             {accountLabel}
-          </a>
+          </Link>
           <LanguageToggle />
           <LocalLink
             to="/contact"
@@ -112,13 +113,13 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
             >
               {t.cta.primary}
             </LocalLink>
-            <a
-              href={accountTo}
+            <Link
+              to={accountTo}
               onClick={() => setOpen(false)}
               className="hairline py-5 font-mono text-sm uppercase tracking-[0.22em] text-muted-foreground"
             >
               {accountLabel}
-            </a>
+            </Link>
           </nav>
 
           <div className="hairline mt-10 space-y-4 pt-6">
