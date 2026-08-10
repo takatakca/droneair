@@ -7,6 +7,7 @@ import {
   PROJECT_STATUSES,
   isAllowedUpload,
 } from "@/lib/portal/constants";
+import { trimmed } from "@/lib/portal/validate";
 
 export interface AdminFile {
   id: string;
@@ -58,10 +59,6 @@ export interface AdminClientDetail {
     location: string | null;
   }[];
   files: AdminFile[];
-}
-
-function trimmed(value: unknown, max: number): string {
-  return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
 
 /** Admin overview: every client account plus the newest mission requests. */
