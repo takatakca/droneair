@@ -12,24 +12,53 @@ export const FILE_CATEGORIES = [
 ] as const;
 export type FileCategory = (typeof FILE_CATEGORIES)[number];
 
-export const PROJECT_STATUSES = ["planned", "in_progress", "processing", "delivered", "archived"] as const;
+export const PROJECT_STATUSES = [
+  "planning",
+  "scheduled",
+  "processing",
+  "ready",
+  "completed",
+  "archived",
+] as const;
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 
 export const MAX_UPLOAD_BYTES = 200 * 1024 * 1024;
 
-export const ALLOWED_UPLOAD_MIME = [
-  "application/pdf",
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/tiff",
-  "video/mp4",
-  "application/zip",
-  "text/csv",
+/**
+ * Extension allowlist — the authoritative check. Browsers report inconsistent
+ * MIME types for KML/KMZ/XLSX/MOV, so the extension decides and the MIME is
+ * only rejected when it is an executable/script type.
+ */
+export const ALLOWED_UPLOAD_EXTENSIONS = [
+  "pdf",
+  "jpg",
+  "jpeg",
+  "png",
+  "webp",
+  "tif",
+  "tiff",
+  "csv",
+  "xlsx",
+  "kml",
+  "kmz",
+  "zip",
+  "mp4",
+  "mov",
 ] as const;
 
-export function isAllowedUploadMime(mime: string): boolean {
-  return (ALLOWED_UPLOAD_MIME as readonly string[]).includes(mime);
+const BLOCKED_MIME_PATTERN =
+  /^(application\/(x-msdownload|x-msdos-program|x-executable|x-sh|x-shellscript|java-archive|vnd\.microsoft\.portable-executable)|text\/(html|javascript)|application\/javascript)$/i;
+
+export function fileExtension(name: string): string {
+  const match = /\.([a-z0-9]+)$/i.exec(name.trim());
+  return match ? match[1]!.toLowerCase() : "";
+}
+
+export function isAllowedUpload(filename: string, mime: string): boolean {
+  const ext = fileExtension(filename);
+  if (!(ALLOWED_UPLOAD_EXTENSIONS as readonly string[]).includes(ext)) return false;
+  if (mime && BLOCKED_MIME_PATTERN.test(mime)) return false;
+  return true;
 }
 
 /** Strips path separators and exotic characters from an uploaded filename. */
