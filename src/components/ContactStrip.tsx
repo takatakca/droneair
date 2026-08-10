@@ -1,5 +1,3 @@
-import { Link } from "@tanstack/react-router";
-
 import { LocalLink } from "@/components/LocalLink";
 import { ArrowRight } from "lucide-react";
 
