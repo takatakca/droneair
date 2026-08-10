@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { LocalLink } from "@/components/LocalLink";
 import { ArrowRight } from "lucide-react";
 
 import { COMPANY } from "@/lib/company";
@@ -23,10 +23,10 @@ export function ContactStrip() {
             </span>
           </a>
         </div>
-        <Link to="/contact" className="link-arrow self-start md:self-auto">
+        <LocalLink to="/contact" className="link-arrow self-start md:self-auto">
           {t.strip.plan}
           <ArrowRight className="size-3.5" />
-        </Link>
+        </LocalLink>
       </div>
     </div>
   );

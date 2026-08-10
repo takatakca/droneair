@@ -150,3 +150,70 @@ export const requestFileDownload = createServerFn({ method: "POST" })
     await logFileEvent(file.id, context.userId, isAdmin ? "admin_download" : "download");
     return { url };
   });
+/** A single project the signed-in client belongs to, with its published files only. */
+export const getPortalProject = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { projectId: string }) => {
+    if (!data?.projectId || typeof data.projectId !== "string") throw new Error("Invalid project id");
+    return { projectId: data.projectId };
+  })
+  .handler(
+    async ({
+      data,
+      context,
+    }): Promise<{ project: PortalProject; clientName: string; description: string | null; files: PortalFile[] }> => {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { assertMembership } = await import("@/lib/portal/portal.server");
+
+      const { data: project, error } = await supabaseAdmin
+        .from("client_projects")
+        .select(
+          "id, client_id, title, project_reference, location, service_type, status, description, completed_at, created_at",
+        )
+        .eq("id", data.projectId)
+        .maybeSingle();
+      if (error || !project) throw new Error("Project not found");
+
+      await assertMembership(context.userId, project.client_id);
+
+      const [{ data: client }, { data: files }] = await Promise.all([
+        supabaseAdmin.from("clients").select("name").eq("id", project.client_id).maybeSingle(),
+        supabaseAdmin
+          .from("client_files")
+          .select(
+            "id, display_name, description, category, size_bytes, mime_type, version, published_at, project_id",
+          )
+          .eq("project_id", project.id)
+          .eq("is_visible_to_client", true)
+          .eq("is_archived", false)
+          .eq("upload_verified", true)
+          .order("published_at", { ascending: false, nullsFirst: false }),
+      ]);
+
+      return {
+        project: {
+          id: project.id,
+          title: project.title,
+          reference: project.project_reference,
+          location: project.location,
+          serviceType: project.service_type,
+          status: project.status,
+          completedAt: project.completed_at,
+          createdAt: project.created_at,
+        },
+        clientName: client?.name ?? "",
+        description: project.description,
+        files: (files ?? []).map((f) => ({
+          id: f.id,
+          displayName: f.display_name,
+          description: f.description,
+          category: f.category,
+          sizeBytes: f.size_bytes,
+          mimeType: f.mime_type,
+          version: f.version,
+          publishedAt: f.published_at,
+          projectId: f.project_id,
+        })),
+      };
+    },
+  );

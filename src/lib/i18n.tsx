@@ -1,3 +1,4 @@
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   createContext,
   useCallback,
@@ -561,32 +562,82 @@ type Ctx = { lang: Lang; setLang: (l: Lang) => void; t: (typeof copy)["fr"] };
 
 const LangContext = createContext<Ctx | null>(null);
 
+/** Public marketing paths that exist in both languages (French at the root). */
+export const PUBLIC_PATHS = ["/", "/solutions", "/contact", "/privacy", "/terms"] as const;
+
+/** Removes the /en prefix so a path can be compared or re-localized. */
+export function stripLangPrefix(pathname: string): string {
+  if (pathname === "/en" || pathname === "/en/") return "/";
+  if (pathname.startsWith("/en/")) return pathname.slice(3);
+  return pathname;
+}
+
+function normalize(pathname: string): string {
+  const trimmedPath = pathname.replace(/\/+$/, "");
+  return trimmedPath === "" ? "/" : trimmedPath;
+}
+
+export function isPublicPath(pathname: string): boolean {
+  return (PUBLIC_PATHS as readonly string[]).includes(normalize(stripLangPrefix(pathname)));
+}
+
+/** French stays at the root, English lives under /en. */
+export function localizedPath(pathname: string, lang: Lang): string {
+  const base = normalize(stripLangPrefix(pathname));
+  if (lang === "fr") return base;
+  return base === "/" ? "/en" : `/en${base}`;
+}
+
+export function langFromPath(pathname: string): Lang | null {
+  if (pathname === "/en" || pathname.startsWith("/en/")) return "en";
+  return isPublicPath(pathname) ? "fr" : null;
+}
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("fr");
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+  const [storedLang, setStoredLang] = useState<Lang>("fr");
+
+  // Public pages take their language from the URL; portal pages use the stored preference.
+  const routeLang = langFromPath(pathname);
+  const lang = routeLang ?? storedLang;
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored === "fr" || stored === "en") setLangState(stored);
+    if (stored === "fr" || stored === "en") setStoredLang(stored);
   }, []);
 
   useEffect(() => {
     document.documentElement.lang = copy[lang].htmlLang;
   }, [lang]);
 
-  const setLang = useCallback((l: Lang) => {
-    setLangState(l);
-    try {
-      window.localStorage.setItem(STORAGE_KEY, l);
-    } catch {
-      /* storage unavailable */
-    }
-  }, []);
+  const setLang = useCallback(
+    (l: Lang) => {
+      setStoredLang(l);
+      try {
+        window.localStorage.setItem(STORAGE_KEY, l);
+      } catch {
+        /* storage unavailable */
+      }
+      if (isPublicPath(pathname)) {
+        const target = localizedPath(pathname, l);
+        if (target !== normalize(pathname)) void navigate({ to: target as never });
+      }
+    },
+    [navigate, pathname],
+  );
 
   const value = useMemo<Ctx>(
     () => ({ lang, setLang, t: copy[lang] as (typeof copy)["fr"] }),
     [lang, setLang],
   );
   return <LangContext.Provider value={value}>{children}</LangContext.Provider>;
+}
+
+/** Language-aware link target for a French base path. */
+export function useLocalizedPath() {
+  const { lang } = useLang();
+  return useCallback((path: string) => localizedPath(path, lang), [lang]);
 }
 
 export function useLang() {

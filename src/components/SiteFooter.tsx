@@ -1,6 +1,6 @@
-import { Link } from "@tanstack/react-router";
 
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { LocalLink } from "@/components/LocalLink";
 import { COMPANY } from "@/lib/company";
 import { useLang } from "@/lib/i18n";
 
@@ -31,9 +31,9 @@ export function SiteFooter() {
             <ul className="mt-5 space-y-3 text-sm">
               {navLinks.map((l) => (
                 <li key={l.to}>
-                  <Link to={l.to} className="text-muted-foreground transition-colors hover:text-primary">
+                  <LocalLink to={l.to} className="text-muted-foreground transition-colors hover:text-primary">
                     {l.label}
-                  </Link>
+                  </LocalLink>
                 </li>
               ))}
             </ul>

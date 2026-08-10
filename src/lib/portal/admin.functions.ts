@@ -5,8 +5,9 @@ import {
   FILE_CATEGORIES,
   MAX_UPLOAD_BYTES,
   PROJECT_STATUSES,
-  isAllowedUploadMime,
+  isAllowedUpload,
 } from "@/lib/portal/constants";
+import { trimmed } from "@/lib/portal/validate";
 
 export interface AdminFile {
   id: string;
@@ -58,10 +59,6 @@ export interface AdminClientDetail {
     location: string | null;
   }[];
   files: AdminFile[];
-}
-
-function trimmed(value: unknown, max: number): string {
-  return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
 
 /** Admin overview: every client account plus the newest mission requests. */
@@ -303,11 +300,14 @@ export const createUploadTicket = createServerFn({ method: "POST" })
       filename: string;
       mimeType: string;
       sizeBytes: number;
+      version?: number;
     }) => {
       if (!data?.clientId) throw new Error("Missing client id");
       const displayName = trimmed(data?.displayName, 160) || trimmed(data?.filename, 160);
       if (!displayName) throw new Error("A file name is required");
-      if (!isAllowedUploadMime(data?.mimeType ?? "")) throw new Error("Unsupported file type");
+      if (!isAllowedUpload(data?.filename ?? "", data?.mimeType ?? "")) {
+        throw new Error("Unsupported file type");
+      }
       if (!Number.isFinite(data?.sizeBytes) || data.sizeBytes <= 0 || data.sizeBytes > MAX_UPLOAD_BYTES) {
         throw new Error("File is too large");
       }
@@ -323,6 +323,10 @@ export const createUploadTicket = createServerFn({ method: "POST" })
         filename: trimmed(data?.filename, 200) || displayName,
         mimeType: data.mimeType,
         sizeBytes: Math.round(data.sizeBytes),
+        version:
+          Number.isFinite(data?.version) && (data.version as number) > 0
+            ? Math.min(Math.round(data.version as number), 999)
+            : 1,
       };
     },
   )
@@ -350,6 +354,7 @@ export const createUploadTicket = createServerFn({ method: "POST" })
         mime_type: data.mimeType,
         size_bytes: data.sizeBytes,
         storage_path: path,
+        version: data.version,
         uploaded_by: context.userId,
         upload_verified: false,
         is_visible_to_client: false,
@@ -369,9 +374,9 @@ export const createUploadTicket = createServerFn({ method: "POST" })
 /** Step 2: confirm the object landed in storage before it becomes usable. */
 export const confirmUpload = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { fileId: string }) => {
+  .inputValidator((data: { fileId: string; replacesFileId?: string | null }) => {
     if (!data?.fileId) throw new Error("Missing file id");
-    return { fileId: data.fileId };
+    return { fileId: data.fileId, replacesFileId: data.replacesFileId ?? null };
   })
   .handler(async ({ data, context }): Promise<{ ok: true }> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -399,6 +404,14 @@ export const confirmUpload = createServerFn({ method: "POST" })
       .update({ upload_verified: true, size_bytes: found.metadata?.["size"] ?? null })
       .eq("id", file.id);
     await logFileEvent(file.id, context.userId, "upload");
+
+    if (data.replacesFileId && data.replacesFileId !== file.id) {
+      await supabaseAdmin
+        .from("client_files")
+        .update({ is_archived: true, is_visible_to_client: false, published_at: null })
+        .eq("id", data.replacesFileId);
+      await logFileEvent(data.replacesFileId, context.userId, "replace");
+    }
     return { ok: true };
   });
 
