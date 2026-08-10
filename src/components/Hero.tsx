@@ -1,4 +1,6 @@
 import { Link } from "@tanstack/react-router";
+
+import { LocalLink } from "@/components/LocalLink";
 import { ArrowRight } from "lucide-react";
 
 import heroTerrain from "@/assets/hero-terrain.jpg";
@@ -99,9 +101,9 @@ export function Hero() {
             {t.hero.lead}
           </p>
           <div className="mt-11 flex flex-wrap items-center gap-x-10 gap-y-5">
-            <Link to="/contact" className="btn-solid">
+            <LocalLink to="/contact" className="btn-solid">
               {t.cta.primary}
-            </Link>
+            </LocalLink>
             <a href="#solutions" className="link-arrow">
               {t.cta.secondary}
               <ArrowRight className="size-3.5" />

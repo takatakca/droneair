@@ -1,4 +1,6 @@
 import { Link } from "@tanstack/react-router";
+
+import { LocalLink } from "@/components/LocalLink";
 import { ArrowRight } from "lucide-react";
 
 import { SiteLayout } from "@/components/SiteLayout";
@@ -41,13 +43,13 @@ export function NotFoundPage() {
           {t.notFound.body}
         </p>
         <div className="mt-12 flex flex-wrap items-center gap-x-10 gap-y-5">
-          <Link to="/" className="btn-solid">
+          <LocalLink to="/" className="btn-solid">
             {t.notFound.home}
-          </Link>
-          <Link to="/contact" className="link-arrow">
+          </LocalLink>
+          <LocalLink to="/contact" className="link-arrow">
             {t.notFound.contact}
             <ArrowRight className="size-3.5" />
-          </Link>
+          </LocalLink>
         </div>
       </section>
     </SiteLayout>
