@@ -1,6 +1,7 @@
 
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { LocalLink } from "@/components/LocalLink";
+import { ManageCookiesLink } from "@/consent/ManageCookiesLink";
 import { COMPANY } from "@/lib/company";
 import { useLang } from "@/lib/i18n";
 
@@ -86,6 +87,7 @@ export function SiteFooter() {
           <p className="mt-8 font-mono text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground">
             © {new Date().getFullYear()} {COMPANY.name}
           </p>
+          <ManageCookiesLink className="mt-3 text-xs text-muted-foreground underline-offset-2 hover:text-primary hover:underline" />
         </div>
       </div>
     </footer>

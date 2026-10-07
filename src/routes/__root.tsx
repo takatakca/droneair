@@ -12,6 +12,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LanguageProvider } from "../lib/i18n";
 import { NotFoundPage } from "../components/NotFoundPage";
+import { CookieBanner } from "@/consent/CookieBanner";
+import { jsonLdScript, websiteJsonLd } from "@/seo/jsonld";
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
@@ -75,6 +77,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap",
       },
     ],
+    scripts: [jsonLdScript(websiteJsonLd())],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -90,6 +93,7 @@ function RootShell({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        <CookieBanner />
         <Scripts />
       </body>
     </html>
