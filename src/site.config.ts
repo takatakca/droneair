@@ -15,27 +15,27 @@ export type PostalAddress = {
   streetAddress: string;
   addressLocality: string;
   addressRegion: string;
-  postalCode?: string;
+  postalCode?: string | undefined;
   addressCountry: string;
 };
 
 export type SiteConfig = {
   name: string;
-  legalName?: string;
+  legalName?: string | undefined;
   url: string;
   lang: "fr-CA";
   locale: "fr_CA";
   defaultTitle: string;
   defaultDescription: string;
-  ogImage?: string;
-  logo?: string;
+  ogImage?: string | undefined;
+  logo?: string | undefined;
   schemaType: SchemaType;
-  email?: string;
-  phone?: string;
-  address?: PostalAddress;
+  email?: string | undefined;
+  phone?: string | undefined;
+  address?: PostalAddress | undefined;
   sameAs: string[];
-  privacyPath?: string;
-  privacyOfficer: { name?: string; email?: string };
+  privacyPath?: string | undefined;
+  privacyOfficer: { name?: string | undefined; email?: string | undefined };
 };
 
 export const SITE: SiteConfig = {
