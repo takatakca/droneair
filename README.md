@@ -22,7 +22,7 @@ GROUPE TAKATAK may provide shared services only through explicit, approved API c
 - TanStack Query
 - Nitro server build
 
-GitHub is the development source of truth. The repository still contains provider-specific Lovable build/email/AI dependencies inherited from the original implementation. Those dependencies must not be confused with the development workflow and should only be replaced when a verified production alternative is ready.
+GitHub is the development source of truth. The application now uses the official TanStack Start/Nitro Vite stack, direct Google Gemini mission triage, and Google Workspace/Gmail API delivery code. Runtime configuration lives in the deployment environment, never in the repository.
 
 ## Public routes
 
@@ -96,11 +96,17 @@ Required Supabase variables:
 - `SUPABASE_PUBLISHABLE_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
-Current provider-specific mission AI/email variables:
+Mission AI variables:
 
-- `LOVABLE_API_KEY`
-- `MISSION_AI_MODEL` (optional override)
-- `EMAIL_SENDER_DOMAIN`
+- `GEMINI_API_KEY`
+- `MISSION_AI_MODEL` (optional; defaults to `gemini-2.5-flash`)
+
+Google Workspace / Gmail variables:
+
+- `GOOGLE_GMAIL_CLIENT_ID`
+- `GOOGLE_GMAIL_CLIENT_SECRET`
+- `GOOGLE_GMAIL_REFRESH_TOKEN`
+- `GMAIL_SENDER_EMAIL` (normally `info@drone-air.ca`)
 
 Because a populated `.env` was historically committed to this public repository, every secret that ever appeared in that file must be rotated before production. Removing the file from the latest commit does not remove it from Git history.
 
