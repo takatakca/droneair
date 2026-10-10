@@ -81,8 +81,10 @@ function AdminFiles() {
     await qc.invalidateQueries({ queryKey: ["admin-file-events", selectedId] });
   }
 
-  async function upload(event: React.FormEvent<HTMLFormElement>, publish: boolean) {
+  async function upload(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const submitter = (event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
+    const publish = submitter?.value === "publish";
     setUploadError(null);
     const form = event.currentTarget;
     const fd = new FormData(form);
@@ -151,7 +153,7 @@ function AdminFiles() {
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{p.files}</p>
       <h1 className="mt-3 text-4xl font-semibold tracking-tight">{p.nav.files}</h1>
 
-      <form className="mt-10 border-y border-border py-7" onSubmit={(e) => upload(e, false)}>
+      <form className="mt-10 border-y border-border py-7" onSubmit={upload}>
         <h2 className="text-lg font-semibold">{p.uploadTitle}</h2>
         <div className="mt-6 grid gap-5 md:grid-cols-2">
           <label className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
@@ -195,18 +197,8 @@ function AdminFiles() {
           {p.allowed}: {ALLOWED_UPLOAD_EXTENSIONS.join(", ").toUpperCase()} · {p.maxSize}: {formatBytes(MAX_UPLOAD_BYTES)}
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-7">
-          <button type="submit" className="link-arrow" disabled={uploadState === "uploading" || uploadState === "processing"}>{p.savePrivate}</button>
-          <button
-            type="button"
-            className="btn-solid"
-            disabled={uploadState === "uploading" || uploadState === "processing"}
-            onClick={(event) => {
-              const form = event.currentTarget.closest("form");
-              if (form) void upload({ preventDefault() {}, currentTarget: form } as unknown as React.FormEvent<HTMLFormElement>, true);
-            }}
-          >
-            {p.publish}
-          </button>
+          <button type="submit" name="intent" value="private" className="link-arrow" disabled={uploadState === "uploading" || uploadState === "processing"}>{p.savePrivate}</button>
+          <button type="submit" name="intent" value="publish" className="btn-solid" disabled={uploadState === "uploading" || uploadState === "processing"}>{p.publish}</button>
           {uploadState !== "idle" ? <span role="status" className="text-sm text-muted-foreground">{p.uploadStates[uploadState]}</span> : null}
         </div>
         {uploadError ? <p role="alert" className="mt-4 text-sm text-destructive">{uploadError}</p> : null}
