@@ -336,6 +336,16 @@ export const createUploadTicket = createServerFn({ method: "POST" })
     const { DELIVERABLES_BUCKET } = await import("@/lib/portal/constants");
     await assertAdmin(context.userId);
 
+    if (data.projectId) {
+      const { data: project, error: projectError } = await supabaseAdmin
+        .from("client_projects")
+        .select("id")
+        .eq("id", data.projectId)
+        .eq("client_id", data.clientId)
+        .maybeSingle();
+      if (projectError || !project) throw new Error("Project does not belong to the selected client");
+    }
+
     const path = buildStoragePath({
       clientId: data.clientId,
       projectId: data.projectId,
