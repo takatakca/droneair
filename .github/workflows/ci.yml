@@ -30,6 +30,19 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Verify Lovable runtime is fully removed
+        shell: bash
+        run: |
+          if grep -R -n -E '@lovable\.dev|ai\.gateway\.lovable\.dev|__lovable|LOVABLE_API_KEY' \
+            src package.json bun.lock vite.config.ts bunfig.toml 2>/dev/null; then
+            echo "Obsolete Lovable runtime dependency/reference detected."
+            exit 1
+          fi
+          if git ls-files --error-unmatch .env >/dev/null 2>&1; then
+            echo ".env must not be tracked."
+            exit 1
+          fi
+
       # Build first so TanStack's file-route generator refreshes routeTree.gen.ts
       # before the standalone TypeScript pass sees new routes.
       - name: Production build
