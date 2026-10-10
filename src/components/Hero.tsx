@@ -20,8 +20,6 @@ export function Hero() {
     { label: t.hero.hud.waypoints, value: "05 / 12" },
     { label: t.hero.hud.altitude, value: "123.4 m" },
     { label: t.hero.hud.area, value: "18.6 ha" },
-    { label: t.hero.hud.duration, value: "24 min" },
-    { label: t.hero.hud.status, value: t.hero.hud.statusValue },
   ];
 
   return (
@@ -48,7 +46,7 @@ export function Hero() {
         aria-hidden
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
-        className="absolute inset-0 -z-10 size-full"
+        className="absolute inset-0 -z-10 size-full opacity-55"
       >
         <path
           d={path}
@@ -81,16 +79,6 @@ export function Hero() {
         />
       ))}
 
-      {/* land scanning sweep */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-48 animate-scan"
-        style={{
-          background:
-            "linear-gradient(to bottom, transparent, oklch(0.7 0.2 252 / 0.14), transparent)",
-        }}
-      />
-
       <div className="mx-auto w-full max-w-[92rem] px-5 pb-10 pt-32 sm:px-8">
         <div className="animate-fade-up max-w-4xl">
           <p className="label-tech text-silver">{t.hero.eyebrow}</p>
@@ -110,15 +98,15 @@ export function Hero() {
         </div>
 
         {/* mission telemetry, integrated as a hairline data row */}
-        <dl className="hairline mt-14 grid grid-cols-2 gap-x-8 gap-y-6 pt-6 sm:grid-cols-3 lg:grid-cols-5">
+        <dl className="mt-16 grid max-w-3xl grid-cols-3 gap-x-8 border-t border-white/20 pt-5">
           {telemetry.map((item) => (
             <div key={item.label} className="min-w-0">
               <dt className="label-tech truncate">{item.label}</dt>
-              <dd className="text-silver mt-2 font-mono text-lg">{item.value}</dd>
+              <dd className="mt-2 font-mono text-sm text-white/85 sm:text-base">{item.value}</dd>
             </div>
           ))}
         </dl>
-        <p className="mt-5 font-mono text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">
+        <p className="mt-5 text-[0.65rem] uppercase tracking-[0.12em] text-white/45">
           {t.hero.example}
         </p>
       </div>
