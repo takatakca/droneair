@@ -49,6 +49,7 @@ function AdminFiles() {
   const files = useQuery({ queryKey: ["admin-files"], queryFn: () => fetchFiles({}) });
   const workspace = useQuery({ queryKey: ["admin-workspace"], queryFn: () => fetchWorkspace({}) });
   const [clientId, setClientId] = useState("");
+  const [projectId, setProjectId] = useState("");
   const client = useQuery({
     queryKey: ["admin-client", clientId],
     queryFn: () => fetchClient({ data: { clientId } }),
@@ -119,11 +120,17 @@ function AdminFiles() {
       if (error) throw error;
 
       setUploadState("processing");
-      await confirm({ data: { fileId: result.fileId } });
+      await confirm({
+        data: {
+          fileId: result.fileId,
+          replacesFileId: String(fd.get("replacesFileId") || "") || null,
+        },
+      });
       if (publish) await visibility({ data: { fileId: result.fileId, visible: true } });
       setUploadState("verified");
       form.reset();
       setClientId("");
+      setProjectId("");
       await refresh();
     } catch (error) {
       setUploadState("failed");
@@ -158,16 +165,52 @@ function AdminFiles() {
         <div className="mt-6 grid gap-5 md:grid-cols-2">
           <label className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
             {p.client}
-            <select required value={clientId} onChange={(e) => setClientId(e.target.value)} className="mt-2 w-full border border-border bg-background px-3 py-3 text-foreground">
+            <select
+              required
+              value={clientId}
+              onChange={(e) => {
+                setClientId(e.target.value);
+                setProjectId("");
+              }}
+              className="mt-2 w-full border border-border bg-background px-3 py-3 text-foreground"
+            >
               <option value="">{p.client}</option>
               {(workspace.data?.clients ?? []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </label>
           <label className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
             {p.project}
-            <select name="projectId" disabled={!clientId} className="mt-2 w-full border border-border bg-background px-3 py-3 text-foreground disabled:opacity-50">
+            <select
+              name="projectId"
+              value={projectId}
+              onChange={(e) => setProjectId(e.target.value)}
+              disabled={!clientId}
+              className="mt-2 w-full border border-border bg-background px-3 py-3 text-foreground disabled:opacity-50"
+            >
               <option value="">{p.all}</option>
               {(client.data?.projects ?? []).map((project) => <option key={project.id} value={project.id}>{project.title}</option>)}
+            </select>
+          </label>
+          <label className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
+            {lang === "fr" ? "Remplace un fichier" : "Replaces a file"}
+            <select
+              name="replacesFileId"
+              disabled={!clientId}
+              className="mt-2 w-full border border-border bg-background px-3 py-3 text-foreground disabled:opacity-50"
+            >
+              <option value="">{lang === "fr" ? "Aucun — nouveau livrable" : "None — new deliverable"}</option>
+              {(files.data ?? [])
+                .filter((existing) =>
+                  existing.clientId === clientId &&
+                  !existing.isArchived &&
+                  existing.uploadVerified &&
+                  (projectId ? existing.projectId === projectId : existing.projectId == null)
+                )
+                .map((existing) => (
+                  <option key={existing.id} value={existing.id}>
+                    {existing.displayName} · v{existing.version}
+                  </option>
+                ))}
             </select>
           </label>
           <label className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
