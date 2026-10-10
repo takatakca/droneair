@@ -37,7 +37,7 @@ CI has passed production build, TypeScript and lint after the GitHub-first runti
 - a runtime `@lovable.dev` dependency/reference reappears
 - `LOVABLE_API_KEY` or Lovable AI gateway usage reappears
 - a populated `.env` becomes tracked
-- obsolete DRONE R’AIR / old email/domain / placeholder links reappear in production-facing source/docs
+- obsolete legacy brand variants, old email/domain values, or placeholder links reappear in production-facing source/docs
 
 ### Critical production security blocker
 
