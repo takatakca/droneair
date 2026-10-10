@@ -4,29 +4,13 @@ import { DataSection } from "@/components/DataSection";
 import { Hero } from "@/components/Hero";
 import { SiteLayout } from "@/components/SiteLayout";
 import { ProcessSection, SolutionsSection } from "@/components/SolutionsSection";
-import { OG_IMAGE, absUrl, localBusinessJsonLd } from "@/lib/company";
-
-const title = "DRONE AIR | Inspection, cartographie et données aériennes";
-const description =
-  "DRONE AIR offre des solutions d’inspection aérienne, de planification par points de passage, de cartographie et de collecte de données pour les terrains, propriétés et infrastructures.";
-const url = absUrl("/");
+import { localBusinessJsonLd } from "@/lib/company";
+import { publicHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/")({
-  component: Index,
+  component: HomePage,
   head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: url },
-      { name: "twitter:title", content: title },
-      { name: "twitter:description", content: description },
-      { property: "og:image", content: OG_IMAGE },
-      { name: "twitter:image", content: OG_IMAGE },
-    ],
-    links: [{ rel: "canonical", href: url }],
+    ...publicHead("/", "fr"),
     scripts: [
       {
         type: "application/ld+json",
@@ -36,7 +20,7 @@ export const Route = createFileRoute("/")({
   }),
 });
 
-function Index() {
+export function HomePage() {
   return (
     <SiteLayout overlayHeader>
       <Hero />
