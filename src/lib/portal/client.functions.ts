@@ -184,6 +184,7 @@ export const getPortalProject = createServerFn({ method: "POST" })
             "id, display_name, description, category, size_bytes, mime_type, version, published_at, project_id",
           )
           .eq("project_id", project.id)
+          .eq("client_id", project.client_id)
           .eq("is_visible_to_client", true)
           .eq("is_archived", false)
           .eq("upload_verified", true)

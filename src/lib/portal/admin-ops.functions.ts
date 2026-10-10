@@ -364,6 +364,24 @@ export const updateFileMetadata = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { assertAdmin } = await import("@/lib/portal/portal.server");
     await assertAdmin(context.userId);
+
+    const { data: file, error: fileError } = await supabaseAdmin
+      .from("client_files")
+      .select("client_id")
+      .eq("id", data.fileId)
+      .maybeSingle();
+    if (fileError || !file) throw new Error("File not found");
+
+    if (data.projectId) {
+      const { data: project, error: projectError } = await supabaseAdmin
+        .from("client_projects")
+        .select("id")
+        .eq("id", data.projectId)
+        .eq("client_id", file.client_id)
+        .maybeSingle();
+      if (projectError || !project) throw new Error("Project does not belong to this file's client");
+    }
+
     const { error } = await supabaseAdmin
       .from("client_files")
       .update({

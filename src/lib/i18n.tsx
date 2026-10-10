@@ -47,6 +47,21 @@ export const copy = {
         statusValue: "Terminé",
       },
     },
+    experience: {
+      purposeLabel: "La mission",
+      purposeTitle: "Du terrain à la décision.",
+      purposeBody:
+        "Une trajectoire planifiée, une capture structurée et des livrables clairs pour comprendre un site sans ajouter de complexité.",
+      deliveryLabel: "Livraison privée",
+      deliveryTitle: "Mission terminée. Livrables prêts.",
+      deliveryBody:
+        "Rapports, images et données restent regroupés dans votre espace client DRONE AIR, accessibles seulement aux comptes autorisés.",
+      report: "Rapport d’inspection",
+      imagery: "Captures aériennes",
+      data: "Données de site",
+      clientAccess: "Accéder à l’espace client",
+      closingTitle: "Votre terrain. Notre trajectoire.",
+    },
     solutions: {
       label: "Nos solutions",
       title: "Ce que nous documentons",
@@ -317,6 +332,21 @@ export const copy = {
         status: "Processing",
         statusValue: "Complete",
       },
+    },
+    experience: {
+      purposeLabel: "The mission",
+      purposeTitle: "From site to decision.",
+      purposeBody:
+        "A planned flight path, structured capture and clear deliverables help you understand a site without adding complexity.",
+      deliveryLabel: "Private delivery",
+      deliveryTitle: "Mission complete. Deliverables ready.",
+      deliveryBody:
+        "Reports, imagery and data stay organized in your DRONE AIR client area, accessible only to authorized accounts.",
+      report: "Inspection report",
+      imagery: "Aerial captures",
+      data: "Site data",
+      clientAccess: "Access client files",
+      closingTitle: "Your site. Our flight path.",
     },
     solutions: {
       label: "Our solutions",

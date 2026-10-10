@@ -8,20 +8,17 @@ import { ProcessSection, SolutionsSection } from "@/components/SolutionsSection"
 import { localBusinessJsonLd } from "@/lib/company";
 import { publicHead } from "@/lib/seo";
 
-export const Route = createFileRoute("/")({
-  component: HomePage,
+export const Route = createFileRoute("/en")({
+  component: EnglishHome,
   head: () => ({
-    ...publicHead("/", "fr"),
+    ...publicHead("/", "en"),
     scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify(localBusinessJsonLd("fr")),
-      },
+      { type: "application/ld+json", children: JSON.stringify(localBusinessJsonLd("en")) },
     ],
   }),
 });
 
-export function HomePage() {
+function EnglishHome() {
   return (
     <SiteLayout overlayHeader>
       <Hero />

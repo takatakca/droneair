@@ -2,37 +2,21 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { MissionForm } from "@/components/MissionForm";
 import { SiteLayout } from "@/components/SiteLayout";
-import { COMPANY, OG_IMAGE, absUrl, localBusinessJsonLd } from "@/lib/company";
+import { COMPANY, localBusinessJsonLd } from "@/lib/company";
 import { useLang } from "@/lib/i18n";
-
-const title = "Planifier une mission | DRONE AIR";
-const description =
-  "Planifiez une mission avec DRONE AIR : inspection aérienne, points de passage, cartographie et collecte de données. Lachine, Québec — (514) 448-2825.";
-const url = absUrl("/contact");
+import { publicHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/contact")({
   component: ContactPage,
   head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: url },
-      { name: "twitter:title", content: title },
-      { name: "twitter:description", content: description },
-      { property: "og:image", content: OG_IMAGE },
-      { name: "twitter:image", content: OG_IMAGE },
-    ],
-    links: [{ rel: "canonical", href: url }],
+    ...publicHead("/contact", "fr"),
     scripts: [
       { type: "application/ld+json", children: JSON.stringify(localBusinessJsonLd("fr")) },
     ],
   }),
 });
 
-function ContactPage() {
+export function ContactPage() {
   const { lang, t } = useLang();
 
   return (
@@ -49,7 +33,7 @@ function ContactPage() {
             <div className="hairline mt-12 pt-8">
               <p className="label-tech">{t.contact.details}</p>
               <address className="mt-5 not-italic leading-relaxed text-foreground">
-                <span className="text-silver font-display text-lg font-semibold tracking-[0.14em]">
+                <span className="text-silver font-display text-lg font-semibold tracking-[0.06em]">
                   {COMPANY.name}
                 </span>
                 <br />
@@ -62,13 +46,13 @@ function ContactPage() {
               <div className="mt-6 space-y-4">
                 <a href={COMPANY.phoneHref} className="block">
                   <span className="label-tech block">{t.contact.phoneLabel}</span>
-                  <span className="mt-1 block font-mono text-base text-foreground hover:text-primary">
+                  <span className="mt-1 block text-base text-foreground hover:text-primary">
                     {COMPANY.phoneDisplay}
                   </span>
                 </a>
                 <a href={COMPANY.emailHref} className="block">
                   <span className="label-tech block">{t.contact.emailLabel}</span>
-                  <span className="mt-1 block break-all font-mono text-base text-foreground hover:text-primary">
+                  <span className="mt-1 block break-all text-base text-foreground hover:text-primary">
                     {COMPANY.email}
                   </span>
                 </a>
