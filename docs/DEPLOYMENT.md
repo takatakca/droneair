@@ -30,7 +30,7 @@ bunx tsc --noEmit
 bun run lint
 ```
 
-The application uses TanStack Start with Nitro. The current Vite setup still comes from `@lovable.dev/vite-tanstack-config`, which supplies the Nitro/Vite integration and defaults. Do not switch runtime presets during a production release without testing the target host.
+The application uses TanStack Start with Nitro through the official Vite plugins. The exact Nitro deployment preset must be selected and tested against the real hosting provider before production promotion.
 
 ## Environment
 
@@ -62,11 +62,11 @@ DNS/TLS configuration is provider-specific and must be verified at the actual de
 
 ## Email
 
-The code currently uses a provider-specific email library and server-side API key. A configured key alone is not production verification.
+Transactional email uses the Google Workspace/Gmail API with server-side OAuth refresh credentials. Configure `GOOGLE_GMAIL_CLIENT_ID`, `GOOGLE_GMAIL_CLIENT_SECRET`, `GOOGLE_GMAIL_REFRESH_TOKEN`, and `GMAIL_SENDER_EMAIL` in the deployment secret manager.
 
-Production email is only **PRODUCTION VERIFIED** after a real message is successfully sent from the approved DRONE AIR sender/domain and received.
+Production email is only **PRODUCTION VERIFIED** after a real message is successfully sent as `info@drone-air.ca` and received. Mission intake must remain successful even when notification email is unavailable.
 
-Mission intake must remain successful even when notification email is unavailable.
+Mission AI triage uses the Google Gemini API through `GEMINI_API_KEY` and degrades to human review if the provider is unavailable.
 
 ## Rollback
 
