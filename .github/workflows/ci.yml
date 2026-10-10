@@ -42,6 +42,11 @@ jobs:
             echo ".env must not be tracked."
             exit 1
           fi
+          if grep -R -n -E "DRONE R[’'.]?AIR|info@dronair\.ca|https://dronair\.ca|droneair\.lovable\.app|href=[\"']#[\"']" \
+            src public README.md docs 2>/dev/null; then
+            echo "Obsolete brand/domain or placeholder link detected."
+            exit 1
+          fi
 
       # Build first so TanStack's file-route generator refreshes routeTree.gen.ts
       # before the standalone TypeScript pass sees new routes.
