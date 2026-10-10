@@ -7,10 +7,9 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LanguageProvider, langFromPath } from "../lib/i18n";
 import { NotFoundPage } from "../components/NotFoundPage";
 
@@ -19,9 +18,6 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const english = langFromPath(pathname) === "en";
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
 
   return (
     <div className="grid min-h-screen place-items-center bg-background px-5">
