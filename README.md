@@ -1,299 +1,152 @@
-# Drone Air Branding
+# DRONE AIR
 
-Add this as the **next Lovable prompt** and attach the uploaded logo image with it:
+Production website and secure client-delivery portal for **DRONE AIR**.
 
-```text
-Update the existing DRONE AIR bilingual website using the attached official company logo and the verified company contact information below.
+- Production domain: https://drone-air.ca
+- Contact: info@drone-air.ca
+- Phone: (514) 448-2825
+- Location: 4625 Rue Fairway, Lachine, Québec H8T 1B7, Canada
+- Languages: French (default) and English
 
-OFFICIAL BRAND NAME
+## Product boundaries
 
-The official brand displayed in the logo is:
+DRONE AIR is an independent client application. It owns its mission intake, client projects, deliverables and business operations.
 
-DRONE AIR
+GROUPE TAKATAK may provide shared services only through explicit, approved API contracts. There is currently no verified DRONE AIR contract in `takatakca/takatak-v1`; no master API integration is enabled by this repository. See `docs/TAKATAK_INTEGRATION_STATUS.md`.
 
-Tagline:
+## Stack
 
-PRECISION. WAYPOINT. SOLUTIONS.
+- TanStack Start / React / TypeScript
+- Tailwind CSS
+- Supabase Auth, PostgreSQL and private Storage
+- TanStack Query
+- Nitro server build
 
-Do not rename the company “Drone Air.” Use “DRONE R’AIR” consistently throughout the website.
+GitHub is the development source of truth. The repository still contains provider-specific Lovable build/email/AI dependencies inherited from the original implementation. Those dependencies must not be confused with the development workflow and should only be replaced when a verified production alternative is ready.
 
-For French and English written content, the company name must remain exactly the same:
-
-DRONE R’AIR
-
-OFFICIAL LOGO
-
-Use the attached image as the official DRONE R’AIR logo.
-
-Important logo rules:
-
-- Do not redesign the logo
-- Do not replace the drone
-- Do not change the waypoint symbols
-- Do not change the silver, gold, black, or blue colours
-- Do not change the wording
-- Do not stretch or distort the logo
-- Preserve the original proportions
-- Keep the logo sharp and professional
-- Never place it over a background that makes it difficult to read
-
-The uploaded image currently has a large black background. Create a properly cropped website-ready version while preserving the complete logo, drone, waypoint design, company name, and tagline.
-
-Use the logo in:
-
-- Main desktop header
-- Mobile navigation
-- Homepage hero
-- Website loading screen
-- Contact page
-- Footer
-- Social sharing preview
-- Browser favicon using a simplified logo symbol when appropriate
-
-The header version should be compact enough to remain professional and readable without taking too much vertical space.
-
-OFFICIAL COMPANY INFORMATION
-
-Company:
-
-DRONE R’AIR
-
-Address:
-
-4625 Rue Fairway
-Lachine, Québec
-H8T 1B7
-Canada
-
-Telephone:
-
-(514) 448-2825
-
-Email:
-
-info@dronair.ca
-
-Display the telephone number as a clickable call link:
-
-tel:+15144482825
-
-Display the email as a clickable email link:
-
-mailto:info@dronair.ca
-
-CONTACT INFORMATION PLACEMENT
-
-Display the verified contact information in:
-
-- Contact page
-- Website footer
-- Mobile contact menu
-- Mission request confirmation area
-- Structured business information for SEO
-
-Do not place the complete street address inside the main homepage hero. The hero should remain visually clean and premium.
-
-Add a compact contact strip or floating contact control with:
+## Public routes
 
 French:
-- Appelez-nous
-- Envoyez un courriel
-- Planifier une mission
 
-English:
-- Call Us
-- Send an Email
-- Plan a Mission
-
-CONTACT PAGE — FRENCH
-
-Heading:
-
-Parlez-nous de votre mission
-
-Introduction:
-
-Vous avez un terrain, une propriété, un bâtiment ou une zone à inspecter? Expliquez-nous votre projet. L’équipe de DRONE R’AIR pourra évaluer l’emplacement, les objectifs de la mission et les données dont vous avez besoin.
-
-Company details:
-
-DRONE R’AIR  
-4625 Rue Fairway  
-Lachine, Québec H8T 1B7  
-Canada
-
-Téléphone : (514) 448-2825  
-Courriel : info@dronair.ca
-
-CONTACT PAGE — ENGLISH
-
-Heading:
-
-Tell Us About Your Mission
-
-Introduction:
-
-Do you have land, a property, a building, or a specific area that needs to be inspected? Tell us about your project. The DRONE R’AIR team can evaluate the location, mission objectives, and the type of information you need.
-
-Company details:
-
-DRONE R’AIR  
-4625 Rue Fairway  
-Lachine, Quebec H8T 1B7  
-Canada
-
-Telephone: (514) 448-2825  
-Email: info@dronair.ca
-
-HOMEPAGE BRAND PRESENTATION
-
-Use the official logo prominently but elegantly.
-
-The hero should not simply show a static logo in the middle of an empty black screen.
-
-Create a cinematic background showing:
-
-- A professional drone moving over real terrain
-- Glowing waypoint markers
-- An animated planned flight route
-- Property boundary lines
-- GPS coordinates
-- Altitude and mission data
-- Land scanning animation
-- Data extraction interface
-- Smooth camera movement and depth
-
-Place the official DRONE R’AIR logo within the hero composition without covering the animated terrain or important data.
-
-Suggested French supporting statement:
-
-Des missions aériennes précises. Des données organisées. Des décisions mieux informées.
-
-Suggested English supporting statement:
-
-Precise aerial missions. Organized data. Better-informed decisions.
-
-PRIMARY CALL TO ACTION
-
-French:
-
-Planifier une mission
+- `/`
+- `/solutions`
+- `/contact`
+- `/privacy`
+- `/terms`
 
 English:
 
-Plan a Mission
+- `/en`
+- `/en/solutions`
+- `/en/contact`
+- `/en/privacy`
+- `/en/terms`
 
-The button should open the mission request form or navigate directly to the contact page.
+Private/account routes:
 
-SECONDARY CALL TO ACTION
+- `/login`
+- `/signup`
+- `/forgot-password`
+- `/reset-password`
+- `/client`
+- `/client/projects/:projectId`
 
-French:
+Admin routes:
 
-Découvrir nos solutions
+- `/admin`
+- `/admin/clients`
+- `/admin/projects`
+- `/admin/missions`
+- `/admin/files`
 
-English:
+Admin authorization is enforced server-side through `user_roles`. Never grant admin status from client-controlled metadata.
 
-Explore Our Solutions
+## Mission intake
 
-FOOTER
+`POST /api/public/mission-request` validates and stores mission requests in Supabase. It includes attachment validation, duplicate/rate controls, spam classification, AI-assisted triage and email notification attempts.
 
-Create a professional dark footer using the official logo.
+Mission storage is authoritative. An email-provider failure must never discard a successfully validated request.
 
-French footer description:
+## Client file cabinet
 
-DRONE R’AIR utilise la planification par points de passage, l’imagerie aérienne et les technologies de collecte de données pour inspecter, documenter et mieux comprendre les terrains, propriétés et infrastructures.
+Deliverables use the private `client-deliverables` storage bucket.
 
-English footer description:
+Security flow:
 
-DRONE R’AIR uses waypoint planning, aerial imaging, and data-collection technology to inspect, document, and better understand land, properties, and infrastructure.
+1. Admin reserves a generated private storage path.
+2. Browser receives a short-lived signed upload token.
+3. Upload goes directly to private storage.
+4. Server verifies the object exists before marking it usable.
+5. Admin explicitly publishes the file.
+6. Authorized client membership is checked server-side before download.
+7. Client receives a short-lived signed download URL.
+8. File events are logged.
 
-Display:
+No permanent public deliverable URL is used.
 
-DRONE R’AIR  
-4625 Rue Fairway  
-Lachine, Québec H8T 1B7  
-Canada
+## Environment variables
 
-(514) 448-2825  
-info@dronair.ca
+Copy `.env.example` into the deployment environment's secret manager. Never commit a populated `.env`.
 
-LEGAL AND SAFETY NOTICE
+Required Supabase variables:
 
-French:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_URL`
+- `SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
-La disponibilité des services dépend de l’emplacement, des conditions météorologiques, de l’espace aérien, des restrictions applicables et des exigences de sécurité. Chaque demande de mission doit être évaluée avant le vol.
+Current provider-specific mission AI/email variables:
 
-English:
+- `LOVABLE_API_KEY`
+- `MISSION_AI_MODEL` (optional override)
+- `EMAIL_SENDER_DOMAIN`
 
-Service availability depends on location, weather conditions, airspace, applicable restrictions, and safety requirements. Every mission request must be evaluated before flight.
-
-SEO INFORMATION
-
-Use the following business identity in website metadata and structured data:
-
-Business name:
-DRONE R’AIR
-
-Business type:
-Professional drone services and aerial data solutions
-
-Address:
-4625 Rue Fairway, Lachine, Québec H8T 1B7, Canada
-
-Telephone:
-+1 514-448-2825
-
-Email:
-info@dronair.ca
-
-Create separate French and English SEO titles and descriptions.
-
-Suggested French title:
-
-DRONE R’AIR | Inspection, points de passage et données aériennes
-
-Suggested English title:
-
-DRONE R’AIR | Waypoint Missions, Inspections and Aerial Data
-
-Do not create fake opening hours, certifications, licence numbers, customer reviews, service statistics, completed mission totals, or social-media links.
-
-FINAL DESIGN REQUIREMENT
-
-The silver and gold appearance of the official logo should guide the visual identity of the website.
-
-Use:
-
-- Black and graphite backgrounds
-- Metallic silver text details
-- Controlled gold highlights
-- Electric blue waypoint and sensor effects
-- White text for readability
-
-The result must feel premium and technical—not like a jewellery company, gaming website, military website, or generic AI template.
-
-Keep the website compact, bilingual, responsive, visually impressive, and focused on converting visitors into mission requests.
-```
-
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://droneair.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/768b375d-3e2e-4048-a9d5-0c623a59351a).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+Because a populated `.env` was historically committed to this public repository, every secret that ever appeared in that file must be rotated before production. Removing the file from the latest commit does not remove it from Git history.
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Bun is preferred because `bun.lock` is committed.
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+```bash
+bun install --frozen-lockfile
+bun run dev
 ```
+
+Production checks:
+
+```bash
+bun run build
+bunx tsc --noEmit
+bun run lint
+```
+
+The build runs first in CI so TanStack can regenerate its file-route tree before standalone TypeScript checking.
+
+## Database
+
+Supabase migrations live under `supabase/migrations/`. Migrations are additive and must be reviewed before production application.
+
+Important tables include:
+
+- `mission_requests`
+- `mission_email_events`
+- `profiles`
+- `clients`
+- `client_memberships`
+- `user_roles`
+- `client_projects`
+- `client_files`
+- `client_file_events`
+
+Private buckets include mission attachments and client deliverables.
+
+## Deployment
+
+See `docs/DEPLOYMENT.md`.
+
+Do not declare production verified merely because the build passes. Production verification requires the deployment target, production environment variables, database migrations, domain/TLS, real mission intake, private file authorization and email status to be checked against the deployed site.
+
+## Agent coordination
+
+Read `AGENTS.md` and the top of `WORKLOG.md` before making changes. Multiple agents may work in this GitHub organization; preserve branches and do not rewrite published Git history.
