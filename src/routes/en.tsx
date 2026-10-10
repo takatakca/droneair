@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { DataSection } from "@/components/DataSection";
+import { DeliverySection, PurposeSection } from "@/components/ExperienceSections";
 import { Hero } from "@/components/Hero";
 import { SiteLayout } from "@/components/SiteLayout";
 import { ProcessSection, SolutionsSection } from "@/components/SolutionsSection";
@@ -21,9 +22,11 @@ function EnglishHome() {
   return (
     <SiteLayout overlayHeader>
       <Hero />
+      <PurposeSection />
       <SolutionsSection />
       <DataSection />
       <ProcessSection />
+      <DeliverySection />
     </SiteLayout>
   );
 }
