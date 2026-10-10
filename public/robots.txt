@@ -17,5 +17,6 @@ Disallow: /signup
 Disallow: /forgot-password
 Disallow: /reset-password
 Disallow: /client
+Disallow: /admin
 
 Sitemap: https://drone-air.ca/sitemap.xml
