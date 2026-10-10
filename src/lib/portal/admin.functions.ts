@@ -255,7 +255,7 @@ export const createClientProject = createServerFn({ method: "POST" })
       if (title.length < 2) throw new Error("Project title is too short");
       const status = (PROJECT_STATUSES as readonly string[]).includes(data?.status ?? "")
         ? (data.status as string)
-        : "planned";
+        : "planning";
       return {
         clientId: data.clientId,
         title,
@@ -396,7 +396,7 @@ export const confirmUpload = createServerFn({ method: "POST" })
 
     const { data: file } = await supabaseAdmin
       .from("client_files")
-      .select("id, storage_path")
+      .select("id, client_id, project_id, storage_path")
       .eq("id", data.fileId)
       .maybeSingle();
     if (!file) throw new Error("File not found");
@@ -416,11 +416,24 @@ export const confirmUpload = createServerFn({ method: "POST" })
     await logFileEvent(file.id, context.userId, "upload");
 
     if (data.replacesFileId && data.replacesFileId !== file.id) {
+      const { data: replaced, error: replacedError } = await supabaseAdmin
+        .from("client_files")
+        .select("id, client_id, project_id")
+        .eq("id", data.replacesFileId)
+        .maybeSingle();
+      if (replacedError || !replaced) throw new Error("Replacement file not found");
+      if (replaced.client_id !== file.client_id) {
+        throw new Error("Replacement file belongs to a different client");
+      }
+      if ((replaced.project_id ?? null) !== (file.project_id ?? null)) {
+        throw new Error("Replacement file belongs to a different project");
+      }
+
       await supabaseAdmin
         .from("client_files")
         .update({ is_archived: true, is_visible_to_client: false, published_at: null })
-        .eq("id", data.replacesFileId);
-      await logFileEvent(data.replacesFileId, context.userId, "replace");
+        .eq("id", replaced.id);
+      await logFileEvent(replaced.id, context.userId, "replace");
     }
     return { ok: true };
   });
