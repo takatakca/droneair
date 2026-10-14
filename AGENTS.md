@@ -1,25 +1,48 @@
-<!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
-<!-- LOVABLE:END -->
+# DRONE AIR — Agent instructions
 
-## Work log rule (every agent: Claude, Codex, Cursor, people)
+## Source of truth
 
-Cheap to follow: read only what is listed here.
+GitHub repository `takatakca/droneair` is the development source of truth.
 
-1. **Before you start:** read the top of the log (`head -40 WORKLOG.md`) and the titles of open pull requests (`gh pr list`). If a line for the same work is `active` or has an open PR, do not redo it: continue that branch or pick other work.
-2. **Claim it:** add one line at the top of the log with status `active`.
-3. **Before you stop:** update your line with the status (`done`, `PR #n`, `blocked: reason`) and the next step. Commit and push it with your work. Never stop with unlogged work.
-4. One line per piece of work, newest first. Details go in the PR, not the log.
+Do not depend on Lovable project sync, editor state, generated prompts, or Lovable-only runtime services. Preserve published Git history: no force-push, no rewriting shared commits, and no silent replacement of another agent's work.
 
-Line format: `YYYY-MM-DD | agent | branch → PR | status | what | next step`
+## Work log rule
 
-## Brand rule
+1. Before starting, read the top of `WORKLOG.md`, active branches, and open pull requests.
+2. Continue an active implementation when it already owns the same scope; do not duplicate it.
+3. Claim new work with one line near the top of `WORKLOG.md`.
+4. Before stopping, update that line with the real status and next step.
+5. Open a pull request after validated changes; do not silently merge unreviewed work.
 
-Everything visual or written for TAKATAK follows `BRAND.md` (logo, colours, tagline, services). Electric blue on deep navy; never the old gold "TK" logo; green is for status only.
+Line format:
+
+`YYYY-MM-DD | agent | branch → PR | status | what | next step`
+
+## Product boundary
+
+DRONE AIR is an independent client application.
+
+- Company: DRONE AIR
+- Domain: https://drone-air.ca
+- Email: info@drone-air.ca
+- Phone: (514) 448-2825
+
+Do not modify `takatakca/takatak-v1` merely because DRONE AIR belongs to the TAKATAK ecosystem. A TAKATAK integration requires an explicit, versioned, approved contract. Never invent endpoints or permissions.
+
+## Engineering rules
+
+- Preserve working business workflows.
+- Use additive database migrations.
+- Enforce tenant/admin authorization server-side.
+- Never expose service-role keys or OAuth secrets to the browser.
+- Client deliverables stay private and use short-lived signed downloads.
+- Mission storage succeeds independently of optional email/AI providers.
+- French is the default public language; English is indexable under `/en`.
+- Never claim production verification without evidence.
+- No production deployment until release gates in `docs/DEPLOYMENT.md` are satisfied.
+
+## Visual standard
+
+The public site is DRONE AIR, not TAKATAK. Use the approved DRONE AIR identity: black/graphite, restrained metallic silver/gold, waypoint blue, high-quality aerial imagery, editorial aerospace composition. Avoid generic AI/SaaS/WordPress template patterns.
+
+Admin interfaces should be practical and secure. Client delivery should be premium, simple, and private.

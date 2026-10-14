@@ -19,7 +19,7 @@
  */
 
 @theme inline {
-  --font-display: "Chakra Petch", ui-sans-serif, sans-serif;
+  --font-display: "Inter Tight", "Inter", ui-sans-serif, sans-serif;
   --font-body: "Inter", ui-sans-serif, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --color-silver: var(--silver);
@@ -198,7 +198,7 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.025em;
   }
 }
 

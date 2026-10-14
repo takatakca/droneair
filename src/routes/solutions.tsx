@@ -1,37 +1,19 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 
 import { DataSection } from "@/components/DataSection";
+import { LocalLink } from "@/components/LocalLink";
 import { SiteLayout } from "@/components/SiteLayout";
 import { ProcessSection, SolutionsSection } from "@/components/SolutionsSection";
-import { OG_IMAGE, absUrl } from "@/lib/company";
 import { useLang } from "@/lib/i18n";
-
-const title = "Solutions | DRONE AIR — Missions par points de passage et données aériennes";
-const description =
-  "Inspection de bâtiments, cartographie de terrains, suivi de chantier et livrables de données aériennes par DRONE AIR.";
-const url = absUrl("/solutions");
+import { publicHead } from "@/lib/seo";
 
 export const Route = createFileRoute("/solutions")({
   component: SolutionsPage,
-  head: () => ({
-    meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: url },
-      { name: "twitter:title", content: title },
-      { name: "twitter:description", content: description },
-      { property: "og:image", content: OG_IMAGE },
-      { name: "twitter:image", content: OG_IMAGE },
-    ],
-    links: [{ rel: "canonical", href: url }],
-  }),
+  head: () => publicHead("/solutions", "fr"),
 });
 
-function SolutionsPage() {
+export function SolutionsPage() {
   return (
     <SiteLayout>
       <SolutionsIntro />
@@ -51,10 +33,10 @@ function SolutionsIntro() {
       <p className="mt-6 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
         {t.hero.lead}
       </p>
-      <Link to="/contact" className="link-arrow mt-10">
+      <LocalLink to="/contact" className="link-arrow mt-10">
         {t.cta.primary}
         <ArrowRight className="size-3.5" />
-      </Link>
+      </LocalLink>
     </section>
   );
 }

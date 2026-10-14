@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Menu, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { LocalLink } from "@/components/LocalLink";
@@ -17,6 +17,8 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   const signedIn = useSignedIn();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -27,8 +29,43 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
+
+    if (!open) return () => {
+      document.body.style.overflow = "";
+    };
+
+    const menu = mobileMenuRef.current;
+    const selector =
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusables = () => Array.from(menu?.querySelectorAll<HTMLElement>(selector) ?? []);
+
+    requestAnimationFrame(() => focusables()[0]?.focus());
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+        requestAnimationFrame(() => menuButtonRef.current?.focus());
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const items = focusables();
+      if (!items.length) return;
+      const first = items[0]!;
+      const last = items[items.length - 1]!;
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
     return () => {
       document.body.style.overflow = "";
+      document.removeEventListener("keydown", onKeyDown);
     };
   }, [open]);
 
@@ -62,31 +99,33 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
               key={l.to}
               to={l.to}
               activeOptions={{ exact: l.to === "/" }}
-              className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground"
+              className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:text-foreground [&.active]:text-foreground"
             >
               {l.label}
             </LocalLink>
           ))}
           <Link
             to={accountTo}
-            className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+            className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground transition-colors hover:text-foreground"
           >
             {accountLabel}
           </Link>
           <LanguageToggle />
           <LocalLink
             to="/contact"
-            className="border-b border-primary/70 pb-1 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-primary transition-colors hover:border-foreground hover:text-foreground"
+            className="border-b border-primary/70 pb-1 text-xs font-semibold uppercase tracking-[0.12em] text-primary transition-colors hover:border-foreground hover:text-foreground"
           >
             {t.cta.primary}
           </LocalLink>
         </nav>
 
         <button
+          ref={menuButtonRef}
           type="button"
           className="-mr-2 flex size-11 items-center justify-center text-foreground md:hidden"
           aria-label="Menu"
           aria-expanded={open}
+          aria-controls="mobile-navigation"
           onClick={() => setOpen((v) => !v)}
         >
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -94,7 +133,14 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
       </div>
 
       {open && (
-        <div className="fixed inset-x-0 top-16 bottom-0 z-50 flex flex-col justify-between overflow-y-auto bg-background px-5 pb-10 pt-8 md:hidden">
+        <div
+          ref={mobileMenuRef}
+          id="mobile-navigation"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Navigation"
+          className="fixed inset-x-0 top-16 bottom-0 z-50 flex flex-col justify-between overflow-y-auto bg-background px-5 pb-10 pt-8 md:hidden"
+        >
           <nav className="flex flex-col">
             {links.map((l) => (
               <LocalLink
@@ -116,23 +162,23 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
             <Link
               to={accountTo}
               onClick={() => setOpen(false)}
-              className="hairline py-5 font-mono text-sm uppercase tracking-[0.22em] text-muted-foreground"
+              className="hairline py-5 text-sm font-medium uppercase tracking-[0.12em] text-muted-foreground"
             >
               {accountLabel}
             </Link>
           </nav>
 
           <div className="hairline mt-10 space-y-4 pt-6">
-            <a href={COMPANY.phoneHref} className="block font-mono text-base text-foreground">
+            <a href={COMPANY.phoneHref} className="block text-base text-foreground">
               {COMPANY.phoneDisplay}
             </a>
-            <a href={COMPANY.emailHref} className="block break-all font-mono text-base text-foreground">
+            <a href={COMPANY.emailHref} className="block break-all text-base text-foreground">
               {COMPANY.email}
             </a>
             <address className="not-italic text-sm leading-relaxed text-muted-foreground">
               {COMPANY.street}
               <br />
-              {COMPANY.cityFr}
+              {lang === "fr" ? COMPANY.cityFr : COMPANY.cityEn}
               <br />
               {COMPANY.country}
             </address>

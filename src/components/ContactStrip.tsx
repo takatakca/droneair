@@ -1,33 +1,51 @@
-import { LocalLink } from "@/components/LocalLink";
 import { ArrowRight } from "lucide-react";
 
+import svcInspection from "@/assets/svc-inspection.jpg";
+import { LocalLink } from "@/components/LocalLink";
 import { COMPANY } from "@/lib/company";
 import { useLang } from "@/lib/i18n";
 
 export function ContactStrip() {
   const { t } = useLang();
+
   return (
-    <div className="hairline">
-      <div className="mx-auto flex max-w-[92rem] flex-col gap-5 px-5 py-8 sm:px-8 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-12">
-          <a href={COMPANY.phoneHref} className="group min-w-0">
-            <span className="label-tech block">{t.strip.call}</span>
-            <span className="mt-1 block font-mono text-base text-foreground transition-colors group-hover:text-primary">
-              {COMPANY.phoneDisplay}
-            </span>
+    <section className="relative isolate overflow-hidden border-t border-border">
+      <img
+        src={svcInspection}
+        alt=""
+        width={1280}
+        height={960}
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 -z-20 size-full object-cover object-center opacity-30"
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,oklch(0.11_0.004_264/.98),oklch(0.11_0.004_264/.82)_55%,oklch(0.11_0.004_264/.55))]"
+      />
+      <div className="mx-auto flex min-h-[58svh] max-w-[92rem] flex-col justify-between px-5 py-16 sm:px-8 sm:py-20">
+        <div className="max-w-5xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/55">
+            {t.strip.plan}
+          </p>
+          <h2 className="mt-6 text-[clamp(3rem,8vw,8rem)] font-display font-semibold leading-[0.88] tracking-[-0.055em] text-white">
+            {t.experience.closingTitle}
+          </h2>
+          <LocalLink to="/contact" className="link-arrow mt-10 text-white">
+            {t.cta.primary}
+            <ArrowRight className="size-4" />
+          </LocalLink>
+        </div>
+
+        <div className="mt-14 grid gap-5 border-t border-white/20 pt-6 text-sm text-white/80 sm:grid-cols-2">
+          <a href={COMPANY.phoneHref} className="hover:text-white">
+            {COMPANY.phoneDisplay}
           </a>
-          <a href={COMPANY.emailHref} className="group min-w-0">
-            <span className="label-tech block">{t.strip.email}</span>
-            <span className="mt-1 block break-all font-mono text-base text-foreground transition-colors group-hover:text-primary">
-              {COMPANY.email}
-            </span>
+          <a href={COMPANY.emailHref} className="break-all hover:text-white sm:text-right">
+            {COMPANY.email}
           </a>
         </div>
-        <LocalLink to="/contact" className="link-arrow self-start md:self-auto">
-          {t.strip.plan}
-          <ArrowRight className="size-3.5" />
-        </LocalLink>
       </div>
-    </div>
+    </section>
   );
 }
