@@ -57,3 +57,7 @@ Authorized project-level permission for DRONE AIR's *existing* Supabase instance
 2. Verify/obtain access to `ngdcmpywualyphgrutir`; inspect existing migrations and bucket policies, then review/apply the unapplied least-privilege SQL and test two-client RLS.
 3. When a real dedicated DRONE AIR hosting service becomes accessible, configure build/runtime secrets, deploy to preview, verify the actual API, and promote to production only after all release gates pass.
 4. Update `WORKLOG.md`, this handoff and issue #2 with exact evidence. Never mark release as successful without a verified external runtime.
+
+## Additional independent task (2026-10-14)
+
+Prepared `scripts/smoke-http.mjs` and a CI container runtime smoke step after creating the five standard handoff documents (documentation commit `1dc8372ab6c939aaa742f93fd0bbaa78514a9ca9`). Inspect the newest `main` CI to see whether HTTP checks pass. These smoke requests use mock CI runtime values, **not** the production project, and must not be cited as a production release.

@@ -80,3 +80,22 @@ jobs:
             --build-arg VITE_SUPABASE_URL=https://example.supabase.co \
             --build-arg VITE_SUPABASE_PUBLISHABLE_KEY=ci-placeholder-not-production \
             -t drone-air:ci .
+
+      - name: Smoke-test running HTTP application (not production)
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --detach --name drone-air-ci-runtime \
+            --publish 127.0.0.1:18080:3000 \
+            --env SUPABASE_URL=https://example.supabase.co \
+            --env SUPABASE_PUBLISHABLE_KEY=ci-placeholder-not-production \
+            --env SUPABASE_SERVICE_ROLE_KEY=ci-placeholder-not-production \
+            drone-air:ci
+          trap 'docker logs --tail 50 drone-air-ci-runtime || true; docker rm --force drone-air-ci-runtime || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:18080/api/health >/dev/null; then
+              break
+            fi
+            sleep 2
+          done
+          node scripts/smoke-http.mjs http://127.0.0.1:18080

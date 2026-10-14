@@ -117,3 +117,13 @@ Record exact release SHA, target server, preview origin and current production o
 - Test admin uploads to a private bucket; verify unauthorized access denied for another client; signed links expire.
 - Verify Coolify rollback release, origin DNS/TLS and configured Google email sender.
 - Activate any auto-deploy hook only after the intended app is linked and secrets are provisioned; a green GitHub Docker build alone is not a live deployment.
+
+## Reusable smoke check
+
+The CI job builds the runtime image with mock **public** build arguments, then starts it using mock runtime values and executes:
+
+```bash
+node scripts/smoke-http.mjs http://127.0.0.1:18080
+```
+
+Once the real DRONE AIR preview is online, run the same **read-only** smoke check against its HTTPS origin. The script demands HTTP 200, matching DRONE AIR health JSON and HTML on both French and English homepages. A passing smoke check does **not** validate real database readiness, auth isolation, email delivery, or the deployed Git SHA.
