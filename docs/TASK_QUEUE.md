@@ -21,7 +21,9 @@ Acceptance: evidence captured from the actual Supabase project, failed cross-ten
 - [ ] Deploy to a non-production preview, verify build/runtime and DNS/TLS before switching the production domain.
 - [ ] Prove live `/api/health`, French/English pages, form persistence, admin/client portal and private file flow.
 - [ ] Verify sender identity with a real delivered test email, or truthfully document notifications as disabled.
-- [ ] Confirm rollback works, then link a gated auto-deployment route from validated `main` to the dedicated service.
+- [x] Commit a disabled-by-default GitHub Actions workflow that can request deployment **only** after successful `main` CI.
+- [ ] Provision a dedicated DRONE AIR Coolify resource, deployment URL/token as encrypted GitHub secrets and enable `DRONE_AIR_PRODUCTION_DEPLOY_ENABLED=true` **only after release gates**.
+- [ ] Confirm the actual deployment SHA, health and rollback after turning on the gated workflow.
 
 Acceptance: public production URL serves the expected commit SHA and critical flows succeed in production-like tests.
 

@@ -1,0 +1,67 @@
+name: Drone Air gated Coolify deployment
+
+# This deployment request is intentionally DISABLED by default.
+# Only an explicitly enabled repo variable + a green CI run on current main
+# can invoke the dedicated DRONE AIR deploy webhook.
+on:
+  workflow_run:
+    workflows: ["Drone Air CI"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: drone-air-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      vars.DRONE_AIR_PRODUCTION_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: production
+
+    steps:
+      - name: Confirm validated commit is still current main
+        id: current
+        shell: bash
+        env:
+          VALIDATED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          HEAD_SHA="$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/main | cut -f1)"
+          if [[ -n "$HEAD_SHA" && "$HEAD_SHA" == "$VALIDATED_SHA" ]]; then
+            echo "deployable=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Validated SHA is no longer main. Skip stale deployment."
+            echo "deployable=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Request deployment of the dedicated DRONE AIR application
+        if: steps.current.outputs.deployable == 'true'
+        shell: bash
+        env:
+          COOLIFY_WEBHOOK: ${{ secrets.DRONE_AIR_COOLIFY_WEBHOOK }}
+          COOLIFY_TOKEN: ${{ secrets.DRONE_AIR_COOLIFY_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$COOLIFY_WEBHOOK" || -z "$COOLIFY_TOKEN" ]]; then
+            echo "DRONE AIR Coolify deployment secrets are not configured."
+            exit 1
+          fi
+          if [[ "$COOLIFY_WEBHOOK" != https://*/api/v1/deploy\?* ]]; then
+            echo "The configured webhook is not an HTTPS Coolify deploy endpoint."
+            exit 1
+          fi
+          # A 2xx response acknowledges a deploy request, not a healthy production release.
+          curl --fail --silent --show-error --max-time 30 \
+            --request GET "$COOLIFY_WEBHOOK" \
+            --header "Authorization: Bearer $COOLIFY_TOKEN"
+          echo
+          echo "Deployment was requested; confirm Coolify deployment completion and live version separately."

@@ -2,6 +2,7 @@
 
 Newest first, one line per piece of work. Rule: `AGENTS.md` › Work log rule.
 Format: `YYYY-MM-DD | agent | branch → PR | status | what | next step`
+- 2026-10-14 | ChatGPT | main | done (CD disabled pending secrets/gates) | Add post-CI deploy webhook with stale-SHA check and explicit opt-in | verify workflow syntax, configure dedicated DRONE AIR provider only after security gates
 - 2026-10-14 | ChatGPT | main | active | Start CI container after build and smoke-test health and bilingual pages | inspect GitHub Actions result, fix any failing container startup
 - 2026-10-14 | ChatGPT | main | done (validation successful, container build pending) | Lock profile email grants, rate-check suspicious missions, conceal duplicate IDs, clean orphan attachments; UUID upload paths; add regression tests | apply migration on authorized Supabase and complete release gates in issue #2
 - 2026-10-14 | ChatGPT | main | done | Added reproducible Nitro container recipe and health endpoint for Coolify, plus container build validation | configure real Coolify app, build-time public values, runtime secrets and DNS only after release gates

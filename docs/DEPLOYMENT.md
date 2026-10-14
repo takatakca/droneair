@@ -127,3 +127,15 @@ node scripts/smoke-http.mjs http://127.0.0.1:18080
 ```
 
 Once the real DRONE AIR preview is online, run the same **read-only** smoke check against its HTTPS origin. The script demands HTTP 200, matching DRONE AIR health JSON and HTML on both French and English homepages. A passing smoke check does **not** validate real database readiness, auth isolation, email delivery, or the deployed Git SHA.
+
+## CI-gated Coolify deployment workflow (disabled until release approval)
+
+`.github/workflows/deploy-coolify.yml` listens for the completion of `Drone Air CI` on `main` and only sends an authenticated **resource** deploy webhook after all of these conditions are true:
+
+1. The upstream event was a `push` from this repository's current `main`, not an untrusted pull request, and CI concluded `success`.
+2. The repository variable `DRONE_AIR_PRODUCTION_DEPLOY_ENABLED` is exactly `true`.
+3. The validated SHA still equals GitHub's current `main` HEAD (stale CI runs are skipped).
+4. A dedicated DRONE AIR Coolify resource exists, and these GitHub Actions secrets are provisioned: `DRONE_AIR_COOLIFY_WEBHOOK` and `DRONE_AIR_COOLIFY_TOKEN` (minimum `deploy` scope). Use a resource webhook for **only** DRONE AIR, not a multi-site tag.
+5. The production GitHub environment and any required approvals have been configured and the real production security release gates already passed.
+
+The workflow is disabled without the explicit variable. A successful webhook HTTP response means that Coolify accepted a request, **not** that the release became healthy or that its intended SHA is live. Check the Coolify deployment logs and real `/api/health` and public pages. If the resource is configured with its own GitHub push-based auto deploy, disable that separate push trigger to prevent unvalidated deployments.
