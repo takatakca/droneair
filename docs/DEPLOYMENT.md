@@ -84,3 +84,36 @@ The repository includes a multi-stage `Dockerfile.coolify` using the documented 
 6. Validate actual database/storage authorization and mission delivery using separate test clients, then verify domain DNS, reverse-proxy TLS, public pages and server logs before switching the production domain.
 
 GitHub CI builds the Dockerfile using explicitly fake public parameters and **does not publish** that image or promote it to production. No real Coolify application, webhook, DNS, runtime secrets, migrations or production smoke test is configured by committing these files.
+
+## Identity migration awaiting authorized Supabase access (2026-10-14)
+
+After verifying the production project's identity and existing migration history, apply the **new, unapplied** migration `supabase/migrations/20261014180000_lock_profile_identity.sql` using the authorized deployment migration workflow. The file was prepared without a live Supabase connection; **it is not evidence that it has run**. The local Supabase CLI was unavailable during preparation.
+
+This migration revokes broad profile UPDATE privileges, grants only name/language updates to authenticated clients, mirrors verified Auth email changes back to `profiles.email`, and prevents cross-user membership existence probing. Review the Auth trigger's implications for the current database version before applying; do not edit an already-applied migration or reset the database.
+
+For read-only SQL post-migration verification in the *actual DRONE AIR project*:
+
+```sql
+select has_column_privilege('authenticated', 'public.profiles', 'email', 'UPDATE')
+  as client_can_modify_profile_email;
+-- Must be false.
+select has_column_privilege('authenticated', 'public.profiles', 'first_name', 'UPDATE')
+  as client_can_modify_name;
+-- Must be true.
+select id, public from storage.buckets
+  where id in ('client-deliverables', 'mission-attachments');
+-- Both buckets must exist and be private.
+```
+
+Additionally: test the Auth email-change trigger, authenticated user membership RPC for self versus other user, and private file operations with two independent client identities. Do not promote if any test fails.
+
+## Validation after an authorized deployment
+
+Record exact release SHA, target server, preview origin and current production origin in `docs/AGENT_HANDOFF.md`.
+
+- `GET https://<preview-host>/api/health`: process liveness only, expected JSON service `drone-air`.
+- Check French `/` and English `/en` and SEO canonical/hreflang on the actual served HTML.
+- Submit a genuine test mission; verify its durable row and email event status in the connected database.
+- Test admin uploads to a private bucket; verify unauthorized access denied for another client; signed links expire.
+- Verify Coolify rollback release, origin DNS/TLS and configured Google email sender.
+- Activate any auto-deploy hook only after the intended app is linked and secrets are provisioned; a green GitHub Docker build alone is not a live deployment.

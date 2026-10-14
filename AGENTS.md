@@ -9,10 +9,10 @@ Do not depend on Lovable project sync, editor state, generated prompts, or Lovab
 ## Work log rule
 
 1. Before starting, read the top of `WORKLOG.md`, active branches, and open pull requests.
-2. Continue an active implementation when it already owns the same scope; do not duplicate it.
+2. Read `docs/AGENT_HANDOFF.md`, `docs/PROJECT_STATUS.md`, `docs/TASK_QUEUE.md`, and `docs/DECISIONS.md` before selecting work. Continue an active implementation when it already owns the same scope; do not duplicate it.
 3. Claim new work with one line near the top of `WORKLOG.md`.
 4. Before stopping, update that line with the real status and next step.
-5. Open a pull request after validated changes; do not silently merge unreviewed work.
+5. Use a pull request for normal changes. Direct updates to `main` are allowed only when the owner explicitly authorizes them; never force-push or bypass branch protection. Verify GitHub Actions after every push.
 
 Line format:
 
