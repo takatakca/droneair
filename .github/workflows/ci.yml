@@ -58,3 +58,6 @@ jobs:
 
       - name: Lint
         run: bun run lint
+
+      - name: Authorization regression tests
+        run: bun test tests

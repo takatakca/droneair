@@ -202,6 +202,12 @@ export const findAccountByEmail = createServerFn({ method: "POST" })
         .eq("email", data.email)
         .maybeSingle();
       if (!profile) return { found: false, userId: null, name: null };
+      const { matchesVerifiedEmailIdentity } = await import("@/lib/portal/identity");
+      const { data: authAccount, error: authError } = await supabaseAdmin.auth.admin.getUserById(profile.id);
+      if (authError) throw new Error("Could not verify account identity");
+      if (!matchesVerifiedEmailIdentity(authAccount?.user, data.email)) {
+        return { found: false, userId: null, name: null };
+      }
       return {
         found: true,
         userId: profile.id,

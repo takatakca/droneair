@@ -225,6 +225,14 @@ export const addClientMember = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!profile) throw new Error("No account exists with that email yet");
 
+    // A profile's email is editable under legacy RLS. Authorize by the
+    // canonical, verified Auth identity before granting client membership.
+    const { matchesVerifiedEmailIdentity } = await import("@/lib/portal/identity");
+    const { data: authAccount, error: authError } = await supabaseAdmin.auth.admin.getUserById(profile.id);
+    if (authError || !matchesVerifiedEmailIdentity(authAccount?.user, data.email)) {
+      throw new Error("The account email must be verified before access can be granted");
+    }
+
     const { error } = await supabaseAdmin
       .from("client_memberships")
       .upsert(
@@ -233,9 +241,10 @@ export const addClientMember = createServerFn({ method: "POST" })
       );
     if (error) throw new Error("Could not link that account");
 
-    await supabaseAdmin
+    const { error: roleError } = await supabaseAdmin
       .from("user_roles")
       .upsert({ user_id: profile.id, role: "client" }, { onConflict: "user_id,role" });
+    if (roleError) throw new Error("Could not assign the client role");
     return { ok: true };
   });
 
@@ -391,7 +400,7 @@ export const confirmUpload = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<{ ok: true }> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { assertAdmin, logFileEvent } = await import("@/lib/portal/portal.server");
-    const { DELIVERABLES_BUCKET } = await import("@/lib/portal/constants");
+    const { DELIVERABLES_BUCKET, MAX_UPLOAD_BYTES } = await import("@/lib/portal/constants");
     await assertAdmin(context.userId);
 
     const { data: file } = await supabaseAdmin
@@ -409,10 +418,17 @@ export const confirmUpload = createServerFn({ method: "POST" })
     const found = (listed ?? []).find((o) => o.name === name);
     if (!found) throw new Error("The upload did not complete");
 
-    await supabaseAdmin
+    // Verify the actual stored object's size, not just the size declared
+    // when the upload ticket was requested.
+    const actualSize = Number(found.metadata?.["size"]);
+    if (!Number.isSafeInteger(actualSize) || actualSize <= 0 || actualSize > MAX_UPLOAD_BYTES) {
+      throw new Error("Uploaded file size is invalid or exceeds the allowed limit");
+    }
+    const { error: verifyError } = await supabaseAdmin
       .from("client_files")
-      .update({ upload_verified: true, size_bytes: found.metadata?.["size"] ?? null })
+      .update({ upload_verified: true, size_bytes: actualSize })
       .eq("id", file.id);
+    if (verifyError) throw new Error("Could not verify the uploaded file");
     await logFileEvent(file.id, context.userId, "upload");
 
     if (data.replacesFileId && data.replacesFileId !== file.id) {
@@ -449,15 +465,18 @@ export const setFileVisibility = createServerFn({ method: "POST" })
     const { assertAdmin, logFileEvent } = await import("@/lib/portal/portal.server");
     await assertAdmin(context.userId);
 
-    const { error } = await supabaseAdmin
+    const { data: updated, error } = await supabaseAdmin
       .from("client_files")
       .update({
         is_visible_to_client: data.visible,
         published_at: data.visible ? new Date().toISOString() : null,
       })
       .eq("id", data.fileId)
-      .eq("upload_verified", true);
-    if (error) throw new Error("Could not update the file");
+      .eq("upload_verified", true)
+      .eq("is_archived", false)
+      .select("id")
+      .maybeSingle();
+    if (error || !updated) throw new Error("Only verified, active files can change visibility");
     await logFileEvent(data.fileId, context.userId, data.visible ? "publish" : "unpublish");
     return { ok: true };
   });
