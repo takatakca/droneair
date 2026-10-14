@@ -125,7 +125,10 @@ Production checks:
 bun run build
 bunx tsc --noEmit
 bun run lint
+bun test tests
 ```
+
+For self-hosted production, use `bun run start` after building. The repository also includes `Dockerfile.coolify` for a reproducible Coolify deployment. The GitHub CI builds the container with placeholder public values but never publishes that CI image.
 
 The build runs first in CI so TanStack can regenerate its file-route tree before standalone TypeScript checking.
 

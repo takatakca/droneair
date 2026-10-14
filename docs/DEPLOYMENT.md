@@ -71,3 +71,16 @@ Mission AI triage uses the Google Gemini API through `GEMINI_API_KEY` and degrad
 ## Rollback
 
 Keep the previous known-good deployment artifact or release available until post-release checks pass. A database migration requiring destructive rollback must not be introduced during a routine web release.
+
+## Contabo / Coolify container deployment (prepared, not yet activated)
+
+The repository includes a multi-stage `Dockerfile.coolify` using the documented TanStack Start / Nitro Node entry point. Use the existing TAKATAK Contabo/Coolify infrastructure once a **DRONE AIR-specific app** and production environment have been verified.
+
+1. Create a separate Coolify application linked to `takatakca/droneair` branch `main`. Build mode: Dockerfile `Dockerfile.coolify`; container port: `3000`.
+2. Configure public **build-time** inputs `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`. These become part of the browser bundle. Use actual project values, not CI placeholders; a production image must never use `example.supabase.co`.
+3. Configure **runtime-only** secrets `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY` and optional Google/Gemini credentials in Coolify's secret manager. Never add them as Docker build arguments.
+4. Wire the GitHub webhook to the DRONE AIR Coolify application so new validated `main` commits can trigger automatic deployments once approved; preserve the previous version for rollback.
+5. Verify `GET /api/health` returns `{"status":"alive","service":"drone-air"}`. This is a liveness check **only**, not proof of database readiness.
+6. Validate actual database/storage authorization and mission delivery using separate test clients, then verify domain DNS, reverse-proxy TLS, public pages and server logs before switching the production domain.
+
+GitHub CI builds the Dockerfile using explicitly fake public parameters and **does not publish** that image or promote it to production. No real Coolify application, webhook, DNS, runtime secrets, migrations or production smoke test is configured by committing these files.
