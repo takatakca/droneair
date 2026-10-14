@@ -1,6 +1,7 @@
 /** Server-only helpers for the client area and the admin file cabinet. */
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { DELIVERABLES_BUCKET, safeFilename } from "@/lib/portal/constants";
+import { DELIVERABLES_BUCKET } from "@/lib/portal/constants";
+export { buildStoragePath } from "@/lib/portal/storage-path";
 
 /** Throws unless the caller holds the admin role. Never trust client input for this. */
 export async function assertAdmin(userId: string): Promise<void> {
@@ -33,16 +34,6 @@ export async function assertMembership(userId: string, clientId: string): Promis
     .maybeSingle();
   if (error) throw new Error("Membership lookup failed");
   if (!data) throw new Error("Forbidden");
-}
-
-export function buildStoragePath(input: {
-  clientId: string;
-  projectId: string | null;
-  filename: string;
-}): string {
-  const folder = input.projectId ?? "general";
-  const stamp = Date.now().toString(36);
-  return `${input.clientId}/${folder}/${stamp}-${safeFilename(input.filename)}`;
 }
 
 /** Short-lived signed URL. Storage stays private; nothing is ever public. */

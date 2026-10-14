@@ -73,31 +73,43 @@ export const Route = createFileRoute("/api/public/mission-request")({
         const ipHash = fingerprint(request);
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        // Silent spam classification: honeypot filled, or submitted implausibly fast.
-        const suspicious = data.honeypot.trim().length > 0 || data.elapsedMs < MIN_FILL_MS;
+        // Never store honeypot submissions, but return a generic success so
+        // spam automation does not learn which field exposed it.
+        if (data.honeypot.trim()) return json({ ok: true, emailSent: false });
+        const suspicious = data.elapsedMs < MIN_FILL_MS;
 
         const since = new Date(Date.now() - RATE_WINDOW_MINUTES * 60_000).toISOString();
+        // Apply throttling even to submissions marked suspicious.
+        // If the database cannot enforce the limit, fail closed.
+        const { count, error: rateError } = await supabaseAdmin
+          .from("mission_requests")
+          .select("id", { count: "exact", head: true })
+          .eq("ip_hash", ipHash)
+          .gte("created_at", since);
+        if (rateError || count === null) {
+          console.error("mission rate limit lookup failed", rateError?.message ?? "missing count");
+          return json({ ok: false, error: "temporarily_unavailable" }, 503);
+        }
+        if (count >= RATE_MAX_PER_WINDOW) {
+          return json({ ok: false, error: "rate_limited" }, 429);
+        }
 
         if (!suspicious) {
-          const { count } = await supabaseAdmin
-            .from("mission_requests")
-            .select("id", { count: "exact", head: true })
-            .eq("ip_hash", ipHash)
-            .gte("created_at", since);
-          if ((count ?? 0) >= RATE_MAX_PER_WINDOW) {
-            return json({ ok: false, error: "rate_limited" }, 429);
-          }
-
-          // Duplicate-submission guard (double click / retry of the same content).
-          const { data: dupes } = await supabaseAdmin
+          // Prevent double submissions without exposing an existing lead ID to
+          // anyone who happens to know a customer's email and message.
+          const { data: dupes, error: duplicateError } = await supabaseAdmin
             .from("mission_requests")
             .select("id")
             .eq("email", data.email.toLowerCase())
             .eq("description", data.message)
             .gte("created_at", since)
             .limit(1);
+          if (duplicateError) {
+            console.error("mission deduplication lookup failed", duplicateError.message);
+            return json({ ok: false, error: "temporarily_unavailable" }, 503);
+          }
           if (dupes && dupes.length > 0) {
-            return json({ ok: true, id: dupes[0]!.id, duplicate: true, emailSent: false });
+            return json({ ok: true, duplicate: true, emailSent: false });
           }
         }
 
@@ -147,8 +159,15 @@ export const Route = createFileRoute("/api/public/mission-request")({
           .select("id")
           .single();
 
-        if (error) {
-          console.error("mission request insert failed", error.message);
+        if (error || !inserted) {
+          console.error("mission request insert failed", error?.message ?? "missing row");
+          // Do not leave unreferenced private attachments after a failed insert.
+          if (attachmentPath) {
+            const { error: cleanupError } = await supabaseAdmin.storage
+              .from(BUCKET)
+              .remove([attachmentPath]);
+            if (cleanupError) console.error("mission attachment cleanup failed", cleanupError.message);
+          }
           return json({ ok: false, error: "store_failed" }, 500);
         }
 
