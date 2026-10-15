@@ -1,6 +1,6 @@
 # DRONE AIR — Project status
 
-Updated: 2026-10-14 (GitHub evidence, not a live release verification)  
+Updated: 2026-10-15 (GitHub evidence, not a live release verification)  
 Repository: https://github.com/takatakca/droneair  
 Publication branch: `main`  
 Last implementation SHA at this checkpoint: `aea07c1dd0d9ea970162c30a79d3699422e25498`  
@@ -15,7 +15,7 @@ Tracked release blockers: https://github.com/takatakca/droneair/issues/2
 - Supabase migration scripts for tenant/data roles and new restricted profile identity updates.
 - Mission request duplicate/rate checks; honeypot spam responses avoid unnecessary data storage.
 - GitHub Actions CI: production build, type checking, lint, security regression tests and Docker image build.
-- Self-hosted Nitro/Node `Dockerfile.coolify` and liveness endpoint.
+- Self-hosted Nitro/Bun `Dockerfile.coolify` and liveness endpoint. Node runtime previously caused a CI smoke-test failure; Bun runtime correction is under verification.
 
 ## Evidence and boundaries
 

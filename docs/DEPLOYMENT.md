@@ -74,7 +74,7 @@ Keep the previous known-good deployment artifact or release available until post
 
 ## Contabo / Coolify container deployment (prepared, not yet activated)
 
-The repository includes a multi-stage `Dockerfile.coolify` using the documented TanStack Start / Nitro Node entry point. Use the existing TAKATAK Contabo/Coolify infrastructure once a **DRONE AIR-specific app** and production environment have been verified.
+The repository includes a multi-stage `Dockerfile.coolify` running the generated TanStack Start / Nitro **Bun** server. A former Node image failed at startup with `ReferenceError: Bun is not defined` despite a successful build; runtime now matches the build adapter. Use the existing TAKATAK Contabo/Coolify infrastructure once a **DRONE AIR-specific app** and production environment have been verified.
 
 1. Create a separate Coolify application linked to `takatakca/droneair` branch `main`. Build mode: Dockerfile `Dockerfile.coolify`; container port: `3000`.
 2. Configure public **build-time** inputs `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`. These become part of the browser bundle. Use actual project values, not CI placeholders; a production image must never use `example.supabase.co`.

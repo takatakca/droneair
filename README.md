@@ -128,7 +128,7 @@ bun run lint
 bun test tests
 ```
 
-For self-hosted production, use `bun run start` after building. The repository also includes `Dockerfile.coolify` for a reproducible Coolify deployment. The GitHub CI builds the container with placeholder public values but never publishes that CI image.
+For self-hosted production, use `bun run start` after building (requires Bun at runtime; the generated Nitro server currently calls `Bun.serve`). The repository also includes `Dockerfile.coolify` for a reproducible Coolify deployment. The GitHub CI builds the container with placeholder public values but never publishes that CI image.
 
 The build runs first in CI so TanStack can regenerate its file-route tree before standalone TypeScript checking.
 

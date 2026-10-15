@@ -1,6 +1,6 @@
 # DRONE AIR — Agent handoff
 
-Updated: 2026-10-14. Read `AGENTS.md`, this file, `docs/PROJECT_STATUS.md`, `docs/TASK_QUEUE.md` and GitHub issue #2 before coding. Historical implementation detail remains at `docs/TAKATAK_AGENT_HANDOFF.md`.
+Updated: 2026-10-15. Read `AGENTS.md`, this file, `docs/PROJECT_STATUS.md`, `docs/TASK_QUEUE.md` and GitHub issue #2 before coding. Historical implementation detail remains at `docs/TAKATAK_AGENT_HANDOFF.md`.
 
 ## Last completed task
 
@@ -65,3 +65,17 @@ Prepared `scripts/smoke-http.mjs` and a CI container runtime smoke step after cr
 ## Gated continuous delivery wiring
 
 The repository now includes `.github/workflows/deploy-coolify.yml`. It is **inactive until** the owner-controlled repository variable `DRONE_AIR_PRODUCTION_DEPLOY_ENABLED=true` and dedicated Coolify webhook/token secrets are supplied. It will refuse stale SHAs and untrusted PR CI results. No deployment has been executed or verified through this workflow.
+
+
+## 2026-10-15 — Container boot failure diagnosed and corrected
+
+Verified CI failures:
+- Run 38614070184 — validation/build/typecheck/lint/tests passed; container HTTP smoke failed.
+- Run 38614445582 — same outcome; job 116028809351 logs explicitly show `ReferenceError: Bun is not defined` at generated `BunServer.serve`.
+- Post-CI Coolify deploy runs were skipped, not deployments.
+
+Root cause: `vite build` with current Nitro 3 emits an H3 Bun server. `Dockerfile.coolify` previously used Node 22 as runtime and started `.output/server/index.mjs` under Node, which cannot provide global `Bun`.
+
+Fix: switch the final Docker layer to `oven/bun:1`, run as unprivileged `bun` user, start with `bun .output/server/index.mjs`. Align `package.json` start command and deployment docs. Existing GitHub Actions container job exercises HTTP health and French/English pages with fake CI Supabase inputs. Verify the latest run before calling this fixed.
+
+Exact next task: inspect the next GitHub Actions run for this fix. If smoke still fails, fetch failed job logs and repair the actual reason; avoid retrying Node runtime. Once CI fully green, resume real Supabase access/secret rotation and dedicated Coolify app release gates in issue #2. No production rollout is authorized or confirmed.

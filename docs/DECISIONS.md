@@ -21,3 +21,8 @@ The GitHub CI creates a Nitro/Node Coolify-compatible container image with **fak
 ## Pending — DRONE AIR / TAKATAK Auth integration
 
 Do not assume shared auth claims, API namespaces, scopes or tenant resolution. A reviewed versioned contract and least-privilege integration tests are required before any TAKATAK master authority is delegated or enabled.
+
+
+## 2026-10-15 — Match the actual Nitro runtime
+
+GitHub Actions runs 38614070184 and 38614445582 built Docker successfully but failed at HTTP smoke because Nitro's generated `BunServer` was started under Node. Keep the compiled output intact and change the final image to Bun rather than pretending it is a Node application. Both the `start` script and Docker CMD now use Bun. This decision is subject to a passing live container smoke test; do not claim success merely because the Docker image builds.

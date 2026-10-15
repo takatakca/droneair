@@ -34,7 +34,8 @@ Acceptance: public production URL serves the expected commit SHA and critical fl
 - [x] Use UUID-based private file paths.
 - [x] Harden request throttling, deduplication responses and attachment cleanup.
 - [x] Add tests for identity, storage paths and migration policy intent.
-- [x] Add an automated HTTP smoke test for the built container and both public languages (CI validation pending).
+- [x] Add an automated HTTP smoke test for the built container and both public languages.
+- [ ] Confirm container runtime boot and smoke tests PASS using Bun (Node 22 previously failed with Bun undefined).
 - [ ] Review media optimization and cross-tenant end-to-end integration tests in staging.
 - [ ] Run a real security-oriented acceptance test of the pending database migration.
 - [ ] Add any missing production health/observability only after discovering the real deployment platform.

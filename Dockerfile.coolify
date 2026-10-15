@@ -17,12 +17,15 @@ RUN test -n "${VITE_SUPABASE_URL}" && test -n "${VITE_SUPABASE_PUBLISHABLE_KEY}"
     && bun run build \
     && test -f .output/server/index.mjs
 
-FROM node:22-bookworm-slim AS runtime
+# Nitro 3's build currently emits an H3 Bun server (Bun.serve).
+# Node crashes with "ReferenceError: Bun is not defined" on startup.
+# Match the generated server runtime instead of assuming a Node preset.
+FROM oven/bun:1 AS runtime
 WORKDIR /app
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000
 
-COPY --from=build --chown=node:node /app/.output ./.output
+COPY --from=build --chown=bun:bun /app/.output ./.output
 
-USER node
+USER bun
 EXPOSE 3000
-CMD ["node", ".output/server/index.mjs"]
+CMD ["bun", ".output/server/index.mjs"]
