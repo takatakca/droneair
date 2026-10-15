@@ -139,3 +139,10 @@ Once the real DRONE AIR preview is online, run the same **read-only** smoke chec
 5. The production GitHub environment and any required approvals have been configured and the real production security release gates already passed.
 
 The workflow is disabled without the explicit variable. A successful webhook HTTP response means that Coolify accepted a request, **not** that the release became healthy or that its intended SHA is live. Check the Coolify deployment logs and real `/api/health` and public pages. If the resource is configured with its own GitHub push-based auto deploy, disable that separate push trigger to prevent unvalidated deployments.
+
+
+## Deployed Git revision evidence (2026-10-15)
+
+The Dockerfile accepts a **non-secret** build argument `DRONE_AIR_GIT_SHA`, expected to be the exact commit checked out by Coolify. The running `GET /api/health` response now includes `revision`: a 40-character Git SHA when configured, otherwise `null`. Do not treat `null` or a manually mistyped SHA as release evidence.
+
+GitHub CI passes `GITHUB_SHA` as the Docker build argument and checks it with `DRONE_AIR_EXPECTED_SHA` in the HTTP smoke script. For Coolify production, configure this argument from the actual Git checkout SHA of **the dedicated DRONE AIR resource** (not the SHA of a parent build pipeline). Confirm the health response's `revision` equals the commit deployed, and independently inspect the Coolify build record. No release SHA verification is possible on production until that environment exists.

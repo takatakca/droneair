@@ -79,6 +79,7 @@ jobs:
           docker build -f Dockerfile.coolify \
             --build-arg VITE_SUPABASE_URL=https://example.supabase.co \
             --build-arg VITE_SUPABASE_PUBLISHABLE_KEY=ci-placeholder-not-production \
+            --build-arg DRONE_AIR_GIT_SHA="${GITHUB_SHA}" \
             -t drone-air:ci .
 
       - name: Smoke-test running HTTP application (not production)
@@ -98,4 +99,4 @@ jobs:
             fi
             sleep 2
           done
-          node scripts/smoke-http.mjs http://127.0.0.1:18080
+          DRONE_AIR_EXPECTED_SHA="${GITHUB_SHA}" node scripts/smoke-http.mjs http://127.0.0.1:18080

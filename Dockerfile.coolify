@@ -22,6 +22,11 @@ RUN test -n "${VITE_SUPABASE_URL}" && test -n "${VITE_SUPABASE_PUBLISHABLE_KEY}"
 # Match the generated server runtime instead of assuming a Node preset.
 FROM oven/bun:1 AS runtime
 WORKDIR /app
+
+# The revision is public metadata, NOT a secret.
+# A build must supply the exact checked-out Git commit SHA.
+ARG DRONE_AIR_GIT_SHA=unverified
+ENV DRONE_AIR_GIT_SHA=${DRONE_AIR_GIT_SHA}
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000
 
 COPY --from=build --chown=bun:bun /app/.output ./.output

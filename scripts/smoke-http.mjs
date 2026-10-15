@@ -33,6 +33,10 @@ for (const path of ["/api/health", "/", "/en"]) {
     if (body.status !== "alive" || body.service !== "drone-air") {
       throw new Error("Unexpected health endpoint response");
     }
+    const expectedRevision = process.env.DRONE_AIR_EXPECTED_SHA;
+    if (expectedRevision && body.revision !== expectedRevision.toLowerCase()) {
+      throw new Error(`Deployed revision ${body.revision ?? "(unset)"} does not match expected ${expectedRevision}`);
+    }
     if (!response.headers.get("cache-control")?.includes("no-store")) {
       throw new Error("Health endpoint must disable caching");
     }
