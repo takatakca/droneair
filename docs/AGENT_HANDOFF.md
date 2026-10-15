@@ -4,11 +4,11 @@ Updated: 2026-10-15. Read `AGENTS.md`, this file, `docs/PROJECT_STATUS.md`, `doc
 
 ## Last completed task
 
-Applied security and reliability code changes on the existing `main` branch: canonical Auth email protection reinforced with an unapplied SQL migration; role lookup cannot probe arbitrary users; mission form submission rate checks now fail closed, suppress duplicate lead references and cleanup orphan attachments; UUID-based upload paths and regression tests.
+Fixed the real Docker deployment blocker: Nitro's generated Bun server was incorrectly launched with Node. It now runs in a Bun container. Added HTTP runtime smoke checks and a non-secret Git revision marker; verified full CI success on code commit `9d0a035c4c02d9ff0e050614fb1577496f054490` (run 38775210246) and documentation commit `7699abe56d22bf624acc8469d3e4e38facb71e25` (run 38775537222).
 
 ## Currently active task
 
-Finish repository documentation, monitor CI for the latest pushed change, then resume the *first feasible* release gate. Next external dependency is access to the actual Supabase project and a verified application deployment host.
+No local container CI defect remains known. Complete the outstanding **external release gates**: authorized access to the existing DRONE AIR Supabase project, key rotation, real migration/RLS testing, and a dedicated Coolify hosting resource with production domain, runtime secrets, actual sender delivery and rollback verification. These are not claims of completion.
 
 ## Latest pushed implementation
 

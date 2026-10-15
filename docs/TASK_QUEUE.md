@@ -43,3 +43,8 @@ Acceptance: public production URL serves the expected commit SHA and critical fl
 - [ ] Add any missing production health/observability only after discovering the real deployment platform.
 
 The detailed release checklist is https://github.com/takatakca/droneair/issues/2. Never mark P0/P1 complete based only on a passing build.
+
+
+## Next agent pickup — 2026-10-15
+
+GitHub Actions runs 38774629494 (Bun boot and HTTP smoke), 38775210246 (SHA-check smoke), and 38775537222 (documentation) are all successful. No outstanding CI failure is known. Do not prioritize rebuilding this same smoke functionality. Resume the unresolved P0/P1 security/hosting gates. No real Supabase migration, production DNS/TLS or Coolify deploy was verified.

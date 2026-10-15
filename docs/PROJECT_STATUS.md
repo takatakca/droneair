@@ -24,6 +24,7 @@ Tracked release blockers: https://github.com/takatakca/droneair/issues/2
 - Security commit `aea07c1` passed complete CI ([run 38613467950](https://github.com/takatakca/droneair/actions/runs/38613467950)).
 - Docker runtime recovery `ff5edba` passed build and running-container smoke ([run 38774629494](https://github.com/takatakca/droneair/actions/runs/38774629494)).
 - Release SHA observability `9d0a035` passed build, typecheck, lint, tests, Docker image and HTTP smoke/revision ([run 38775210246](https://github.com/takatakca/droneair/actions/runs/38775210246)).
+- Documentation/handoff revision `7699abe` also passed complete GitHub CI ([run 38775537222](https://github.com/takatakca/droneair/actions/runs/38775537222)).
 - The newest SQL migration exists in Git, **not verified as applied** in the intended database.
 - These CI checks do not prove the application is deployed, connected to the right database, or capable of sending transactional emails.
 
