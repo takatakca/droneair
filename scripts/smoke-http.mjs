@@ -51,3 +51,39 @@ for (const path of ["/api/health", "/", "/en"]) {
   }
   console.log(`PASS ${url.pathname}: HTTP 200`);
 }
+
+
+// The public mission handler must reject oversized multipart requests before
+// touching Supabase (this container deliberately has fake Supabase values).
+const oversized = new FormData();
+oversized.set(
+  "attachment",
+  new Blob([new Uint8Array(11 * 1024 * 1024)], { type: "application/pdf" }),
+  "oversized.pdf",
+);
+const oversizedResponse = await fetch(new URL("/api/public/mission-request", base), {
+  method: "POST",
+  body: oversized,
+  signal: AbortSignal.timeout(30000),
+});
+if (oversizedResponse.status !== 413) {
+  const actual = await oversizedResponse.text();
+  throw new Error(`Expected HTTP 413 for oversized form, got ${oversizedResponse.status}: ${actual.slice(0, 160)}`);
+}
+const rejectedBody = await oversizedResponse.json();
+if (rejectedBody.error !== "attachment_size") {
+  throw new Error("Oversized form must return attachment_size");
+}
+console.log("PASS /api/public/mission-request: oversized multipart rejected before database access");
+
+// Non-multipart bodies must fail validation without relying on the database.
+const invalidResponse = await fetch(new URL("/api/public/mission-request", base), {
+  method: "POST",
+  headers: { "content-type": "application/json" },
+  body: "{}",
+  signal: AbortSignal.timeout(15000),
+});
+if (invalidResponse.status !== 400) {
+  throw new Error(`Expected HTTP 400 for JSON submitted to multipart route; got ${invalidResponse.status}`);
+}
+console.log("PASS /api/public/mission-request: unexpected media type rejected");

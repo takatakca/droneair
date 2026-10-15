@@ -105,3 +105,10 @@ The attempted unauthenticated requests to `drone-air.ca` failed DNS resolution i
 ## 2026-10-15 — Mission payload security work
 
 The next independent code task after recovering Bun CI was to stop oversized public mission form requests before `request.formData()` allocates the entire payload. Added `src/lib/mission-body.server.ts` streaming limit and `MAX_MISSION_BODY_BYTES` constant. `src/routes/api/public/mission-request.ts` uses the bounded form parser and checks uploaded file signature bytes for PDF/JPEG/PNG/WebP before Storage upload. Added `tests/mission-intake-security.test.ts` with multipart, oversize streaming, missing/false content-length and magic-byte checks. Change is **not verified against the real database**; check the new GitHub CI first. Next actual production step remains authorized DRONE AIR Supabase project access and dedicated Coolify setup, key rotation and live tenant tests. GitHub issue #2 remains open.
+
+
+## 2026-10-15 — Bounded mission intake validation and next regression check
+
+Commit `d0addc4ad9b5a55ac45c5ccb2d2b8d7166a7b857` introduced a bounded multipart parser, file signature checks and regression tests; CI run 38792228853 exposed a TypeScript DOM BlobPart incompatibility. Corrected in `bc485cfb805ed36c6cc54ab443f4b4603aed44c1` by copying chunks into an exact `ArrayBuffer` before `Response.formData()`. **Full CI run [38792341421](https://github.com/takatakca/droneair/actions/runs/38792341421) succeeded**, including production build, TypeScript, lint, Bun tests, Docker build and HTTP smoke.
+
+The newest code change also extends `scripts/smoke-http.mjs` with live-container negative tests of HTTP 413 for oversized multipart and HTTP 400 for JSON on the public mission endpoint. **Check the newest CI run for this change**. No actual mission was submitted to production, and all real Supabase/Coolify release gates remain open.

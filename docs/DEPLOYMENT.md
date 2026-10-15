@@ -156,3 +156,6 @@ The former Nitro/Node runtime error was fixed with the Bun runtime. GitHub Actio
 ## Mission payload safety checks
 
 The public `POST /api/public/mission-request` path enforces a total request-body limit before multipart parsing (10 MiB allowed attachment plus 512 KiB form overhead), including streamed requests without a trustworthy Content-Length. An oversize request responds HTTP 413; malformed/non-multipart input HTTP 400. The server checks actual PDF/JPEG/PNG/WebP file signature bytes, not just a client-provided MIME type, before uploading to private Storage. These safeguards do not replace infrastructure rate limiting, WAF filtering or real production integration testing.
+
+
+Container CI now also attempts HTTP 413 oversized-multipart and HTTP 400 invalid-content-type checks on `/api/public/mission-request`. These deliberately run with mock Supabase credentials to verify rejection **before** any database access. Full mission intake persistence, messaging and email delivery still require the real authorized deployment.

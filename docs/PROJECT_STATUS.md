@@ -42,3 +42,6 @@ See `docs/TASK_QUEUE.md` and `docs/AGENT_HANDOFF.md` for exact next actions.
 ## 2026-10-15 — Next code checkpoint
 
 Public mission form hardening is committed for GitHub CI validation: total multipart request size enforcement and file byte-signature checks. No database migration or live Supabase service call was made; production release blockers in issue #2 remain.
+
+
+Security code checkpoint `bc485cf` passed full GitHub Actions CI [38792341421](https://github.com/takatakca/droneair/actions/runs/38792341421), including the new bounded-body and file-signature tests. The follow-up container HTTP negative-path smoke test is pending validation.

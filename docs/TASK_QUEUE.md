@@ -53,4 +53,5 @@ GitHub Actions runs 38774629494 (Bun boot and HTTP smoke), 38775210246 (SHA-chec
 ## 2026-10-15 — Public intake hardening
 - [x] Add bounded streaming multipart parsing and reject oversized requests before full parse, even without Content-Length.
 - [x] Check PDF/JPEG/PNG/WebP signatures against declared MIME types before upload.
-- [ ] Confirm new tests and Bun Docker HTTP smoke are green on GitHub Actions.
+- [x] Confirm new tests and Bun Docker HTTP smoke are green on GitHub Actions: run 38792341421 PASS.
+- [ ] Verify the live running CI HTTP handler rejects oversized multipart (413) and non-multipart (400) before database access.
