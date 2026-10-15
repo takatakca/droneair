@@ -46,8 +46,16 @@ export async function readBoundedMissionForm(request: Request): Promise<FormData
   } finally {
     reader.releaseLock();
   }
-  // Web standard multipart parser accepts the original boundary in Content-Type.
-  return new Response(new Blob(chunks), {
+  // Copy into an exact ArrayBuffer: TS DOM BlobPart no longer accepts
+  // Uint8Array<ArrayBufferLike>, and this also avoids relying on Bun casts.
+  const buffer = new ArrayBuffer(size);
+  const output = new Uint8Array(buffer);
+  let offset = 0;
+  for (const chunk of chunks) {
+    output.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new Response(buffer, {
     headers: { "content-type": contentType },
   }).formData();
 }
