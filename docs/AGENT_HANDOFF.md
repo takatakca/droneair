@@ -135,3 +135,8 @@ Admin operations in `src/lib/portal/admin.functions.ts` now check replacement sc
 **Currently active release task:** validate and apply previously staged database migration on authorized existing Supabase project; rotate historically committed credentials; prove two-client RLS and file isolation, genuine mission form persistence and private storage. Then connect a separate DRONE AIR Coolify resource, configure build/runtime secrets and validate the actual deployed SHA, DNS/TLS, transactional email and rollback. GitHub issue #2 tracks gates.
 
 **Exact next action:** check latest `main` SHA and CI after any documentation commit, then obtain authorized project access to `ngdcmpywualyphgrutir` to inspect migrations and RLS without creating a new paid project; if blocked, resume independent source-quality tasks but **never** declare release complete.
+
+
+## 2026-10-15 — Portals now report query failures accurately
+
+`src/lib/portal/client.functions.ts` and `src/lib/portal/admin.functions.ts` now check error results for role/profile/membership, tenant projects/files and admin workspace/member detail reads. When a query fails, these server functions throw an explicit general error rather than rendering empty data. This code change does not imply the live Supabase project is accessible. GitHub CI must be checked for this checkpoint; acceptance testing against live users remains in issue #2.

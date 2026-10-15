@@ -2,6 +2,7 @@
 
 Newest first, one line per piece of work. Rule: `AGENTS.md` › Work log rule.
 Format: `YYYY-MM-DD | agent | branch → PR | status | what | next step`
+- 2026-10-15 | ChatGPT | main | active | Make portal and admin Supabase query failures explicit rather than showing empty data | check CI, document release handoff
 - 2026-10-15 | ChatGPT | main | done (CI PASS run 38793107957) | Validate replacement before upload verification; ensure archived rows updated; cleanup failed upload tickets | stage-test with real Supabase project and separate clients when authorized
 - 2026-10-15 | ChatGPT | main | done (CI PASS run 38792894836) | Proved HTTP 413 for oversized multipart and 400 for non-multipart on running Bun container | real mission persistence still requires Supabase access
 - 2026-10-15 | ChatGPT | main | done (CI PASS run 38792341421) | Bound public mission multipart bodies and check PDF/image byte signatures; fixed strict TS ArrayBuffer error | add live-container HTTP 400/413 checks and verify their CI

@@ -63,3 +63,8 @@ GitHub Actions runs 38774629494 (Bun boot and HTTP smoke), 38775210246 (SHA-chec
 - [x] Clean the tentative file record when creation of a signed upload ticket fails.
 - [x] GitHub CI verification of file lifecycle changes: run 38793107957 PASS.
 - [ ] Complete same-client/project file replacement and cross-tenant isolation tests against authorized real Supabase database.
+
+
+## 2026-10-15 — Error-path honesty
+- [x] Do not mask Supabase client portal and admin overview/detail query failures as empty lists.
+- [ ] Verify updated server functions in GitHub CI and run real service-outage scenarios on authorized staging.

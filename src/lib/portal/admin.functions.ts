@@ -70,8 +70,13 @@ export const getAdminWorkspace = createServerFn({ method: "GET" })
     const { assertAdmin } = await import("@/lib/portal/portal.server");
     await assertAdmin(context.userId);
 
-    const [{ data: clients }, { data: memberships }, { data: projects }, { data: files }, { data: missions }] =
-      await Promise.all([
+    const [
+      { data: clients, error: clientsError },
+      { data: memberships, error: membershipsError },
+      { data: projects, error: projectsError },
+      { data: files, error: filesError },
+      { data: missions, error: missionsError },
+    ] = await Promise.all([
         supabaseAdmin.from("clients").select("id, name, status").order("name"),
         supabaseAdmin.from("client_memberships").select("client_id"),
         supabaseAdmin.from("client_projects").select("client_id"),
@@ -84,6 +89,10 @@ export const getAdminWorkspace = createServerFn({ method: "GET" })
           .order("created_at", { ascending: false })
           .limit(40),
       ]);
+
+    if (clientsError || membershipsError || projectsError || filesError || missionsError) {
+      throw new Error("Could not load the administrator overview.");
+    }
 
     const count = (rows: { client_id: string }[] | null, id: string) =>
       (rows ?? []).filter((r) => r.client_id === id).length;
@@ -129,7 +138,11 @@ export const getAdminClientDetail = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error || !client) throw new Error("Client not found");
 
-    const [{ data: members }, { data: projects }, { data: files }] = await Promise.all([
+    const [
+      { data: members, error: membersError },
+      { data: projects, error: projectsError },
+      { data: files, error: filesError },
+    ] = await Promise.all([
       supabaseAdmin
         .from("client_memberships")
         .select("user_id, membership_role")
@@ -148,10 +161,15 @@ export const getAdminClientDetail = createServerFn({ method: "POST" })
         .order("created_at", { ascending: false }),
     ]);
 
+    if (membersError || projectsError || filesError) {
+      throw new Error("Could not load client details.");
+    }
+
     const memberIds = (members ?? []).map((m) => m.user_id);
-    const { data: profiles } = memberIds.length
+    const { data: profiles, error: profilesError } = memberIds.length
       ? await supabaseAdmin.from("profiles").select("id, email").in("id", memberIds)
-      : { data: [] as { id: string; email: string | null }[] };
+      : { data: [] as { id: string; email: string | null }[], error: null };
+    if (profilesError) throw new Error("Could not load member profiles.");
 
     return {
       client,

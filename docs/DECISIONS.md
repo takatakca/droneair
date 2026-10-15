@@ -41,3 +41,8 @@ Reject public mission multipart payloads larger than a 10 MiB attachment plus 51
 ## 2026-10-15 — No false success in private file lifecycle
 
 Admin file replacement must first validate that the old and new files belong to the same client and project. After object verification, the old file must actually be archived before returning a successful replacement. File archive/unarchive must confirm a row was updated, not rely on the absence of a PostgREST error. If creating a signed upload URL fails, remove the tentative client_file row to avoid a phantom upload. These server-authorized changes must be verified against a real two-client staging setup before production.
+
+
+## 2026-10-15 — Database outages must not look like empty client data
+
+Tenant portal and admin views must surface Supabase query errors instead of treating failed requests as empty result sets. A real empty result is valid when the database query succeeds. This avoids misleading clients about lost files/projects and prevents administrators from relying on incomplete operational dashboards. Tests against the real database are still blocked by permissions.

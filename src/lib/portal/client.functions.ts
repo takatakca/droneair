@@ -40,7 +40,11 @@ export const getPortalOverview = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const userId = context.userId;
 
-    const [{ data: roles }, { data: profile }, { data: memberships }] = await Promise.all([
+    const [
+      { data: roles, error: rolesError },
+      { data: profile, error: profileError },
+      { data: memberships, error: membershipsError },
+    ] = await Promise.all([
       supabaseAdmin.from("user_roles").select("role").eq("user_id", userId),
       supabaseAdmin
         .from("profiles")
@@ -49,6 +53,10 @@ export const getPortalOverview = createServerFn({ method: "GET" })
         .maybeSingle(),
       supabaseAdmin.from("client_memberships").select("client_id").eq("user_id", userId),
     ]);
+
+    if (rolesError || profileError || membershipsError) {
+      throw new Error("Could not load your account. Please try again later.");
+    }
 
     const isAdmin = (roles ?? []).some((r) => r.role === "admin");
     const clientIds = (memberships ?? []).map((m) => m.client_id);
@@ -66,7 +74,11 @@ export const getPortalOverview = createServerFn({ method: "GET" })
     };
     if (clientIds.length === 0) return base;
 
-    const [{ data: clients }, { data: projects }, { data: files }] = await Promise.all([
+    const [
+      { data: clients, error: clientsError },
+      { data: projects, error: projectsError },
+      { data: files, error: filesError },
+    ] = await Promise.all([
       supabaseAdmin.from("clients").select("id, name, status").in("id", clientIds),
       supabaseAdmin
         .from("client_projects")
@@ -84,6 +96,10 @@ export const getPortalOverview = createServerFn({ method: "GET" })
         .eq("upload_verified", true)
         .order("published_at", { ascending: false, nullsFirst: false }),
     ]);
+
+    if (clientsError || projectsError || filesError) {
+      throw new Error("Could not load your client projects. Please try again later.");
+    }
 
     return {
       ...base,
@@ -176,7 +192,10 @@ export const getPortalProject = createServerFn({ method: "POST" })
 
       await assertMembership(context.userId, project.client_id);
 
-      const [{ data: client }, { data: files }] = await Promise.all([
+      const [
+        { data: client, error: clientError },
+        { data: files, error: filesError },
+      ] = await Promise.all([
         supabaseAdmin.from("clients").select("name").eq("id", project.client_id).maybeSingle(),
         supabaseAdmin
           .from("client_files")
@@ -190,6 +209,10 @@ export const getPortalProject = createServerFn({ method: "POST" })
           .eq("upload_verified", true)
           .order("published_at", { ascending: false, nullsFirst: false }),
       ]);
+
+      if (clientError || filesError) {
+        throw new Error("Could not load this project. Please try again later.");
+      }
 
       return {
         project: {

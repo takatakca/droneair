@@ -58,3 +58,6 @@ Further code changes verify replacement scope before accepting a new file, refus
 - `77f3938`: new admin file replacement safeguards and isolation regression tests passed build, TypeScript, lint, tests, Docker build and container HTTP smoke ([CI 38793107957](https://github.com/takatakca/droneair/actions/runs/38793107957)).
 
 These are GitHub-run test results, not real Supabase integration or production deployment evidence.
+
+
+A follow-up code checkpoint adds explicit errors for failed Supabase client/admin portal reads so outages cannot be silently presented as empty records. Its GitHub CI and real database acceptance results must be checked separately.
