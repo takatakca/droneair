@@ -117,3 +117,21 @@ The newest code change also extends `scripts/smoke-http.mjs` with live-container
 ## 2026-10-15 — Additional file lifecycle correctness patch
 
 Admin operations in `src/lib/portal/admin.functions.ts` now check replacement scope *before* accepting an upload; replacements must archive the prior file successfully, archives must update a real row, and a failed signed upload ticket attempts to delete its tentative record. Pure regression test `tests/portal-replacement.test.ts` covers client and project boundaries. The production Supabase project remains inaccessible, so these changes are **not** production integration-tested. Check current GitHub CI and keep release gate #2 open. Files: `src/lib/portal/admin.functions.ts`, `src/lib/portal/replacement.ts`, `tests/portal-replacement.test.ts`, standard status/queue/decisions/handoff documents and worklog.
+
+
+## 2026-10-15 — Final verified state and handoff
+
+**Latest verified implementation commit:** `77f39384b67da6657c484ba56f61d6cfc5c7d04c` on `main`. This and the prior implementation commits were pushed without force-push. See current `main` SHA at https://github.com/takatakca/droneair/commits/main (a later documentation-only commit may follow).
+
+**Latest completed tasks and proof:**
+1. Public mission multipart body now has a strict total size limit before parsing and PDF/JPEG/PNG/WebP byte signatures are checked. Initial TS issue fixed in `bc485cf`; full CI [38792341421](https://github.com/takatakca/droneair/actions/runs/38792341421) SUCCESS.
+2. Running Bun container HTTP 413 and 400 negative tests added, CI [38792894836](https://github.com/takatakca/droneair/actions/runs/38792894836) SUCCESS.
+3. Admin signed-ticket failures cleanup tentative metadata, file replacement rejects different client/project before verification, and replacement/archive require actual updated rows. Regression tests included, CI [38793107957](https://github.com/takatakca/droneair/actions/runs/38793107957) SUCCESS.
+
+**Files changed:** `src/lib/mission-request.ts`, `src/lib/mission-body.server.ts`, `src/routes/api/public/mission-request.ts`, `tests/mission-intake-security.test.ts`, `scripts/smoke-http.mjs`, `src/lib/portal/admin.functions.ts`, `src/lib/portal/replacement.ts`, `tests/portal-replacement.test.ts`, the five required documents and `WORKLOG.md`.
+
+**Executed checks:** connected GitHub commit/branch/PR/issue/CI APIs, CI job step and failure log review, full GitHub Bun build, strict TypeScript, ESLint, regression tests, Docker Bun image and actual HTTP smoke on mock environment. Supabase project `ngdcmpywualyphgrutir` access returned permission denied. The configured Coolify application, runtime credentials, DNS/TLS and sender remain unverified; the gated production workflow was skipped, not deployed.
+
+**Currently active release task:** validate and apply previously staged database migration on authorized existing Supabase project; rotate historically committed credentials; prove two-client RLS and file isolation, genuine mission form persistence and private storage. Then connect a separate DRONE AIR Coolify resource, configure build/runtime secrets and validate the actual deployed SHA, DNS/TLS, transactional email and rollback. GitHub issue #2 tracks gates.
+
+**Exact next action:** check latest `main` SHA and CI after any documentation commit, then obtain authorized project access to `ngdcmpywualyphgrutir` to inspect migrations and RLS without creating a new paid project; if blocked, resume independent source-quality tasks but **never** declare release complete.

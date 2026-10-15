@@ -159,3 +159,11 @@ The public `POST /api/public/mission-request` path enforces a total request-body
 
 
 Container CI now also attempts HTTP 413 oversized-multipart and HTTP 400 invalid-content-type checks on `/api/public/mission-request`. These deliberately run with mock Supabase credentials to verify rejection **before** any database access. Full mission intake persistence, messaging and email delivery still require the real authorized deployment.
+
+
+## Latest verified CI checkpoints
+
+- 38792341421: bounded form reader regression tests and running Docker app passed.
+- 38792894836: application HTTP POST rejects oversized multipart with 413 and invalid JSON with 400 (fake CI database configuration).
+- 38793107957: private file lifecycle regression tests and full Bun Docker CI passed.
+- These results do not substitute for a real Supabase tenant isolation test or a verified production deploy.

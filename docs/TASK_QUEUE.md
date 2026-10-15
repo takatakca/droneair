@@ -54,11 +54,12 @@ GitHub Actions runs 38774629494 (Bun boot and HTTP smoke), 38775210246 (SHA-chec
 - [x] Add bounded streaming multipart parsing and reject oversized requests before full parse, even without Content-Length.
 - [x] Check PDF/JPEG/PNG/WebP signatures against declared MIME types before upload.
 - [x] Confirm new tests and Bun Docker HTTP smoke are green on GitHub Actions: run 38792341421 PASS.
-- [ ] Verify the live running CI HTTP handler rejects oversized multipart (413) and non-multipart (400) before database access.
+- [x] Verified running CI HTTP rejects oversized multipart (413) and non-multipart (400) without database access: run 38792894836 PASS.
 
 
 ## 2026-10-15 — File lifecycle safety
 - [x] Reject mismatched replacement client/project before marking the new file verified.
 - [x] Reject archival/replacement actions without a confirmed updated row.
 - [x] Clean the tentative file record when creation of a signed upload ticket fails.
-- [ ] Verify these changes in GitHub CI and against a real two-client authorized Supabase environment.
+- [x] GitHub CI verification of file lifecycle changes: run 38793107957 PASS.
+- [ ] Complete same-client/project file replacement and cross-tenant isolation tests against authorized real Supabase database.

@@ -2,8 +2,8 @@
 
 Newest first, one line per piece of work. Rule: `AGENTS.md` › Work log rule.
 Format: `YYYY-MM-DD | agent | branch → PR | status | what | next step`
-- 2026-10-15 | ChatGPT | main | active | Validate replacement target before verifying new upload, check archival update, clean failed upload tickets | run tests + CI, complete handoff
-- 2026-10-15 | ChatGPT | main | active | Exercise real HTTP 400/413 security behavior in running Bun CI container | check CI, document success/failure; external Supabase and Coolify release gates remain
+- 2026-10-15 | ChatGPT | main | done (CI PASS run 38793107957) | Validate replacement before upload verification; ensure archived rows updated; cleanup failed upload tickets | stage-test with real Supabase project and separate clients when authorized
+- 2026-10-15 | ChatGPT | main | done (CI PASS run 38792894836) | Proved HTTP 413 for oversized multipart and 400 for non-multipart on running Bun container | real mission persistence still requires Supabase access
 - 2026-10-15 | ChatGPT | main | done (CI PASS run 38792341421) | Bound public mission multipart bodies and check PDF/image byte signatures; fixed strict TS ArrayBuffer error | add live-container HTTP 400/413 checks and verify their CI
 - 2026-10-15 | ChatGPT | main | done (CI PASS run 38775210246) | Add public image Git SHA to health and assert CI image revision | complete remaining Supabase and dedicated Coolify production release gates
 - 2026-10-15 | ChatGPT | main | done (CI PASS run 38774629494) | Fix real CI failure: Nitro Bun server launched under Node; switch Coolify runtime to Bun | confirmed live CI container health and bilingual routes

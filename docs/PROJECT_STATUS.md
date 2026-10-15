@@ -50,3 +50,11 @@ Security code checkpoint `bc485cf` passed full GitHub Actions CI [38792341421](h
 ## 2026-10-15 — File administration hardening
 
 Further code changes verify replacement scope before accepting a new file, refuse success if archive/replace affects no row, and cleanup tentative file records when a signed upload ticket cannot be created. Regression tests cover isolation by client/project. These checks require GitHub CI and later live Supabase verification.
+
+
+### GitHub verification — 2026-10-15 (final implementation batch)
+- `bc485cf`: bounded multipart parser and MIME signature tests passed ([CI 38792341421](https://github.com/takatakca/droneair/actions/runs/38792341421)).
+- `343c169`: live Bun container returned 413 for oversized multipart and 400 for unsupported JSON body ([CI 38792894836](https://github.com/takatakca/droneair/actions/runs/38792894836)).
+- `77f3938`: new admin file replacement safeguards and isolation regression tests passed build, TypeScript, lint, tests, Docker build and container HTTP smoke ([CI 38793107957](https://github.com/takatakca/droneair/actions/runs/38793107957)).
+
+These are GitHub-run test results, not real Supabase integration or production deployment evidence.
