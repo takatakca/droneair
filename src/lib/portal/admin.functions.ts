@@ -8,6 +8,7 @@ import {
   isAllowedUpload,
 } from "@/lib/portal/constants";
 import { trimmed } from "@/lib/portal/validate";
+import { isSameClientProject } from "@/lib/portal/replacement";
 
 export interface AdminFile {
   id: string;
@@ -385,7 +386,15 @@ export const createUploadTicket = createServerFn({ method: "POST" })
     const { data: ticket, error: ticketError } = await supabaseAdmin.storage
       .from(DELIVERABLES_BUCKET)
       .createSignedUploadUrl(path);
-    if (ticketError || !ticket) throw new Error("Could not prepare the upload");
+    if (ticketError || !ticket) {
+      // A failed signed-ticket request must not leave a phantom private file.
+      const { error: cleanupError } = await supabaseAdmin
+        .from("client_files")
+        .delete()
+        .eq("id", row.id);
+      if (cleanupError) console.error("upload ticket cleanup failed", cleanupError.message);
+      throw new Error("Could not prepare the upload");
+    }
 
     return { fileId: row.id, path, token: ticket.token };
   });
@@ -410,6 +419,22 @@ export const confirmUpload = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!file) throw new Error("File not found");
 
+    // Reject an invalid cross-client/project replacement before verifying the
+    // new file, to avoid partially accepting an unauthorized replacement.
+    let replacementId: string | null = null;
+    if (data.replacesFileId && data.replacesFileId !== file.id) {
+      const { data: target, error: targetError } = await supabaseAdmin
+        .from("client_files")
+        .select("id, client_id, project_id")
+        .eq("id", data.replacesFileId)
+        .maybeSingle();
+      if (targetError || !target) throw new Error("Replacement file not found");
+      if (!isSameClientProject(file, target)) {
+        throw new Error("Replacement file belongs to a different client or project");
+      }
+      replacementId = target.id;
+    }
+
     const folder = file.storage_path.split("/").slice(0, -1).join("/");
     const name = file.storage_path.split("/").slice(-1)[0]!;
     const { data: listed } = await supabaseAdmin.storage
@@ -431,25 +456,16 @@ export const confirmUpload = createServerFn({ method: "POST" })
     if (verifyError) throw new Error("Could not verify the uploaded file");
     await logFileEvent(file.id, context.userId, "upload");
 
-    if (data.replacesFileId && data.replacesFileId !== file.id) {
-      const { data: replaced, error: replacedError } = await supabaseAdmin
-        .from("client_files")
-        .select("id, client_id, project_id")
-        .eq("id", data.replacesFileId)
-        .maybeSingle();
-      if (replacedError || !replaced) throw new Error("Replacement file not found");
-      if (replaced.client_id !== file.client_id) {
-        throw new Error("Replacement file belongs to a different client");
-      }
-      if ((replaced.project_id ?? null) !== (file.project_id ?? null)) {
-        throw new Error("Replacement file belongs to a different project");
-      }
-
-      await supabaseAdmin
+    if (replacementId) {
+      const { data: archived, error: archiveError } = await supabaseAdmin
         .from("client_files")
         .update({ is_archived: true, is_visible_to_client: false, published_at: null })
-        .eq("id", replaced.id);
-      await logFileEvent(replaced.id, context.userId, "replace");
+        .eq("id", replacementId)
+        .eq("client_id", file.client_id)
+        .select("id")
+        .maybeSingle();
+      if (archiveError || !archived) throw new Error("Could not archive the replaced file");
+      await logFileEvent(replacementId, context.userId, "replace");
     }
     return { ok: true };
   });
@@ -492,14 +508,16 @@ export const archiveFile = createServerFn({ method: "POST" })
     const { assertAdmin, logFileEvent } = await import("@/lib/portal/portal.server");
     await assertAdmin(context.userId);
 
-    const { error } = await supabaseAdmin
+    const { data: updated, error } = await supabaseAdmin
       .from("client_files")
       .update({
         is_archived: data.archived,
         ...(data.archived ? { is_visible_to_client: false, published_at: null } : {}),
       })
-      .eq("id", data.fileId);
-    if (error) throw new Error("Could not update the file");
+      .eq("id", data.fileId)
+      .select("id")
+      .maybeSingle();
+    if (error || !updated) throw new Error("Could not update the file");
     await logFileEvent(data.fileId, context.userId, data.archived ? "archive" : "restore");
     return { ok: true };
   });

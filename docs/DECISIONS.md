@@ -36,3 +36,8 @@ Container builds can pass `DRONE_AIR_GIT_SHA` as non-sensitive build metadata. T
 ## 2026-10-15 — Limit untrusted mission request bytes before multipart parsing
 
 Reject public mission multipart payloads larger than a 10 MiB attachment plus 512 KiB overhead. Enforce the limit during streaming as Content-Length can be absent or inaccurate. Browser-declared PDF/JPEG/PNG/WebP MIME types must agree with file signatures before private Storage upload. Preserve existing mission data persistence independent of email/AI. No schema or externally hosted service is changed by this work.
+
+
+## 2026-10-15 — No false success in private file lifecycle
+
+Admin file replacement must first validate that the old and new files belong to the same client and project. After object verification, the old file must actually be archived before returning a successful replacement. File archive/unarchive must confirm a row was updated, not rely on the absence of a PostgREST error. If creating a signed upload URL fails, remove the tentative client_file row to avoid a phantom upload. These server-authorized changes must be verified against a real two-client staging setup before production.

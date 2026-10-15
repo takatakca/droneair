@@ -45,3 +45,8 @@ Public mission form hardening is committed for GitHub CI validation: total multi
 
 
 Security code checkpoint `bc485cf` passed full GitHub Actions CI [38792341421](https://github.com/takatakca/droneair/actions/runs/38792341421), including the new bounded-body and file-signature tests. The follow-up container HTTP negative-path smoke test is pending validation.
+
+
+## 2026-10-15 — File administration hardening
+
+Further code changes verify replacement scope before accepting a new file, refuse success if archive/replace affects no row, and cleanup tentative file records when a signed upload ticket cannot be created. Regression tests cover isolation by client/project. These checks require GitHub CI and later live Supabase verification.

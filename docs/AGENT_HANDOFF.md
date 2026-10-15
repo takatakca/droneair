@@ -112,3 +112,8 @@ The next independent code task after recovering Bun CI was to stop oversized pub
 Commit `d0addc4ad9b5a55ac45c5ccb2d2b8d7166a7b857` introduced a bounded multipart parser, file signature checks and regression tests; CI run 38792228853 exposed a TypeScript DOM BlobPart incompatibility. Corrected in `bc485cfb805ed36c6cc54ab443f4b4603aed44c1` by copying chunks into an exact `ArrayBuffer` before `Response.formData()`. **Full CI run [38792341421](https://github.com/takatakca/droneair/actions/runs/38792341421) succeeded**, including production build, TypeScript, lint, Bun tests, Docker build and HTTP smoke.
 
 The newest code change also extends `scripts/smoke-http.mjs` with live-container negative tests of HTTP 413 for oversized multipart and HTTP 400 for JSON on the public mission endpoint. **Check the newest CI run for this change**. No actual mission was submitted to production, and all real Supabase/Coolify release gates remain open.
+
+
+## 2026-10-15 — Additional file lifecycle correctness patch
+
+Admin operations in `src/lib/portal/admin.functions.ts` now check replacement scope *before* accepting an upload; replacements must archive the prior file successfully, archives must update a real row, and a failed signed upload ticket attempts to delete its tentative record. Pure regression test `tests/portal-replacement.test.ts` covers client and project boundaries. The production Supabase project remains inaccessible, so these changes are **not** production integration-tested. Check current GitHub CI and keep release gate #2 open. Files: `src/lib/portal/admin.functions.ts`, `src/lib/portal/replacement.ts`, `tests/portal-replacement.test.ts`, standard status/queue/decisions/handoff documents and worklog.
