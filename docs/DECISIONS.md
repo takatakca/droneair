@@ -31,3 +31,8 @@ GitHub Actions runs 38614070184 and 38614445582 built Docker successfully but fa
 ## 2026-10-15 — Release revisions are observable, not guessed
 
 Container builds can pass `DRONE_AIR_GIT_SHA` as non-sensitive build metadata. The health API returns that value only when it looks like an exact SHA, and the CI smoke test demands the repository SHA. A live release must still be checked against the Coolify deployment record, domain and healthy response.
+
+
+## 2026-10-15 — Limit untrusted mission request bytes before multipart parsing
+
+Reject public mission multipart payloads larger than a 10 MiB attachment plus 512 KiB overhead. Enforce the limit during streaming as Content-Length can be absent or inaccurate. Browser-declared PDF/JPEG/PNG/WebP MIME types must agree with file signatures before private Storage upload. Preserve existing mission data persistence independent of email/AI. No schema or externally hosted service is changed by this work.

@@ -100,3 +100,8 @@ Files modified in these final code commits: `Dockerfile.coolify`, `package.json`
 **Current remaining task**: access the actual DRONE AIR Supabase project `ngdcmpywualyphgrutir` with authorized permissions, review/apply the queued migration, verify tenant isolation and rotate historically exposed keys. In parallel discover/configure the dedicated DRONE AIR Coolify resource, private runtime secrets and build arguments, then verify live revision, DNS/TLS, mission submission, portal downloads and rollback. Do not enable gated deployment until release security gates are met. No real production deployment, hostname/TLS verification or email delivery was completed during this session.
 
 The attempted unauthenticated requests to `drone-air.ca` failed DNS resolution in the execution environment; this is **not** proof of worldwide DNS failure.
+
+
+## 2026-10-15 — Mission payload security work
+
+The next independent code task after recovering Bun CI was to stop oversized public mission form requests before `request.formData()` allocates the entire payload. Added `src/lib/mission-body.server.ts` streaming limit and `MAX_MISSION_BODY_BYTES` constant. `src/routes/api/public/mission-request.ts` uses the bounded form parser and checks uploaded file signature bytes for PDF/JPEG/PNG/WebP before Storage upload. Added `tests/mission-intake-security.test.ts` with multipart, oversize streaming, missing/false content-length and magic-byte checks. Change is **not verified against the real database**; check the new GitHub CI first. Next actual production step remains authorized DRONE AIR Supabase project access and dedicated Coolify setup, key rotation and live tenant tests. GitHub issue #2 remains open.

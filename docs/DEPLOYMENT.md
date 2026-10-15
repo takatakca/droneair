@@ -151,3 +151,8 @@ GitHub CI passes `GITHUB_SHA` as the Docker build argument and checks it with `D
 ## CI evidence from 2026-10-15
 
 The former Nitro/Node runtime error was fixed with the Bun runtime. GitHub Actions [38774629494](https://github.com/takatakca/droneair/actions/runs/38774629494) reports successful live container boot plus health and bilingual smoke. [38775210246](https://github.com/takatakca/droneair/actions/runs/38775210246) reports success with the Git revision assertion too. These are tests in an isolated CI container with explicitly fake Supabase values; they are **not** evidence of a real deployed application.
+
+
+## Mission payload safety checks
+
+The public `POST /api/public/mission-request` path enforces a total request-body limit before multipart parsing (10 MiB allowed attachment plus 512 KiB form overhead), including streamed requests without a trustworthy Content-Length. An oversize request responds HTTP 413; malformed/non-multipart input HTTP 400. The server checks actual PDF/JPEG/PNG/WebP file signature bytes, not just a client-provided MIME type, before uploading to private Storage. These safeguards do not replace infrastructure rate limiting, WAF filtering or real production integration testing.

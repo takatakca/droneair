@@ -48,3 +48,9 @@ The detailed release checklist is https://github.com/takatakca/droneair/issues/2
 ## Next agent pickup — 2026-10-15
 
 GitHub Actions runs 38774629494 (Bun boot and HTTP smoke), 38775210246 (SHA-check smoke), and 38775537222 (documentation) are all successful. No outstanding CI failure is known. Do not prioritize rebuilding this same smoke functionality. Resume the unresolved P0/P1 security/hosting gates. No real Supabase migration, production DNS/TLS or Coolify deploy was verified.
+
+
+## 2026-10-15 — Public intake hardening
+- [x] Add bounded streaming multipart parsing and reject oversized requests before full parse, even without Content-Length.
+- [x] Check PDF/JPEG/PNG/WebP signatures against declared MIME types before upload.
+- [ ] Confirm new tests and Bun Docker HTTP smoke are green on GitHub Actions.

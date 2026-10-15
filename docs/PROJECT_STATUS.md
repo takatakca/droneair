@@ -37,3 +37,8 @@ Tracked release blockers: https://github.com/takatakca/droneair/issues/2
 DRONE AIR maintains its independent interface and client data. The GROUPE TAKATAK master integration remains disabled until an approved versioned DRONE AIR contract exists. No other TAKATAK dashboard should automatically expose DRONE AIR client data.
 
 See `docs/TASK_QUEUE.md` and `docs/AGENT_HANDOFF.md` for exact next actions.
+
+
+## 2026-10-15 — Next code checkpoint
+
+Public mission form hardening is committed for GitHub CI validation: total multipart request size enforcement and file byte-signature checks. No database migration or live Supabase service call was made; production release blockers in issue #2 remain.

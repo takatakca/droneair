@@ -9,6 +9,7 @@ import {
   MIN_FILL_MS,
   extensionFor,
   isAllowedAttachment,
+  matchesAttachmentSignature,
 } from "@/lib/mission-request";
 import { triageMissionRequest } from "@/lib/ai/mission-ai.server";
 import { sendMissionEmail, type EmailEventType } from "@/lib/email/send.server";
@@ -56,10 +57,14 @@ export const Route = createFileRoute("/api/public/mission-request")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { readBoundedMissionForm, MissionBodyTooLargeError } = await import("@/lib/mission-body.server");
         let form: FormData;
         try {
-          form = await request.formData();
-        } catch {
+          form = await readBoundedMissionForm(request);
+        } catch (error) {
+          if (error instanceof MissionBodyTooLargeError) {
+            return json({ ok: false, error: "attachment_size" }, 413);
+          }
           return json({ ok: false, error: "invalid_request" }, 400);
         }
 
@@ -123,10 +128,14 @@ export const Route = createFileRoute("/api/public/mission-request")({
           if (file.size > MAX_ATTACHMENT_BYTES) {
             return json({ ok: false, error: "attachment_size" }, 400);
           }
+          const bytes = new Uint8Array(await file.arrayBuffer());
+          if (!matchesAttachmentSignature(file.type, bytes)) {
+            return json({ ok: false, error: "attachment_type" }, 400);
+          }
           const path = `${new Date().toISOString().slice(0, 10)}/${randomUUID()}.${extensionFor(file.type)}`;
           const { error: uploadError } = await supabaseAdmin.storage
             .from(BUCKET)
-            .upload(path, await file.arrayBuffer(), {
+            .upload(path, bytes, {
               contentType: file.type,
               upsert: false,
             });
