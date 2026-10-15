@@ -146,3 +146,8 @@ The workflow is disabled without the explicit variable. A successful webhook HTT
 The Dockerfile accepts a **non-secret** build argument `DRONE_AIR_GIT_SHA`, expected to be the exact commit checked out by Coolify. The running `GET /api/health` response now includes `revision`: a 40-character Git SHA when configured, otherwise `null`. Do not treat `null` or a manually mistyped SHA as release evidence.
 
 GitHub CI passes `GITHUB_SHA` as the Docker build argument and checks it with `DRONE_AIR_EXPECTED_SHA` in the HTTP smoke script. For Coolify production, configure this argument from the actual Git checkout SHA of **the dedicated DRONE AIR resource** (not the SHA of a parent build pipeline). Confirm the health response's `revision` equals the commit deployed, and independently inspect the Coolify build record. No release SHA verification is possible on production until that environment exists.
+
+
+## CI evidence from 2026-10-15
+
+The former Nitro/Node runtime error was fixed with the Bun runtime. GitHub Actions [38774629494](https://github.com/takatakca/droneair/actions/runs/38774629494) reports successful live container boot plus health and bilingual smoke. [38775210246](https://github.com/takatakca/droneair/actions/runs/38775210246) reports success with the Git revision assertion too. These are tests in an isolated CI container with explicitly fake Supabase values; they are **not** evidence of a real deployed application.

@@ -12,7 +12,7 @@ Finish repository documentation, monitor CI for the latest pushed change, then r
 
 ## Latest pushed implementation
 
-SHA: `aea07c1dd0d9ea970162c30a79d3699422e25498`  
+SHA: `9d0a035c4c02d9ff0e050614fb1577496f054490`  
 See https://github.com/takatakca/droneair/commits/main for the subsequent documentation-only commit(s), which cannot self-reference their own SHA without a new commit.
 
 ## Files changed during the implementation
@@ -84,3 +84,19 @@ Exact next task: inspect the next GitHub Actions run for this fix. If smoke stil
 ## 2026-10-15 — Git revision evidence added
 
 To verify actual deployed source, `/api/health` now returns `revision` from `DRONE_AIR_GIT_SHA` when a valid 40-character SHA was supplied to the Docker runtime stage, otherwise null. CI Docker build passes `GITHUB_SHA` and smoke-checks it. Production Coolify must supply the real checkout SHA; do not mistake the presence of a SHA string for external deployment confirmation. Recheck GitHub Actions before marking the new smoke run successful.
+
+
+## 2026-10-15 — Verified CI resolution and exact next step
+
+Latest fully verified application commit: `9d0a035c4c02d9ff0e050614fb1577496f054490`.
+
+GitHub Actions:
+- [run 38774629494](https://github.com/takatakca/droneair/actions/runs/38774629494): SUCCESS. Build/typecheck/lint/tests, Docker build and live health/French/English HTTP smoke.
+- [run 38775210246](https://github.com/takatakca/droneair/actions/runs/38775210246): SUCCESS. The same checks **plus** verifying the exact baked Git SHA in `GET /api/health`.
+- Gated production deployment workflow remained skipped because the dedicated application/secrets/enable switch are not verified.
+
+Files modified in these final code commits: `Dockerfile.coolify`, `package.json`, `README.md`, `src/routes/api/health.ts`, `scripts/smoke-http.mjs`, `.github/workflows/ci.yml`, `WORKLOG.md` and the standard documentation files. This handoff update is documentation-only and may trigger a later CI run; use the GitHub `main` ref to identify the newest documentation commit.
+
+**Current remaining task**: access the actual DRONE AIR Supabase project `ngdcmpywualyphgrutir` with authorized permissions, review/apply the queued migration, verify tenant isolation and rotate historically exposed keys. In parallel discover/configure the dedicated DRONE AIR Coolify resource, private runtime secrets and build arguments, then verify live revision, DNS/TLS, mission submission, portal downloads and rollback. Do not enable gated deployment until release security gates are met. No real production deployment, hostname/TLS verification or email delivery was completed during this session.
+
+The attempted unauthenticated requests to `drone-air.ca` failed DNS resolution in the execution environment; this is **not** proof of worldwide DNS failure.

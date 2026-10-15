@@ -3,7 +3,7 @@
 Updated: 2026-10-15 (GitHub evidence, not a live release verification)  
 Repository: https://github.com/takatakca/droneair  
 Publication branch: `main`  
-Last implementation SHA at this checkpoint: `aea07c1dd0d9ea970162c30a79d3699422e25498`  
+Last verified implementation SHA: `9d0a035c4c02d9ff0e050614fb1577496f054490`  
 Tracked release blockers: https://github.com/takatakca/droneair/issues/2
 
 ## Delivered in the repository
@@ -15,13 +15,15 @@ Tracked release blockers: https://github.com/takatakca/droneair/issues/2
 - Supabase migration scripts for tenant/data roles and new restricted profile identity updates.
 - Mission request duplicate/rate checks; honeypot spam responses avoid unnecessary data storage.
 - GitHub Actions CI: production build, type checking, lint, security regression tests and Docker image build.
-- Self-hosted Nitro/Bun `Dockerfile.coolify` and liveness endpoint. Node runtime previously caused a CI smoke-test failure; Bun runtime correction is under verification.
+- Self-hosted Nitro/Bun `Dockerfile.coolify` and liveness endpoint reporting an optional build revision. The Node/Bun startup mismatch is corrected and the Bun runtime has passed real container smoke testing in GitHub Actions.
 
 ## Evidence and boundaries
 
 - The code integration PR #1 was merged on 2026-10-14.
 - Commit `4d87ec5` passed CI on 2026-10-14 (GitHub run 38610621138).
-- Security commit `aea07c1` passed the validate job; container build status must be read from GitHub Actions when resuming.
+- Security commit `aea07c1` passed complete CI ([run 38613467950](https://github.com/takatakca/droneair/actions/runs/38613467950)).
+- Docker runtime recovery `ff5edba` passed build and running-container smoke ([run 38774629494](https://github.com/takatakca/droneair/actions/runs/38774629494)).
+- Release SHA observability `9d0a035` passed build, typecheck, lint, tests, Docker image and HTTP smoke/revision ([run 38775210246](https://github.com/takatakca/droneair/actions/runs/38775210246)).
 - The newest SQL migration exists in Git, **not verified as applied** in the intended database.
 - These CI checks do not prove the application is deployed, connected to the right database, or capable of sending transactional emails.
 
