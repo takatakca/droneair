@@ -1,6 +1,6 @@
 # DRONE AIR — Executable task queue
 
-Priority and status at 2026-10-14. Keep this list in sync with issue #2 and `WORKLOG.md`.
+Priority and status at 2026-10-16. Keep this list in sync with issue #2 and `WORKLOG.md`.
 
 ## P0 — Production security gates (blocked by external access)
 
@@ -75,23 +75,27 @@ GitHub Actions runs 38774629494 (Bun boot and HTTP smoke), 38775210246 (SHA-chec
 - [x] Reject phantom success for client/project/file/mission updates and membership removals.
 - [x] Reject missing source missions before generating client/project records.
 - [x] Do not silently hide database errors in administrator listings, detail and audit history.
-- [ ] Validate new server code and regression tests in GitHub Actions and real authorized Supabase staging.
+- [x] Validate new server code and regression tests in GitHub Actions: 38852451732 PASS.
+- [ ] Validate the admin operations using the authorized live Supabase staging environment.
 
 ## 2026-10-16 — Membership idempotency
 
 - [x] Preserve an existing membership's role on repeat invite rather than overwriting with "member".
 - [x] Distinguish Supabase profile lookup failure from "account does not exist".
-- [ ] Check latest CI and verify with a real privileged membership in an authorized DRONE AIR staging environment.
+- [x] GitHub CI 38852562996 PASS for repeat-invitation role handling.
+- [ ] Verify repeated invitation with a privileged membership in authorized DRONE AIR staging.
 
 ## 2026-10-16 — Admin file management UI
 
 - [x] Catch file metadata, publication and archive errors and show a visible alert.
 - [x] Disable file mutation buttons during requests and prevent rapid double clicks.
 - [x] Display file-list/history load errors instead of an empty-state message.
-- [ ] Check CI for the UI change and exercise mutations against actual staging database.
+- [x] GitHub CI 38852681875 PASS for file UI.
+- [ ] Exercise file edits, publication and archiving against an authorized staging database.
 
 ## 2026-10-16 — Database readiness
 
 - [x] Add database-sensitive HTTP /api/ready separate from process /api/health.
 - [x] Add CI HTTP smoke proving fake Supabase settings return readiness 503.
-- [ ] Confirm container smoke succeeds and verify readiness 200 only against the authorized DRONE AIR preview database.
+- [x] GitHub CI 38852863989 PASS: liveness 200, readiness 503 with dummy credentials.
+- [ ] Verify readiness 200 against the authorized existing DRONE AIR preview database.

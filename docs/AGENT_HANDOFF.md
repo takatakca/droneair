@@ -1,10 +1,10 @@
 # DRONE AIR — Agent handoff
 
-Updated: 2026-10-15. Read `AGENTS.md`, this file, `docs/PROJECT_STATUS.md`, `docs/TASK_QUEUE.md` and GitHub issue #2 before coding. Historical implementation detail remains at `docs/TAKATAK_AGENT_HANDOFF.md`.
+Updated: 2026-10-16. Read `AGENTS.md`, this file, `docs/PROJECT_STATUS.md`, `docs/TASK_QUEUE.md` and GitHub issue #2 before coding. Historical implementation detail remains at `docs/TAKATAK_AGENT_HANDOFF.md`.
 
 ## Last completed task
 
-Fixed the real Docker deployment blocker: Nitro's generated Bun server was incorrectly launched with Node. It now runs in a Bun container. Added HTTP runtime smoke checks and a non-secret Git revision marker; verified full CI success on code commit `9d0a035c4c02d9ff0e050614fb1577496f054490` (run 38775210246) and documentation commit `7699abe56d22bf624acc8469d3e4e38facb71e25` (run 38775537222).
+Added the separate database readiness endpoint `/api/ready` and proved the running CI container rejects the fake database as unavailable (HTTP 503) while liveness remains HTTP 200. Full CI run [38852863989](https://github.com/takatakca/droneair/actions/runs/38852863989) SUCCESS for implementation `dd56dbb963f03627cb53aa64df47af1708f3597f`. Previous admin-ops, invitation and admin UI runs (38852451732, 38852562996, 38852681875) also fully succeeded.
 
 ## Currently active task
 
@@ -12,20 +12,18 @@ No local container CI defect remains known. Complete the outstanding **external 
 
 ## Latest pushed implementation
 
-SHA: `9d0a035c4c02d9ff0e050614fb1577496f054490`  
+SHA: `dd56dbb963f03627cb53aa64df47af1708f3597f` (latest verified application code; inspect `main` for the later documentation-only commit)  
 See https://github.com/takatakca/droneair/commits/main for the subsequent documentation-only commit(s), which cannot self-reference their own SHA without a new commit.
 
-## Files changed during the implementation
+## Files changed during this session
 
-- `src/lib/portal/portal.server.ts`
-- `src/lib/portal/storage-path.ts`
-- `src/routes/api/public/mission-request.ts`
-- `supabase/migrations/20261014180000_lock_profile_identity.sql`
-- `tests/storage-path.test.ts`
-- `tests/security-migration.test.ts`
-- `WORKLOG.md`
+- `src/lib/portal/admin-ops.functions.ts`, `src/lib/portal/db-result.ts`, `tests/db-result.test.ts`
+- `src/lib/portal/admin.functions.ts`, `src/lib/portal/membership.ts`, `tests/membership-options.test.ts`
+- `src/routes/_authenticated/admin/files.tsx`
+- `src/routes/api/ready.ts`, `scripts/smoke-http.mjs`
+- `WORKLOG.md`, `docs/PROJECT_STATUS.md`, `docs/TASK_QUEUE.md`, `docs/AGENT_HANDOFF.md`, `docs/DEPLOYMENT.md`, `docs/DECISIONS.md`
 
-Documentation completion additionally updates `AGENTS.md`, `docs/DEPLOYMENT.md`, `WORKLOG.md` and creates the status/queue/decisions/handoff files.
+Historical work remains in Git commits, `WORKLOG.md` and the dated handoff sections below.
 
 ## Executed commands and verification
 
@@ -162,3 +160,13 @@ The `src/routes/_authenticated/admin/files.tsx` screen now guards edit/publish/a
 ## 2026-10-16 — Separate database readiness
 
 Added `src/routes/api/ready.ts`: a server-only, read-only, 4-second bounded query of DRONE AIR `clients`. HTTP 200 means the actual DB can answer; 503 indicates failure. The endpoint never exposes secrets or detailed Supabase errors. `scripts/smoke-http.mjs` now expects 503 with the deliberately fake CI credentials. The production ready state cannot be verified without the real project. Check newest GitHub Actions run to validate the route and smoke; prior code CI for invitation `38852562996` passed. Production webhook must remain disabled.
+
+## Current next action and exact validation evidence — 2026-10-16
+
+Last application SHA validated: `dd56dbb963f03627cb53aa64df47af1708f3597f`. Relevant GitHub Actions runs: 38852451732, 38852562996, 38852681875, 38852863989: **all successful**, including Docker runtime and HTTP checks. No new application functionality is awaiting CI. This handoff documentation commit may trigger one additional GitHub Actions run; confirm before closing session.
+
+**No real deployment was done.** The GitHub post-CI Coolify deploy workflow remains disabled and skipped. The connected Supabase tool returned `You do not have permission to perform this action` on existing DRONE AIR project `ngdcmpywualyphgrutir`. Real `drone-air.ca` and `/api/health` could not be retrieved through the current external verification interface; their actual availability is unknown. Do not imply a global DNS outage. No Supabase migration was applied. Historic public `.env` values require rotation.
+
+**Access needed:** authorization on the existing Supabase project, controlled credential rotation, access to the dedicated DRONE AIR Coolify application (not another project's app), DNS/TLS authority, Google Workspace sender proof and owner-controlled production approval. Never paste secrets into Git.
+
+**Exact next step:** first inspect newest `main` CI and any changes by other agents; then inspect/apply the pending identity privilege migration on the correct authorized Supabase instance, verify two-client RLS and private buckets, perform end-to-end missions and invitations, configure the dedicated Coolify resource with the actual build SHA/public variables/runtime secrets and validate `/api/ready` 200 before production. Leave issue #2 open until real deployment, delivery and rollback are proven.

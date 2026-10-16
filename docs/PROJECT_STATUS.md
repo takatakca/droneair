@@ -1,9 +1,9 @@
 # DRONE AIR — Project status
 
-Updated: 2026-10-15 (GitHub evidence, not a live release verification)  
+Updated: 2026-10-16 (GitHub evidence, not a live release verification)  
 Repository: https://github.com/takatakca/droneair  
 Publication branch: `main`  
-Last verified implementation SHA: `9d0a035c4c02d9ff0e050614fb1577496f054490`  
+Last verified implementation SHA: `dd56dbb963f03627cb53aa64df47af1708f3597f`  
 Tracked release blockers: https://github.com/takatakca/droneair/issues/2
 
 ## Delivered in the repository
@@ -74,4 +74,13 @@ The administrator file screen now handles failed file actions and failed listing
 
 ## 2026-10-16 — Deployment readiness instrumentation
 
-A separate `/api/ready` endpoint checks actual backend database connectivity without exposing errors to the browser. The container CI should prove its fake Supabase settings return HTTP 503 while liveness remains HTTP 200. This improves operational verification but is not proof of a real environment; production remains gated.
+A separate `/api/ready` endpoint checks actual backend database connectivity without exposing errors to the browser. GitHub CI 38852863989 passed, proving the fake database yields HTTP 503 while liveness remains HTTP 200. This improves operational verification but is not proof of a real environment; production remains gated.
+
+## Verified current CI checkpoints — 2026-10-16
+
+- `e9c5831`: administrative query and mutation guards, CI [38852451732](https://github.com/takatakca/droneair/actions/runs/38852451732) SUCCESS.
+- `61d86e9`: repeated verified-member invitations preserve existing tenant roles, CI [38852562996](https://github.com/takatakca/droneair/actions/runs/38852562996) SUCCESS.
+- `0d7d001`: bilingual admin-file error feedback and duplicate-click prevention, CI [38852681875](https://github.com/takatakca/droneair/actions/runs/38852681875) SUCCESS.
+- `dd56dbb`: independent database readiness probe `/api/ready` and CI fake-database HTTP 503 check, CI [38852863989](https://github.com/takatakca/droneair/actions/runs/38852863989) SUCCESS.
+
+The gated production workflow is **skipped** and production is **not verified**. A previously committed `.env` remains in public Git history, credentials must be rotated, Supabase access `ngdcmpywualyphgrutir` is denied to the current connector and no dedicated DRONE AIR Coolify service is verified.

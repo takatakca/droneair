@@ -180,3 +180,7 @@ Before release, exercise admin invitation twice for an account whose `client_mem
 - `GET /api/ready`: HTTP 200 only after a bounded, read-only query on `public.clients` succeeds using the server-side Supabase connection; otherwise HTTP 503. Response includes only a generic `status` and `service`, never keys or raw DB errors. Query timeout is 4 seconds.
 - CI uses fake Supabase inputs, so the runtime smoke test **expects 503** for readiness while `/api/health` remains 200. The two endpoints must differ in that environment.
 - Before production promotion, verify `/api/ready` = 200 at the correct preview origin against the authorized existing database. A 200 is connectivity evidence, **not** proof of migrations, RLS, two-client isolation, private storage or email delivery. Avoid configuring an external platform to restart the application solely because the database is temporarily unavailable; prefer liveness for process restarts and readiness for deployment gates.
+
+## Verified CI / readiness evidence — 2026-10-16
+
+CI run [38852863989](https://github.com/takatakca/droneair/actions/runs/38852863989) successfully exercised `/api/health` (liveness HTTP 200) and `/api/ready` (HTTP 503 using CI's fake Supabase project). Admin server behavior tests and UI compilation passed CI 38852451732, 38852562996, 38852681875. None of these workflows establishes real database connectivity or a deployed origin. A dedicated production resource, key rotation, verified DNS/TLS and a positive readiness check with real credentials remain prerequisites.
