@@ -4,7 +4,7 @@ Updated: 2026-10-16. Read `AGENTS.md`, this file, `docs/PROJECT_STATUS.md`, `doc
 
 ## Last completed task
 
-Added the separate database readiness endpoint `/api/ready` and proved the running CI container rejects the fake database as unavailable (HTTP 503) while liveness remains HTTP 200. Full CI run [38852863989](https://github.com/takatakca/droneair/actions/runs/38852863989) SUCCESS for implementation `dd56dbb963f03627cb53aa64df47af1708f3597f`. Previous admin-ops, invitation and admin UI runs (38852451732, 38852562996, 38852681875) also fully succeeded.
+Added explicit authorization-query error handling to private file downloads with tests of client file visibility/archive/verification. Implementation `5623eb6467aa5c46b5bdcd43d5484172094caf7e` passed full CI [38953654188](https://github.com/takatakca/droneair/actions/runs/38953654188). Earlier this session, Gmail request deadlines passed [38953188965](https://github.com/takatakca/droneair/actions/runs/38953188965), and the improved (still disabled) Coolify post-deploy SHA+readiness verification passed [38953413909](https://github.com/takatakca/droneair/actions/runs/38953413909).
 
 ## Currently active task
 
@@ -12,7 +12,7 @@ No local container CI defect remains known. Complete the outstanding **external 
 
 ## Latest pushed implementation
 
-SHA: `dd56dbb963f03627cb53aa64df47af1708f3597f` (latest verified application code; inspect `main` for the later documentation-only commit)  
+SHA: `5623eb6467aa5c46b5bdcd43d5484172094caf7e` (latest verified application code; inspect `main` for the later documentation-only commit)  
 See https://github.com/takatakca/droneair/commits/main for the subsequent documentation-only commit(s), which cannot self-reference their own SHA without a new commit.
 
 ## Files changed during this session
@@ -185,3 +185,20 @@ Added `src/lib/email/http.server.ts`, `tests/email-provider-timeouts.test.ts`, a
 ## 2026-10-16 — Signed-download authorization guard
 
 Changed `src/lib/portal/client.functions.ts` to fail explicitly when `user_roles` lookup fails before issuing a signed URL; retained independent client tenant membership and file-state checks. Extracted `src/lib/portal/download-policy.ts` and added `tests/portal-download-policy.test.ts`. Exact next step: check current GitHub Actions for this commit; cross-client real Supabase tests remain blocked. The prior gated deployment workflow commit `f2d1f423` passed CI run 38953413909. No Coolify webhook was sent and no production release was verified.
+
+
+## 2026-10-16 — Verified final checkpoint and next action
+
+**Source-of-truth code SHA:** `5623eb6467aa5c46b5bdcd43d5484172094caf7e` on `main` (followed by this docs-only commit). CI proof:
+- `0e687918` [38953188965](https://github.com/takatakca/droneair/actions/runs/38953188965): **PASS**.
+- `f2d1f423` [38953413909](https://github.com/takatakca/droneair/actions/runs/38953413909): **PASS**.
+- `5623eb64` [38953654188](https://github.com/takatakca/droneair/actions/runs/38953654188): **PASS**.
+All passed build, strict TypeScript, lint, Bun tests, Docker image build and real CI-container HTTP smoke. The Coolify deployment jobs remain **skipped**, as deliberately gated; source-level validation does **not** prove the production CD workflow ran.
+
+**Files changed:** `src/lib/email/http.server.ts`, `src/lib/email/send.server.ts`, `tests/email-provider-timeouts.test.ts`, `.github/workflows/deploy-coolify.yml`, `tests/deploy-workflow-gates.test.ts`, `src/lib/portal/client.functions.ts`, `src/lib/portal/download-policy.ts`, `tests/portal-download-policy.test.ts`, and required status/handoff/deployment/decision documents and `WORKLOG.md`.
+
+**Commands and checks:** connected GitHub reads for branch, CI, open PRs/issues, file source; atomic Git tree/commit/update-ref with expected SHA and no force push; fetched GitHub Actions job results; attempted public HTTPS requests to `drone-air.ca/`, `/api/health`, `/api/ready` (unavailable via verification interface). Queried the intended existing Supabase project again: **permission denied**. No SQL migration was applied. No real Gmail email was sent.
+
+**Currently active task / blockers:** production acceptance, not another CI repair. Historical committed keys need owner-controlled rotation. The existing Supabase project `ngdcmpywualyphgrutir` is inaccessible to this connection; live migration history, private bucket/RLS, two-client denial tests and mission persistence have not been proven. No authorized dedicated DRONE AIR Coolify resource, DNS/TLS, production sender/delivery, or release rollback evidence is available. TAKATAK identity integration requires a separate approved contract.
+
+**Exact next action:** verify the latest `main` SHA and this documentation commit's GitHub CI; obtain authorized DRONE AIR Supabase access (without creating a billable project); review and apply pending least-privilege migration after backup; rotate historical secrets; validate two real client accounts and signed files; configure a DRONE AIR-only Coolify app and `DRONE_AIR_PRODUCTION_ORIGIN` under a protected production environment; verify correct public build SHA, `/api/ready`, DNS/TLS, email and rollback. Enable the gated CD switch only after owner-approved release security gates. Update issue #2 with evidence, never claim unverified production.

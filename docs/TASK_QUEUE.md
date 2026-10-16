@@ -105,7 +105,7 @@ GitHub Actions runs 38774629494 (Bun boot and HTTP smoke), 38775210246 (SHA-chec
 
 - [x] Add finite HTTP deadlines to Google OAuth token refresh and Gmail sends.
 - [x] Add regression test verifying the request receives an abort signal.
-- [ ] Confirm GitHub CI (typecheck, unit tests and Docker smoke) for provider timeout commit.
+- [x] Provider timeout commit CI 38953188965 PASS (typecheck, unit tests, Docker and HTTP smoke).
 - [ ] Verify actual sender delivery and saved mission behavior under provider outages using authorized preview.
 
 
@@ -114,11 +114,13 @@ GitHub Actions runs 38774629494 (Bun boot and HTTP smoke), 38775210246 (SHA-chec
 - [x] Require exact canonical HTTPS production origin and dedicated webhook/token before deploy request.
 - [x] After webhook, poll for the validated Git SHA and database readiness, plus French/English homepages.
 - [x] Fail the deployment workflow rather than reporting success when the runtime is not verified.
-- [ ] Validate modified CD workflow in GitHub CI; actual CD cannot run without owner-controlled release gates and secrets.
+- [x] Modified gated CD source passes CI 38953413909; no real CD deployment executed.
+- [ ] Run real CD workflow only after owner-controlled release gates and secure credentials are configured.
 
 
 ## 2026-10-16 — Private download authorization failure
 
 - [x] Do not silently treat a Supabase role lookup failure as a normal client authorization decision.
 - [x] Add regression tests for published, archived and unverified client download states.
-- [ ] Confirm GitHub CI and real two-client negative access on the authorized DRONE AIR database.
+- [x] Download guard source CI 38953654188 PASS.
+- [ ] Execute real two-client negative signed-download access test on authorized DRONE AIR Supabase.

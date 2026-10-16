@@ -202,3 +202,8 @@ The workflow fails if these are not proven within bounded retries; a successful 
 
 
 The private file download handler fails when a role lookup encounters a database error. For acceptance, verify that role-service outages cannot generate signed links and that a non-admin cannot download unpublished, archived, unverified, or another client's file. CI unit tests cover file-state predicates but not real database RLS or bucket policies.
+
+
+## 2026-10-16 validation evidence
+
+Provider HTTP timeout regression passed [CI 38953188965](https://github.com/takatakca/droneair/actions/runs/38953188965). Gated deploy configuration and post-deploy verification source passed [CI 38953413909](https://github.com/takatakca/droneair/actions/runs/38953413909), but the **production CD job was skipped** and actual webhook/public confirmation remains untested. Private client download authorization guards passed [CI 38953654188](https://github.com/takatakca/droneair/actions/runs/38953654188). The public origin and health/ready routes could not be checked from the connected public reader and may have a different external status. All live release conditions remain blocked by existing-project Supabase access and a dedicated authorized Coolify resource.

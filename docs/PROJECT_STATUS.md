@@ -3,7 +3,7 @@
 Updated: 2026-10-16 (GitHub evidence, not a live release verification)  
 Repository: https://github.com/takatakca/droneair  
 Publication branch: `main`  
-Last verified implementation SHA: `dd56dbb963f03627cb53aa64df47af1708f3597f`  
+Last verified implementation SHA: `5623eb6467aa5c46b5bdcd43d5484172094caf7e`  
 Tracked release blockers: https://github.com/takatakca/droneair/issues/2
 
 ## Delivered in the repository
@@ -99,3 +99,11 @@ The optional GitHub Actions Coolify workflow has been improved to verify the exa
 ## 2026-10-16 — Signed file access guard
 
 The signed download server function now fails explicitly if the administrator-role lookup fails, instead of treating a Supabase authorization outage as a normal non-admin identity. Added pure regression tests for client file visibility, archive and upload-verification prerequisites; full GitHub CI pending.
+
+
+### Verified code and deployment checks — 2026-10-16 afternoon
+- `0e687918` Gmail/OAuth timeouts, CI [38953188965](https://github.com/takatakca/droneair/actions/runs/38953188965): **success**.
+- `f2d1f423` gated Coolify preflight and post-webhook live verification, CI [38953413909](https://github.com/takatakca/droneair/actions/runs/38953413909): **success** (workflow source validated; gated deployment **skipped**, not executed).
+- `5623eb64` private signed-download role lookup failure check and file-state tests, CI [38953654188](https://github.com/takatakca/droneair/actions/runs/38953654188): **success**.
+- Public `https://drone-air.ca/`, `/api/health` and `/api/ready` could not be fetched from the available public verification interface; that does **not** establish worldwide DNS status or a functioning production deployment.
+- The connected Supabase project lookup still responds **permission denied** for `ngdcmpywualyphgrutir`. The migration remains unapplied and tenant verification incomplete. Production is **not** verified.

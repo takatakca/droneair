@@ -77,3 +77,8 @@ The gated post-CI workflow remains disabled unless an owner-controlled GitHub va
 ## 2026-10-16 — Fail closed on private file authorization infrastructure errors
 
 A role lookup error during a signed client-file download is not equivalent to "the user is not an administrator." The server now explicitly refuses download issuance when the role query fails. Non-admins must still pass verified-published-not-archived checks and an independent client membership lookup before receiving short-lived private links. Pure tests assert the file-state predicate; real cross-tenant access tests remain a release gate.
+
+
+## 2026-10-16 — Latest verification is CI evidence, not release approval
+
+GitHub runs 38953188965, 38953413909 and 38953654188 all passed after the provider, gated deploy and signed download changes. The production deployment workflow was explicitly skipped, and public domain/health/ready could not be verified using available external access. These results are technical source/build checks only, not proof of tenant isolation, database migration, email sender or production release.

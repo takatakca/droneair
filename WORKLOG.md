@@ -2,9 +2,9 @@
 
 Newest first, one line per piece of work. Rule: `AGENTS.md` › Work log rule.
 Format: `YYYY-MM-DD | agent | branch → PR | status | what | next step`
-- 2026-10-16 | ChatGPT | main | active | Refuse signed download when role lookup fails; regression-test visibility/verification/archive rules | check GitHub CI and continue release gates
-- 2026-10-16 | ChatGPT | main | active | Add real post-webhook SHA + readiness validation to gated Coolify CD; require canonical origin before request | validate CI, keep disabled until production gates
-- 2026-10-16 | ChatGPT | main | active | Add bounded HTTP timeouts to optional Gmail token and message calls with regression tests | validate CI and preserve release handoff
+- 2026-10-16 | ChatGPT | main | done (CI PASS 38953654188) | Fail closed on signed download admin role lookup failures; test private file-state rules | complete two-client RLS and signed URL acceptance on authorized DB
+- 2026-10-16 | ChatGPT | main | done (CI PASS 38953413909, gated CD skipped) | Require canonical production origin before webhook; verify actual deployed SHA, readiness and bilingual routes before reporting CD success | configure only after security gates and authorized Coolify resource
+- 2026-10-16 | ChatGPT | main | done (CI PASS 38953188965) | Add 5-second OAuth and 8-second Gmail HTTP deadlines with regression tests | verify real OAuth sender and mission flow in authorized preview
 - 2026-10-16 | ChatGPT | main | done (CI 38852863989 PASS) | Implemented database readiness endpoint and checked fake Supabase returns HTTP 503 | next: test readiness 200 on authorized production-like preview
 - 2026-10-16 | ChatGPT | main | done (CI 38852681875 PASS) | Admin file UI now handles mutation/query errors and duplicate clicks | next: exercise actual authorized staging UI
 - 2026-10-16 | ChatGPT | main | done (CI 38852562996 PASS) | Preserve existing membership role on repeated invitations; fail visibly on lookup errors | next: real role-preservation test in staging
