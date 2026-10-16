@@ -82,3 +82,10 @@ GitHub Actions runs 38774629494 (Bun boot and HTTP smoke), 38775210246 (SHA-chec
 - [x] Preserve an existing membership's role on repeat invite rather than overwriting with "member".
 - [x] Distinguish Supabase profile lookup failure from "account does not exist".
 - [ ] Check latest CI and verify with a real privileged membership in an authorized DRONE AIR staging environment.
+
+## 2026-10-16 — Admin file management UI
+
+- [x] Catch file metadata, publication and archive errors and show a visible alert.
+- [x] Disable file mutation buttons during requests and prevent rapid double clicks.
+- [x] Display file-list/history load errors instead of an empty-state message.
+- [ ] Check CI for the UI change and exercise mutations against actual staging database.

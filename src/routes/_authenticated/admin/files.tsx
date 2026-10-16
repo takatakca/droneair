@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -59,6 +59,9 @@ function AdminFiles() {
   const [search, setSearch] = useState("");
   const [uploadState, setUploadState] = useState<"idle" | "uploading" | "processing" | "verified" | "failed">("idle");
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [actionBusy, setActionBusy] = useState(false);
+  const actionInFlight = useRef(false);
 
   const selected = (files.data ?? []).find((f) => f.id === selectedId) ?? null;
   const events = useQuery({
@@ -138,11 +141,33 @@ function AdminFiles() {
     }
   }
 
+  async function performAction(action: () => Promise<unknown>) {
+    // A ref prevents two rapid clicks before the disabled state renders.
+    if (actionInFlight.current) return;
+    actionInFlight.current = true;
+    setActionBusy(true);
+    setActionError(null);
+    try {
+      await action();
+      await refresh();
+    } catch (error) {
+      console.error("DRONE AIR administrator file action failed", error);
+      setActionError(
+        lang === "fr"
+          ? "Impossible d'effectuer l'opération sur ce fichier. Réessayez."
+          : "The file operation could not be completed. Please try again.",
+      );
+    } finally {
+      actionInFlight.current = false;
+      setActionBusy(false);
+    }
+  }
+
   async function onMetadata(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selected) return;
     const fd = new FormData(event.currentTarget);
-    await updateMeta({
+    await performAction(() => updateMeta({
       data: {
         fileId: selected.id,
         displayName: String(fd.get("displayName") ?? ""),
@@ -151,14 +176,18 @@ function AdminFiles() {
         version: Number(fd.get("version") ?? 1),
         projectId: String(fd.get("projectId") || "") || null,
       },
-    });
-    await refresh();
+    }));
   }
 
   return (
     <section>
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{p.files}</p>
       <h1 className="mt-3 text-4xl font-semibold tracking-tight">{p.nav.files}</h1>
+      {(files.isError || workspace.isError || client.isError) ? (
+        <p role="alert" className="mt-4 text-sm text-destructive">
+          {lang === "fr" ? "Impossible de charger les données des fichiers. Réessayez." : "Unable to load file data. Please retry."}
+        </p>
+      ) : null}
 
       <form className="mt-10 border-y border-border py-7" onSubmit={upload}>
         <h2 className="text-lg font-semibold">{p.uploadTitle}</h2>
@@ -252,7 +281,7 @@ function AdminFiles() {
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={p.search} className="w-full border-b border-border bg-transparent px-1 py-3 outline-none focus:border-primary" />
           <div className="mt-5 border-y border-border">
             {filtered.map((file) => (
-              <button type="button" key={file.id} onClick={() => setSelectedId(file.id)} className="w-full border-b border-border py-5 text-left last:border-b-0 hover:text-primary">
+              <button type="button" key={file.id} onClick={() => { setSelectedId(file.id); setActionError(null); }} className="w-full border-b border-border py-5 text-left last:border-b-0 hover:text-primary">
                 <div className="flex items-start justify-between gap-4">
                   <span className="font-medium">{file.displayName}</span>
                   <span className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
@@ -262,14 +291,15 @@ function AdminFiles() {
                 <p className="mt-2 text-xs text-muted-foreground">{[file.clientName, file.projectTitle, file.category, formatBytes(file.sizeBytes), `v${file.version}`].filter(Boolean).join(" · ")}</p>
               </button>
             ))}
-            {!files.isLoading && filtered.length === 0 ? <p className="py-6 text-sm text-muted-foreground">{p.empty}</p> : null}
+            {!files.isLoading && !files.isError && filtered.length === 0 ? <p className="py-6 text-sm text-muted-foreground">{p.empty}</p> : null}
           </div>
         </div>
 
         <div>
           {selected ? (
             <>
-              <form key={selected.id} onSubmit={onMetadata} className="grid gap-5">
+              {actionError ? <p role="alert" className="mb-5 text-sm text-destructive">{actionError}</p> : null}
+              <form key={selected.id} onSubmit={onMetadata} aria-busy={actionBusy} className="grid gap-5">
                 <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{selected.clientName}</p>
                 <label className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
                   {p.displayName}
@@ -293,13 +323,23 @@ function AdminFiles() {
                   <textarea name="description" defaultValue={selected.description ?? ""} rows={4} className="mt-2 w-full border-b border-border bg-transparent py-3 text-sm text-foreground outline-none focus:border-primary" />
                 </label>
                 <div className="flex flex-wrap gap-6">
-                  <button type="submit" className="link-arrow">{p.save}</button>
+                  <button type="submit" className="link-arrow" disabled={actionBusy}>{p.save}</button>
                   {selected.uploadVerified && !selected.isArchived ? (
-                    <button type="button" className="link-arrow" onClick={async () => { await visibility({ data: { fileId: selected.id, visible: !selected.isVisibleToClient } }); await refresh(); }}>
+                    <button
+                      type="button"
+                      className="link-arrow"
+                      disabled={actionBusy}
+                      onClick={() => void performAction(() => visibility({ data: { fileId: selected.id, visible: !selected.isVisibleToClient } }))}
+                    >
                       {selected.isVisibleToClient ? p.unpublish : p.publish}
                     </button>
                   ) : null}
-                  <button type="button" className="text-sm text-muted-foreground hover:text-foreground" onClick={async () => { await archive({ data: { fileId: selected.id, archived: !selected.isArchived } }); await refresh(); }}>
+                  <button
+                    type="button"
+                    disabled={actionBusy}
+                    className="text-sm text-muted-foreground hover:text-foreground disabled:opacity-60"
+                    onClick={() => void performAction(() => archive({ data: { fileId: selected.id, archived: !selected.isArchived } }))}
+                  >
                     {selected.isArchived ? p.restore : p.archive}
                   </button>
                 </div>
@@ -314,7 +354,8 @@ function AdminFiles() {
                       <span className="text-muted-foreground">{event.eventType}{event.actor ? ` · ${event.actor}` : ""}</span>
                     </div>
                   ))}
-                  {!events.isLoading && (events.data?.length ?? 0) === 0 ? <p className="py-3 text-sm text-muted-foreground">{p.empty}</p> : null}
+                  {events.isError ? <p role="alert" className="py-3 text-sm text-destructive">{lang === "fr" ? "Historique indisponible." : "File history unavailable."}</p> : null}
+                  {!events.isLoading && !events.isError && (events.data?.length ?? 0) === 0 ? <p className="py-3 text-sm text-muted-foreground">{p.empty}</p> : null}
                 </div>
               </section>
             </>

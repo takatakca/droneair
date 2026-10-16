@@ -154,3 +154,7 @@ Exact next action: inspect latest `main` run and fix any TypeScript, lint, tests
 Additional authorization improvement: `src/lib/portal/admin.functions.ts` now refuses profile lookups that failed at Supabase and uses `MEMBER_INVITE_UPSERT_OPTIONS` with `ignoreDuplicates: true`. Existing client membership rows and custom `membership_role` are **not** overwritten with `member` when an administrator repeats an invitation. Added shared config `src/lib/portal/membership.ts` and regression test `tests/membership-options.test.ts`. This does **not** grant roles to new unauthenticated users: existing verified Auth identity matching remains required.
 
 Check current GitHub Actions before claiming this newest fix passed. The authorization path also requires a real existing-project Supabase integration test for duplicate membership preservation. Never use any unrelated TAKATAK Supabase project as a substitute.
+
+## 2026-10-16 — File admin error UI
+
+The `src/routes/_authenticated/admin/files.tsx` screen now guards edit/publish/archive server calls with a serialized action runner, disables duplicate clicks, catches errors and presents French/English alerts. It also distinguishes failed file/history queries from valid empty results. Verify GitHub Actions on the new UI commit; without a DRONE AIR-connected Supabase instance, live form/workflow acceptance remains blocked. Refrain from enabling production deployment.

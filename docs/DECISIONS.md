@@ -54,3 +54,7 @@ Database reads in the administrator operation layer no longer treat a failed res
 ## 2026-10-16 — Repeat admin invitations are non-destructive
 
 An admin linking an existing verified identity to the same client must not reset the member's existing `membership_role`. The Supabase PostgREST upsert therefore sets `ignoreDuplicates: true` with the client/user conflict key. This preserves tenant authorization while allowing the operation to be repeated safely. Errors querying profiles are surfaced rather than treated as missing accounts.
+
+## 2026-10-16 — Administrative file actions must report failures in the interface
+
+The administrator file page now wraps metadata/visibility/archive writes in a guarded async operation, prevents accidental double submission, and exposes failures in both French and English. Query errors for file lists and history are not mistaken for empty data. Server-side authorization remains the source of truth; this is UI correctness, not new permission logic.

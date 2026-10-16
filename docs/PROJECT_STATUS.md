@@ -69,3 +69,5 @@ The code now distinguishes real empty results from failed Supabase reads and che
 ### 2026-10-16 — Authorization improvement
 
 Admin account linking is now idempotent: a repeated invitation must not overwrite an existing client membership role, and account lookup errors are explicit. A new regression test guards the upsert behavior. GitHub CI and real database verification are separate requirements.
+
+The administrator file screen now handles failed file actions and failed listing/history fetches explicitly. Code submitted for GitHub CI; real customer acceptance and production integration remain unverified.
