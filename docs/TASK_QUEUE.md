@@ -68,3 +68,11 @@ GitHub Actions runs 38774629494 (Bun boot and HTTP smoke), 38775210246 (SHA-chec
 ## 2026-10-15 — Error-path honesty
 - [x] Do not mask Supabase client portal and admin overview/detail query failures as empty lists.
 - [ ] Verify updated server functions in GitHub CI and run real service-outage scenarios on authorized staging.
+
+## 2026-10-16 — Administrator database correctness
+
+- [x] Reject admin dashboard counts when the database query fails or returns no exact count.
+- [x] Reject phantom success for client/project/file/mission updates and membership removals.
+- [x] Reject missing source missions before generating client/project records.
+- [x] Do not silently hide database errors in administrator listings, detail and audit history.
+- [ ] Validate new server code and regression tests in GitHub Actions and real authorized Supabase staging.

@@ -46,3 +46,7 @@ Admin file replacement must first validate that the old and new files belong to 
 ## 2026-10-15 — Database outages must not look like empty client data
 
 Tenant portal and admin views must surface Supabase query errors instead of treating failed requests as empty result sets. A real empty result is valid when the database query succeeds. This avoids misleading clients about lost files/projects and prevents administrators from relying on incomplete operational dashboards. Tests against the real database are still blocked by permissions.
+
+## 2026-10-16 — Admin operations must report actual effects
+
+Database reads in the administrator operation layer no longer treat a failed response or missing exact count as an empty dataset/zero. Mutating an identified row must use PostgREST `.select("id").maybeSingle()` and reject updates/deletes that matched nothing. Opening a client/project from a mission first verifies that the mission exists. These controls are server-side; a successful CI build does not replace two-client database staging tests.

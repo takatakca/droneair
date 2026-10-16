@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertQuerySucceeded, requireChangedRow, requireExactCount } from "@/lib/portal/db-result";
 import {
   coerceCategory,
   coerceMissionStatus,
@@ -97,11 +98,12 @@ export const getAdminAccess = createServerFn({ method: "GET" })
     const { assertAdmin } = await import("@/lib/portal/portal.server");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await assertAdmin(context.userId);
-    const { data } = await supabaseAdmin
+    const { data, error } = await supabaseAdmin
       .from("profiles")
       .select("email")
       .eq("id", context.userId)
       .maybeSingle();
+    assertQuerySucceeded(error, "Could not load administrator identity");
     return { isAdmin: true, email: data?.email ?? null };
   });
 
@@ -131,12 +133,12 @@ export const getAdminCounts = createServerFn({ method: "GET" })
     ]);
 
     return {
-      missions: missions.count ?? 0,
-      newMissions: newMissions.count ?? 0,
-      clients: clients.count ?? 0,
-      activeProjects: activeProjects.count ?? 0,
-      files: files.count ?? 0,
-      publishedFiles: published.count ?? 0,
+      missions: requireExactCount(missions, "Could not count missions"),
+      newMissions: requireExactCount(newMissions, "Could not count new missions"),
+      clients: requireExactCount(clients, "Could not count clients"),
+      activeProjects: requireExactCount(activeProjects, "Could not count active projects"),
+      files: requireExactCount(files, "Could not count files"),
+      publishedFiles: requireExactCount(published, "Could not count published files"),
     };
   });
 
@@ -153,11 +155,13 @@ export const updateClientAccount = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { assertAdmin } = await import("@/lib/portal/portal.server");
     await assertAdmin(context.userId);
-    const { error } = await supabaseAdmin
+    const { data: updated, error } = await supabaseAdmin
       .from("clients")
       .update({ name: data.name, status: data.status })
-      .eq("id", data.clientId);
-    if (error) throw new Error("Could not update the client");
+      .eq("id", data.clientId)
+      .select("id")
+      .maybeSingle();
+    requireChangedRow(updated, error, "Could not update the client");
     return { ok: true };
   });
 
@@ -171,12 +175,14 @@ export const removeClientMember = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { assertAdmin } = await import("@/lib/portal/portal.server");
     await assertAdmin(context.userId);
-    const { error } = await supabaseAdmin
+    const { data: removed, error } = await supabaseAdmin
       .from("client_memberships")
       .delete()
       .eq("client_id", data.clientId)
-      .eq("user_id", data.userId);
-    if (error) throw new Error("Could not remove that access");
+      .eq("user_id", data.userId)
+      .select("id")
+      .maybeSingle();
+    requireChangedRow(removed, error, "Could not remove that access");
     return { ok: true };
   });
 
@@ -196,11 +202,12 @@ export const findAccountByEmail = createServerFn({ method: "POST" })
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const { assertAdmin } = await import("@/lib/portal/portal.server");
       await assertAdmin(context.userId);
-      const { data: profile } = await supabaseAdmin
+      const { data: profile, error: profileError } = await supabaseAdmin
         .from("profiles")
         .select("id, first_name, last_name")
         .eq("email", data.email)
         .maybeSingle();
+      assertQuerySucceeded(profileError, "Could not look up account");
       if (!profile) return { found: false, userId: null, name: null };
       const { matchesVerifiedEmailIdentity } = await import("@/lib/portal/identity");
       const { data: authAccount, error: authError } = await supabaseAdmin.auth.admin.getUserById(profile.id);
@@ -223,7 +230,11 @@ export const getAdminProjects = createServerFn({ method: "GET" })
     const { assertAdmin } = await import("@/lib/portal/portal.server");
     await assertAdmin(context.userId);
 
-    const [{ data: projects }, { data: clients }, { data: files }] = await Promise.all([
+    const [
+      { data: projects, error: projectsError },
+      { data: clients, error: clientsError },
+      { data: files, error: filesError },
+    ] = await Promise.all([
       supabaseAdmin
         .from("client_projects")
         .select(
@@ -233,6 +244,8 @@ export const getAdminProjects = createServerFn({ method: "GET" })
       supabaseAdmin.from("clients").select("id, name"),
       supabaseAdmin.from("client_files").select("project_id").eq("is_archived", false),
     ]);
+
+    assertQuerySucceeded(projectsError || clientsError || filesError, "Could not load administrator projects");
 
     return (projects ?? []).map((p) => ({
       id: p.id,
@@ -282,7 +295,7 @@ export const updateClientProject = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { assertAdmin } = await import("@/lib/portal/portal.server");
     await assertAdmin(context.userId);
-    const { error } = await supabaseAdmin
+    const { data: updated, error } = await supabaseAdmin
       .from("client_projects")
       .update({
         title: data.title,
@@ -294,8 +307,10 @@ export const updateClientProject = createServerFn({ method: "POST" })
         mission_request_id: data.missionRequestId,
         completed_at: data.status === "completed" ? new Date().toISOString() : null,
       })
-      .eq("id", data.projectId);
-    if (error) throw new Error("Could not update the project");
+      .eq("id", data.projectId)
+      .select("id")
+      .maybeSingle();
+    requireChangedRow(updated, error, "Could not update the project");
     return { ok: true };
   });
 
@@ -306,7 +321,11 @@ export const getAdminFiles = createServerFn({ method: "GET" })
     const { assertAdmin } = await import("@/lib/portal/portal.server");
     await assertAdmin(context.userId);
 
-    const [{ data: files }, { data: clients }, { data: projects }] = await Promise.all([
+    const [
+      { data: files, error: filesError },
+      { data: clients, error: clientsError },
+      { data: projects, error: projectsError },
+    ] = await Promise.all([
       supabaseAdmin
         .from("client_files")
         .select(
@@ -317,6 +336,8 @@ export const getAdminFiles = createServerFn({ method: "GET" })
       supabaseAdmin.from("clients").select("id, name"),
       supabaseAdmin.from("client_projects").select("id, title"),
     ]);
+
+    assertQuerySucceeded(filesError || clientsError || projectsError, "Could not load administrator files");
 
     return (files ?? []).map((f) => ({
       id: f.id,
@@ -388,7 +409,7 @@ export const updateFileMetadata = createServerFn({ method: "POST" })
       if (projectError || !project) throw new Error("Project does not belong to this file's client");
     }
 
-    const { error } = await supabaseAdmin
+    const { data: updated, error } = await supabaseAdmin
       .from("client_files")
       .update({
         display_name: data.displayName,
@@ -397,8 +418,10 @@ export const updateFileMetadata = createServerFn({ method: "POST" })
         version: data.version,
         project_id: data.projectId,
       })
-      .eq("id", data.fileId);
-    if (error) throw new Error("Could not update the file");
+      .eq("id", data.fileId)
+      .select("id")
+      .maybeSingle();
+    requireChangedRow(updated, error, "Could not update the file");
     return { ok: true };
   });
 
@@ -417,17 +440,19 @@ export const getFileEvents = createServerFn({ method: "POST" })
       const { assertAdmin } = await import("@/lib/portal/portal.server");
       await assertAdmin(context.userId);
 
-      const { data: events } = await supabaseAdmin
+      const { data: events, error: eventsError } = await supabaseAdmin
         .from("client_file_events")
         .select("id, created_at, event_type, user_id")
         .eq("client_file_id", data.fileId)
         .order("created_at", { ascending: false })
         .limit(60);
 
+      assertQuerySucceeded(eventsError, "Could not load file history");
       const ids = [...new Set((events ?? []).map((e) => e.user_id).filter(Boolean))] as string[];
-      const { data: profiles } = ids.length
+      const { data: profiles, error: profilesError } = ids.length
         ? await supabaseAdmin.from("profiles").select("id, email").in("id", ids)
-        : { data: [] as { id: string; email: string | null }[] };
+        : { data: [] as { id: string; email: string | null }[], error: null };
+      assertQuerySucceeded(profilesError, "Could not load file history actors");
 
       return (events ?? []).map((e) => ({
         id: e.id,
@@ -445,13 +470,14 @@ export const getAdminMissions = createServerFn({ method: "GET" })
     const { assertAdmin } = await import("@/lib/portal/portal.server");
     await assertAdmin(context.userId);
 
-    const { data } = await supabaseAdmin
+    const { data, error } = await supabaseAdmin
       .from("mission_requests")
       .select(
         "id, created_at, name, company, email, telephone, service_type, project_location, lead_priority, lead_type, submission_status",
       )
       .order("created_at", { ascending: false })
       .limit(300);
+    assertQuerySucceeded(error, "Could not load mission requests");
 
     return (data ?? []).map((m) => ({
       id: m.id,
@@ -486,12 +512,13 @@ export const getMissionDetail = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error || !m) throw new Error("Mission request not found");
 
-    const { data: events } = await supabaseAdmin
+    const { data: events, error: eventsError } = await supabaseAdmin
       .from("mission_email_events")
       .select("id, created_at, event_type, status, recipient, error_summary")
       .eq("mission_request_id", m.id)
       .order("created_at", { ascending: false })
       .limit(30);
+    assertQuerySucceeded(eventsError, "Could not load mission email history");
 
     return {
       id: m.id,
@@ -538,11 +565,13 @@ export const updateMissionStatus = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { assertAdmin } = await import("@/lib/portal/portal.server");
     await assertAdmin(context.userId);
-    const { error } = await supabaseAdmin
+    const { data: updated, error } = await supabaseAdmin
       .from("mission_requests")
       .update({ submission_status: data.status })
-      .eq("id", data.missionId);
-    if (error) throw new Error("Could not update the mission status");
+      .eq("id", data.missionId)
+      .select("id")
+      .maybeSingle();
+    requireChangedRow(updated, error, "Could not update the mission status");
     return { ok: true };
   });
 
@@ -559,6 +588,13 @@ export const createClientFromMission = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { assertAdmin } = await import("@/lib/portal/portal.server");
     await assertAdmin(context.userId);
+
+    const { data: mission, error: missionError } = await supabaseAdmin
+      .from("mission_requests")
+      .select("id")
+      .eq("id", data.missionId)
+      .maybeSingle();
+    requireChangedRow(mission, missionError, "Mission request not found");
 
     const { data: row, error } = await supabaseAdmin
       .from("clients")
@@ -583,11 +619,12 @@ export const createProjectFromMission = createServerFn({ method: "POST" })
     const { assertAdmin } = await import("@/lib/portal/portal.server");
     await assertAdmin(context.userId);
 
-    const { data: mission } = await supabaseAdmin
+    const { data: mission, error: missionError } = await supabaseAdmin
       .from("mission_requests")
       .select("project_location, service_type")
       .eq("id", data.missionId)
       .maybeSingle();
+    requireChangedRow(mission, missionError, "Mission request not found");
 
     const { data: row, error } = await supabaseAdmin
       .from("client_projects")

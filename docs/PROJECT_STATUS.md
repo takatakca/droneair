@@ -61,3 +61,7 @@ These are GitHub-run test results, not real Supabase integration or production d
 
 
 A follow-up code checkpoint adds explicit errors for failed Supabase client/admin portal reads so outages cannot be silently presented as empty records. Its GitHub CI and real database acceptance results must be checked separately.
+
+## 2026-10-16 — Server-side administrator correctness
+
+The code now distinguishes real empty results from failed Supabase reads and checks actual affected rows on update/delete operations. Mission-to-client/project creation requires an existing mission. Dedicated regression tests cover the shared result guards. Live integration acceptance remains blocked by access to the existing DRONE AIR Supabase project.

@@ -140,3 +140,11 @@ Admin operations in `src/lib/portal/admin.functions.ts` now check replacement sc
 ## 2026-10-15 — Portals now report query failures accurately
 
 `src/lib/portal/client.functions.ts` and `src/lib/portal/admin.functions.ts` now check error results for role/profile/membership, tenant projects/files and admin workspace/member detail reads. When a query fails, these server functions throw an explicit general error rather than rendering empty data. This code change does not imply the live Supabase project is accessible. GitHub CI must be checked for this checkpoint; acceptance testing against live users remains in issue #2.
+
+## 2026-10-16 — Administrator operation reliability
+
+Latest prior validated GitHub CI: `38793570682` succeeded for `1d02db3`; gated Coolify deployment was skipped (`38793699874`). No production deployment was made.
+
+The new implementation tightens `src/lib/portal/admin-ops.functions.ts`: missing count/read query errors now fail visibly, row updates/deletes must return an affected row, mission-sourced client/project creation requires an actual mission. Pure helper `src/lib/portal/db-result.ts` is verified by new `tests/db-result.test.ts`. Modified standard tracking docs and `WORKLOG.md`. **Verify GitHub CI for the new commit before claiming it passes.** The deployed database cannot be checked without access to project `ngdcmpywualyphgrutir`; do not create an unrelated or billable Supabase project.
+
+Exact next action: inspect latest `main` run and fix any TypeScript, lint, tests or Docker HTTP failures. Once green, next release gates remain existing-project Supabase access, applying/reviewing pending migrations, historical key rotation, two-client RLS/storage tests and verified dedicated Coolify app with domain/TLS/sender. Source code changes are not proof of production.

@@ -167,3 +167,7 @@ Container CI now also attempts HTTP 413 oversized-multipart and HTTP 400 invalid
 - 38792894836: application HTTP POST rejects oversized multipart with 413 and invalid JSON with 400 (fake CI database configuration).
 - 38793107957: private file lifecycle regression tests and full Bun Docker CI passed.
 - These results do not substitute for a real Supabase tenant isolation test or a verified production deploy.
+
+## Server database read/mutation checks (2026-10-16)
+
+Administrator query failures and absent exact counts cause errors rather than showing zeros. Single-record mutations request the affected row, which avoids a false confirmation when a record is missing or filtered. Mission-derived client/project creation checks that the source mission still exists. Verify under actual permission models in the authorized Supabase environment; CI uses fake credentials for container boot only.
