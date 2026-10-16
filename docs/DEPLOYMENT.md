@@ -199,3 +199,6 @@ Configure the **protected production environment** variable `DRONE_AIR_PRODUCTIO
 - HTTP 200 for `/` and `/en`.
 
 The workflow fails if these are not proven within bounded retries; a successful webhook request is not completion. Live DB tenancy, email sender and rollback remain manual release gates. Production deployment remains disabled/unverified until authorized provider, DNS/TLS and Supabase permissions are available.
+
+
+The private file download handler fails when a role lookup encounters a database error. For acceptance, verify that role-service outages cannot generate signed links and that a non-admin cannot download unpublished, archived, unverified, or another client's file. CI unit tests cover file-state predicates but not real database RLS or bucket policies.

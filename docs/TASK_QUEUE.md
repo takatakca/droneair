@@ -115,3 +115,10 @@ GitHub Actions runs 38774629494 (Bun boot and HTTP smoke), 38775210246 (SHA-chec
 - [x] After webhook, poll for the validated Git SHA and database readiness, plus French/English homepages.
 - [x] Fail the deployment workflow rather than reporting success when the runtime is not verified.
 - [ ] Validate modified CD workflow in GitHub CI; actual CD cannot run without owner-controlled release gates and secrets.
+
+
+## 2026-10-16 — Private download authorization failure
+
+- [x] Do not silently treat a Supabase role lookup failure as a normal client authorization decision.
+- [x] Add regression tests for published, archived and unverified client download states.
+- [ ] Confirm GitHub CI and real two-client negative access on the authorized DRONE AIR database.

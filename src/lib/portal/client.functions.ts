@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { isClientDownloadAllowed } from "@/lib/portal/download-policy";
 
 export interface PortalFile {
   id: string;
@@ -148,15 +149,18 @@ export const requestFileDownload = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error || !file) throw new Error("File not found");
 
-    const { data: roles } = await supabaseAdmin
+    const { data: roles, error: rolesError } = await supabaseAdmin
       .from("user_roles")
       .select("role")
       .eq("user_id", context.userId)
       .eq("role", "admin");
+    // An authorization infrastructure error must never be silently treated
+    // as a normal non-admin response.
+    if (rolesError) throw new Error("Could not verify download permissions");
     const isAdmin = (roles ?? []).length > 0;
 
     if (!isAdmin) {
-      if (!file.is_visible_to_client || file.is_archived || !file.upload_verified) {
+      if (!isClientDownloadAllowed(file)) {
         throw new Error("File not found");
       }
       await assertMembership(context.userId, file.client_id);

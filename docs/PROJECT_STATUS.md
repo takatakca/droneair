@@ -94,3 +94,8 @@ Google OAuth token refresh and Gmail sends now have explicit abort deadlines so 
 ## 2026-10-16 — Post-deploy verification is prepared
 
 The optional GitHub Actions Coolify workflow has been improved to verify the exact public deployed revision, database readiness and bilingual pages before reporting success. The repository's opt-in deployment switch remains disabled; the code change does **not** prove deployment or approve using an unknown target.
+
+
+## 2026-10-16 — Signed file access guard
+
+The signed download server function now fails explicitly if the administrator-role lookup fails, instead of treating a Supabase authorization outage as a normal non-admin identity. Added pure regression tests for client file visibility, archive and upload-verification prerequisites; full GitHub CI pending.

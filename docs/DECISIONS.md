@@ -72,3 +72,8 @@ The mission lead is stored before optional Gmail notifications. OAuth token exch
 ## 2026-10-16 — A Coolify webhook acknowledgment is not a deployment
 
 The gated post-CI workflow remains disabled unless an owner-controlled GitHub variable explicitly enables it. Once enabled, it now **fails** if the approved HTTPS production origin (`https://drone-air.ca`) is missing or if Coolify credentials are missing/malformed; this check happens before any webhook request. After Coolify accepts the request it polls live health revision, database readiness and bilingual public routes. An unverified release fails the GitHub job. This still does not waive privileged DB migration review, two-client RLS, email or rollback acceptance.
+
+
+## 2026-10-16 — Fail closed on private file authorization infrastructure errors
+
+A role lookup error during a signed client-file download is not equivalent to "the user is not an administrator." The server now explicitly refuses download issuance when the role query fails. Non-admins must still pass verified-published-not-archived checks and an independent client membership lookup before receiving short-lived private links. Pure tests assert the file-state predicate; real cross-tenant access tests remain a release gate.

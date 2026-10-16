@@ -180,3 +180,8 @@ Added `src/lib/email/http.server.ts`, `tests/email-provider-timeouts.test.ts`, a
 ## 2026-10-16 — Gated Coolify post-deploy proof
 
 `.github/workflows/deploy-coolify.yml` now demands the approved `DRONE_AIR_PRODUCTION_ORIGIN=https://drone-air.ca`, a dedicated resource webhook and token before requesting deployment; after webhook it retries actual public release SHA, `/api/ready` and `/`, `/en` checks and fails if never confirmed. Added `tests/deploy-workflow-gates.test.ts`. This workflow remains opt-in **disabled**, no webhook was sent, and its actual end-to-end behavior cannot be verified without the dedicated production environment. Check newest CI for these source changes. Do not enable deploy until credential rotation, Supabase and tenant security acceptance. Previous email timeout commit `0e687918` must also be checked for full CI status.
+
+
+## 2026-10-16 — Signed-download authorization guard
+
+Changed `src/lib/portal/client.functions.ts` to fail explicitly when `user_roles` lookup fails before issuing a signed URL; retained independent client tenant membership and file-state checks. Extracted `src/lib/portal/download-policy.ts` and added `tests/portal-download-policy.test.ts`. Exact next step: check current GitHub Actions for this commit; cross-client real Supabase tests remain blocked. The prior gated deployment workflow commit `f2d1f423` passed CI run 38953413909. No Coolify webhook was sent and no production release was verified.
