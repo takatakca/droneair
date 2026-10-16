@@ -67,3 +67,8 @@ The public `/api/health` endpoint reports process liveness and build revision. T
 ## 2026-10-16 — Bound optional Gmail requests
 
 The mission lead is stored before optional Gmail notifications. OAuth token exchange and Gmail send HTTP calls must respect finite deadlines (5 and 8 seconds respectively) so a stalled external provider cannot hold the HTTP request indefinitely. Retry behavior remains bounded (at most two attempts) and delivery failure remains recorded as failure rather than a success claim. The change does not configure or verify Gmail sender credentials.
+
+
+## 2026-10-16 — A Coolify webhook acknowledgment is not a deployment
+
+The gated post-CI workflow remains disabled unless an owner-controlled GitHub variable explicitly enables it. Once enabled, it now **fails** if the approved HTTPS production origin (`https://drone-air.ca`) is missing or if Coolify credentials are missing/malformed; this check happens before any webhook request. After Coolify accepts the request it polls live health revision, database readiness and bilingual public routes. An unverified release fails the GitHub job. This still does not waive privileged DB migration review, two-client RLS, email or rollback acceptance.

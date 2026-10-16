@@ -189,3 +189,13 @@ CI run [38852863989](https://github.com/takatakca/droneair/actions/runs/38852863
 ### Gmail network outage behavior (2026-10-16)
 
 OAuth token exchanges use a 5-second HTTP abort deadline and Gmail send requests use an 8-second deadline; each notification has at most two attempts. The request still waits for optional AI/email after storing the lead, so a high-latency AI+email combination can take longer than either single deadline. Before release, simulate Google provider timeouts using controlled preview conditions and ensure persistent mission storage, appropriate delivery failure status and no false email-success message. Delivery must be tested with authorized credentials, not CI placeholders.
+
+
+### Automated post-Coolify proof (2026-10-16)
+
+Configure the **protected production environment** variable `DRONE_AIR_PRODUCTION_ORIGIN=https://drone-air.ca` alongside the already documented DRONE AIR-only Coolify webhook/token and `DRONE_AIR_PRODUCTION_DEPLOY_ENABLED=true` **only after all release gates are met**. The workflow now refuses to send a webhook without the expected canonical origin and credentials. After a green CI and exact-main guard, it requests deployment and polls for:
+- HTTPS `/api/health` reporting the exact validated SHA (supply `DRONE_AIR_GIT_SHA` as a non-secret Coolify Docker build argument);
+- HTTPS `/api/ready` status `ready` (read-only DB query);
+- HTTP 200 for `/` and `/en`.
+
+The workflow fails if these are not proven within bounded retries; a successful webhook request is not completion. Live DB tenancy, email sender and rollback remain manual release gates. Production deployment remains disabled/unverified until authorized provider, DNS/TLS and Supabase permissions are available.

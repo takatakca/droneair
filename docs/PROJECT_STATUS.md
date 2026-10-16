@@ -89,3 +89,8 @@ The gated production workflow is **skipped** and production is **not verified**.
 ## 2026-10-16 — Email network boundedness
 
 Google OAuth token refresh and Gmail sends now have explicit abort deadlines so they do not hang indefinitely after a mission has been stored. Unit tests for those deadlines were added; GitHub CI and actual authorized sender delivery must be verified separately. No external Gmail credentials were accessed during this change.
+
+
+## 2026-10-16 — Post-deploy verification is prepared
+
+The optional GitHub Actions Coolify workflow has been improved to verify the exact public deployed revision, database readiness and bilingual pages before reporting success. The repository's opt-in deployment switch remains disabled; the code change does **not** prove deployment or approve using an unknown target.

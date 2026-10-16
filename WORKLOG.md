@@ -2,6 +2,7 @@
 
 Newest first, one line per piece of work. Rule: `AGENTS.md` › Work log rule.
 Format: `YYYY-MM-DD | agent | branch → PR | status | what | next step`
+- 2026-10-16 | ChatGPT | main | active | Add real post-webhook SHA + readiness validation to gated Coolify CD; require canonical origin before request | validate CI, keep disabled until production gates
 - 2026-10-16 | ChatGPT | main | active | Add bounded HTTP timeouts to optional Gmail token and message calls with regression tests | validate CI and preserve release handoff
 - 2026-10-16 | ChatGPT | main | done (CI 38852863989 PASS) | Implemented database readiness endpoint and checked fake Supabase returns HTTP 503 | next: test readiness 200 on authorized production-like preview
 - 2026-10-16 | ChatGPT | main | done (CI 38852681875 PASS) | Admin file UI now handles mutation/query errors and duplicate clicks | next: exercise actual authorized staging UI

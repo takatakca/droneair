@@ -175,3 +175,8 @@ Last application SHA validated: `dd56dbb963f03627cb53aa64df47af1708f3597f`. Rele
 ## 2026-10-16 — Optional email provider deadlines
 
 Added `src/lib/email/http.server.ts`, `tests/email-provider-timeouts.test.ts`, and modified `src/lib/email/send.server.ts` to limit actual OAuth/Gmail outbound HTTP calls to 5 and 8 seconds. Existing two-attempt behavior, lead storage-first contract and failure reporting remain. This commit was pushed to `main`; **check the exact latest GitHub CI run** for validation. No live Gmail email was sent or verified. Previous checkpoint `b719f9f61a4f226a0a3731398e44526c5cde2d09` passed CI run 38853048865. Continue external production gates unchanged.
+
+
+## 2026-10-16 — Gated Coolify post-deploy proof
+
+`.github/workflows/deploy-coolify.yml` now demands the approved `DRONE_AIR_PRODUCTION_ORIGIN=https://drone-air.ca`, a dedicated resource webhook and token before requesting deployment; after webhook it retries actual public release SHA, `/api/ready` and `/`, `/en` checks and fails if never confirmed. Added `tests/deploy-workflow-gates.test.ts`. This workflow remains opt-in **disabled**, no webhook was sent, and its actual end-to-end behavior cannot be verified without the dedicated production environment. Check newest CI for these source changes. Do not enable deploy until credential rotation, Supabase and tenant security acceptance. Previous email timeout commit `0e687918` must also be checked for full CI status.

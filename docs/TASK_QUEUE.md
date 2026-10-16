@@ -107,3 +107,11 @@ GitHub Actions runs 38774629494 (Bun boot and HTTP smoke), 38775210246 (SHA-chec
 - [x] Add regression test verifying the request receives an abort signal.
 - [ ] Confirm GitHub CI (typecheck, unit tests and Docker smoke) for provider timeout commit.
 - [ ] Verify actual sender delivery and saved mission behavior under provider outages using authorized preview.
+
+
+## 2026-10-16 — Deployment verification gate
+
+- [x] Require exact canonical HTTPS production origin and dedicated webhook/token before deploy request.
+- [x] After webhook, poll for the validated Git SHA and database readiness, plus French/English homepages.
+- [x] Fail the deployment workflow rather than reporting success when the runtime is not verified.
+- [ ] Validate modified CD workflow in GitHub CI; actual CD cannot run without owner-controlled release gates and secrets.

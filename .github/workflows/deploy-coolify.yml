@@ -24,7 +24,7 @@ jobs:
       github.event.workflow_run.head_repository.full_name == github.repository &&
       vars.DRONE_AIR_PRODUCTION_DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     environment: production
 
     steps:
@@ -43,6 +43,31 @@ jobs:
             echo "deployable=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # A deployment cannot be marked successful without checking the exact
+      # public production origin and the SHA of the running application.
+      # Verify these prerequisites BEFORE sending a deploy webhook.
+      - name: Require verified production target configuration
+        if: steps.current.outputs.deployable == 'true'
+        shell: bash
+        env:
+          PRODUCTION_ORIGIN: ${{ vars.DRONE_AIR_PRODUCTION_ORIGIN }}
+          COOLIFY_WEBHOOK: ${{ secrets.DRONE_AIR_COOLIFY_WEBHOOK }}
+          COOLIFY_TOKEN: ${{ secrets.DRONE_AIR_COOLIFY_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ "$PRODUCTION_ORIGIN" != "https://drone-air.ca" ]]; then
+            echo "Production origin is missing or differs from the approved canonical HTTPS domain."
+            exit 1
+          fi
+          if [[ -z "$COOLIFY_WEBHOOK" || -z "$COOLIFY_TOKEN" ]]; then
+            echo "DRONE AIR Coolify deployment secrets are not configured."
+            exit 1
+          fi
+          if [[ "$COOLIFY_WEBHOOK" != https://*/api/v1/deploy\?* ]]; then
+            echo "The configured webhook is not an HTTPS Coolify resource deploy endpoint."
+            exit 1
+          fi
+
       - name: Request deployment of the dedicated DRONE AIR application
         if: steps.current.outputs.deployable == 'true'
         shell: bash
@@ -51,17 +76,47 @@ jobs:
           COOLIFY_TOKEN: ${{ secrets.DRONE_AIR_COOLIFY_TOKEN }}
         run: |
           set -euo pipefail
-          if [[ -z "$COOLIFY_WEBHOOK" || -z "$COOLIFY_TOKEN" ]]; then
-            echo "DRONE AIR Coolify deployment secrets are not configured."
-            exit 1
-          fi
-          if [[ "$COOLIFY_WEBHOOK" != https://*/api/v1/deploy\?* ]]; then
-            echo "The configured webhook is not an HTTPS Coolify deploy endpoint."
-            exit 1
-          fi
-          # A 2xx response acknowledges a deploy request, not a healthy production release.
+          # HTTP 2xx merely acknowledges Coolify's request.
           curl --fail --silent --show-error --max-time 30 \
+            --output /dev/null \
             --request GET "$COOLIFY_WEBHOOK" \
             --header "Authorization: Bearer $COOLIFY_TOKEN"
-          echo
-          echo "Deployment was requested; confirm Coolify deployment completion and live version separately."
+          echo "Coolify accepted a deployment request; checking live production before reporting success."
+
+      - name: Confirm public deployed SHA, database readiness and bilingual routes
+        if: steps.current.outputs.deployable == 'true'
+        shell: bash
+        env:
+          PRODUCTION_ORIGIN: ${{ vars.DRONE_AIR_PRODUCTION_ORIGIN }}
+          VALIDATED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          verified=false
+          # Coolify rebuilds can be asynchronous; never infer success from 2xx webhook.
+          for attempt in $(seq 1 24); do
+            # Do not report a stale application as the current release.
+            CURRENT_MAIN="$(git ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/main | cut -f1)"
+            if [[ "$CURRENT_MAIN" != "$VALIDATED_SHA" ]]; then
+              echo "main changed during deployment; this release cannot be confirmed current."
+              exit 1
+            fi
+            HEALTH="$(curl --fail --silent --max-time 8 "$PRODUCTION_ORIGIN/api/health" || true)"
+            REVISION="$(jq -r '.revision // empty' <<<"$HEALTH" 2>/dev/null || true)"
+            if [[ "$REVISION" == "$VALIDATED_SHA" ]]; then
+              READY="$(curl --fail --silent --max-time 8 "$PRODUCTION_ORIGIN/api/ready" || true)"
+              if jq -e '.status == "ready" and .service == "drone-air"' <<<"$READY" >/dev/null 2>&1 &&
+                curl --fail --silent --show-error --max-time 8 --output /dev/null "$PRODUCTION_ORIGIN/" &&
+                curl --fail --silent --show-error --max-time 8 --output /dev/null "$PRODUCTION_ORIGIN/en"; then
+                verified=true
+                break
+              fi
+            fi
+            echo "Production is not yet serving the validated SHA with database readiness (attempt $attempt)."
+            sleep 5
+          done
+          if [[ "$verified" != true ]]; then
+            echo "Coolify accepted the deploy request but actual production could not be verified."
+            exit 1
+          fi
+          echo "Verified HTTPS origin, exact deployed SHA, database readiness and bilingual public routes."
+          echo "Additional tenant isolation, private storage, sender delivery and rollback gates remain mandatory."
