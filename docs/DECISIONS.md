@@ -50,3 +50,7 @@ Tenant portal and admin views must surface Supabase query errors instead of trea
 ## 2026-10-16 — Admin operations must report actual effects
 
 Database reads in the administrator operation layer no longer treat a failed response or missing exact count as an empty dataset/zero. Mutating an identified row must use PostgREST `.select("id").maybeSingle()` and reject updates/deletes that matched nothing. Opening a client/project from a mission first verifies that the mission exists. These controls are server-side; a successful CI build does not replace two-client database staging tests.
+
+## 2026-10-16 — Repeat admin invitations are non-destructive
+
+An admin linking an existing verified identity to the same client must not reset the member's existing `membership_role`. The Supabase PostgREST upsert therefore sets `ignoreDuplicates: true` with the client/user conflict key. This preserves tenant authorization while allowing the operation to be repeated safely. Errors querying profiles are surfaced rather than treated as missing accounts.

@@ -9,6 +9,7 @@ import {
 } from "@/lib/portal/constants";
 import { trimmed } from "@/lib/portal/validate";
 import { isSameClientProject } from "@/lib/portal/replacement";
+import { MEMBER_INVITE_UPSERT_OPTIONS } from "@/lib/portal/membership";
 
 export interface AdminFile {
   id: string;
@@ -237,11 +238,12 @@ export const addClientMember = createServerFn({ method: "POST" })
     const { assertAdmin } = await import("@/lib/portal/portal.server");
     await assertAdmin(context.userId);
 
-    const { data: profile } = await supabaseAdmin
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from("profiles")
       .select("id")
       .eq("email", data.email)
       .maybeSingle();
+    if (profileError) throw new Error("Could not look up that account");
     if (!profile) throw new Error("No account exists with that email yet");
 
     // A profile's email is editable under legacy RLS. Authorize by the
@@ -256,7 +258,7 @@ export const addClientMember = createServerFn({ method: "POST" })
       .from("client_memberships")
       .upsert(
         { client_id: data.clientId, user_id: profile.id, membership_role: "member" },
-        { onConflict: "client_id,user_id" },
+        MEMBER_INVITE_UPSERT_OPTIONS,
       );
     if (error) throw new Error("Could not link that account");
 

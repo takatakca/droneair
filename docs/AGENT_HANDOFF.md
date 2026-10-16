@@ -148,3 +148,9 @@ Latest prior validated GitHub CI: `38793570682` succeeded for `1d02db3`; gated C
 The new implementation tightens `src/lib/portal/admin-ops.functions.ts`: missing count/read query errors now fail visibly, row updates/deletes must return an affected row, mission-sourced client/project creation requires an actual mission. Pure helper `src/lib/portal/db-result.ts` is verified by new `tests/db-result.test.ts`. Modified standard tracking docs and `WORKLOG.md`. **Verify GitHub CI for the new commit before claiming it passes.** The deployed database cannot be checked without access to project `ngdcmpywualyphgrutir`; do not create an unrelated or billable Supabase project.
 
 Exact next action: inspect latest `main` run and fix any TypeScript, lint, tests or Docker HTTP failures. Once green, next release gates remain existing-project Supabase access, applying/reviewing pending migrations, historical key rotation, two-client RLS/storage tests and verified dedicated Coolify app with domain/TLS/sender. Source code changes are not proof of production.
+
+## 2026-10-16 — Repeat invitation role preservation
+
+Additional authorization improvement: `src/lib/portal/admin.functions.ts` now refuses profile lookups that failed at Supabase and uses `MEMBER_INVITE_UPSERT_OPTIONS` with `ignoreDuplicates: true`. Existing client membership rows and custom `membership_role` are **not** overwritten with `member` when an administrator repeats an invitation. Added shared config `src/lib/portal/membership.ts` and regression test `tests/membership-options.test.ts`. This does **not** grant roles to new unauthenticated users: existing verified Auth identity matching remains required.
+
+Check current GitHub Actions before claiming this newest fix passed. The authorization path also requires a real existing-project Supabase integration test for duplicate membership preservation. Never use any unrelated TAKATAK Supabase project as a substitute.

@@ -171,3 +171,5 @@ Container CI now also attempts HTTP 413 oversized-multipart and HTTP 400 invalid
 ## Server database read/mutation checks (2026-10-16)
 
 Administrator query failures and absent exact counts cause errors rather than showing zeros. Single-record mutations request the affected row, which avoids a false confirmation when a record is missing or filtered. Mission-derived client/project creation checks that the source mission still exists. Verify under actual permission models in the authorized Supabase environment; CI uses fake credentials for container boot only.
+
+Before release, exercise admin invitation twice for an account whose `client_memberships.membership_role` is not `member`: confirm the role does not change. New account linking still requires a canonical verified Auth email. Inspect two-client access after this path; a GitHub unit test alone does not prove database behavior.

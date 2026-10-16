@@ -65,3 +65,7 @@ A follow-up code checkpoint adds explicit errors for failed Supabase client/admi
 ## 2026-10-16 — Server-side administrator correctness
 
 The code now distinguishes real empty results from failed Supabase reads and checks actual affected rows on update/delete operations. Mission-to-client/project creation requires an existing mission. Dedicated regression tests cover the shared result guards. Live integration acceptance remains blocked by access to the existing DRONE AIR Supabase project.
+
+### 2026-10-16 — Authorization improvement
+
+Admin account linking is now idempotent: a repeated invitation must not overwrite an existing client membership role, and account lookup errors are explicit. A new regression test guards the upsert behavior. GitHub CI and real database verification are separate requirements.

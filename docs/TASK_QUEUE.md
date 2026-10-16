@@ -76,3 +76,9 @@ GitHub Actions runs 38774629494 (Bun boot and HTTP smoke), 38775210246 (SHA-chec
 - [x] Reject missing source missions before generating client/project records.
 - [x] Do not silently hide database errors in administrator listings, detail and audit history.
 - [ ] Validate new server code and regression tests in GitHub Actions and real authorized Supabase staging.
+
+## 2026-10-16 — Membership idempotency
+
+- [x] Preserve an existing membership's role on repeat invite rather than overwriting with "member".
+- [x] Distinguish Supabase profile lookup failure from "account does not exist".
+- [ ] Check latest CI and verify with a real privileged membership in an authorized DRONE AIR staging environment.
