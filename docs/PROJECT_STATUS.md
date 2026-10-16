@@ -71,3 +71,7 @@ The code now distinguishes real empty results from failed Supabase reads and che
 Admin account linking is now idempotent: a repeated invitation must not overwrite an existing client membership role, and account lookup errors are explicit. A new regression test guards the upsert behavior. GitHub CI and real database verification are separate requirements.
 
 The administrator file screen now handles failed file actions and failed listing/history fetches explicitly. Code submitted for GitHub CI; real customer acceptance and production integration remain unverified.
+
+## 2026-10-16 — Deployment readiness instrumentation
+
+A separate `/api/ready` endpoint checks actual backend database connectivity without exposing errors to the browser. The container CI should prove its fake Supabase settings return HTTP 503 while liveness remains HTTP 200. This improves operational verification but is not proof of a real environment; production remains gated.

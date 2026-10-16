@@ -87,3 +87,23 @@ if (invalidResponse.status !== 400) {
   throw new Error(`Expected HTTP 400 for JSON submitted to multipart route; got ${invalidResponse.status}`);
 }
 console.log("PASS /api/public/mission-request: unexpected media type rejected");
+
+
+// CI deliberately uses dummy Supabase settings: /api/ready MUST report that
+// the app cannot access its real database, even though /api/health is alive.
+const readiness = await fetch(new URL("/api/ready", base), {
+  redirect: "manual",
+  signal: AbortSignal.timeout(12000),
+  headers: { accept: "application/json" },
+});
+if (readiness.status !== 503) {
+  throw new Error(`Expected HTTP 503 for CI's fake Supabase connection, got ${readiness.status}`);
+}
+const readinessPayload = await readiness.json();
+if (readinessPayload.status !== "unavailable" || readinessPayload.service !== "drone-air") {
+  throw new Error("Unexpected readiness response");
+}
+if (!readiness.headers.get("cache-control")?.includes("no-store")) {
+  throw new Error("Readiness response must disable caching");
+}
+console.log("PASS /api/ready: fake database is unavailable (not mistaken for healthy)");

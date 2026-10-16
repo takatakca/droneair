@@ -89,3 +89,9 @@ GitHub Actions runs 38774629494 (Bun boot and HTTP smoke), 38775210246 (SHA-chec
 - [x] Disable file mutation buttons during requests and prevent rapid double clicks.
 - [x] Display file-list/history load errors instead of an empty-state message.
 - [ ] Check CI for the UI change and exercise mutations against actual staging database.
+
+## 2026-10-16 — Database readiness
+
+- [x] Add database-sensitive HTTP /api/ready separate from process /api/health.
+- [x] Add CI HTTP smoke proving fake Supabase settings return readiness 503.
+- [ ] Confirm container smoke succeeds and verify readiness 200 only against the authorized DRONE AIR preview database.

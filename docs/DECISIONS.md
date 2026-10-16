@@ -58,3 +58,7 @@ An admin linking an existing verified identity to the same client must not reset
 ## 2026-10-16 — Administrative file actions must report failures in the interface
 
 The administrator file page now wraps metadata/visibility/archive writes in a guarded async operation, prevents accidental double submission, and exposes failures in both French and English. Query errors for file lists and history are not mistaken for empty data. Server-side authorization remains the source of truth; this is UI correctness, not new permission logic.
+
+## 2026-10-16 — Separate process liveness from database readiness
+
+The public `/api/health` endpoint reports process liveness and build revision. The new `/api/ready` endpoint performs a bounded head-only query of `clients` using server credentials and returns HTTP 503 when data access fails. No details about connection errors are exposed publicly. CI with fake Supabase values must not report ready. This does not authorize switching traffic before tenant-isolation and release checks pass.

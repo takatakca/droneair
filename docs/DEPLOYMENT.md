@@ -173,3 +173,10 @@ Container CI now also attempts HTTP 413 oversized-multipart and HTTP 400 invalid
 Administrator query failures and absent exact counts cause errors rather than showing zeros. Single-record mutations request the affected row, which avoids a false confirmation when a record is missing or filtered. Mission-derived client/project creation checks that the source mission still exists. Verify under actual permission models in the authorized Supabase environment; CI uses fake credentials for container boot only.
 
 Before release, exercise admin invitation twice for an account whose `client_memberships.membership_role` is not `member`: confirm the role does not change. New account linking still requires a canonical verified Auth email. Inspect two-client access after this path; a GitHub unit test alone does not prove database behavior.
+
+## Database readiness endpoint (2026-10-16)
+
+- `GET /api/health`: HTTP 200 if the application process can serve HTTP, regardless of database connectivity. Use for a container **liveness** probe; do not mistake this for ready-to-publish.
+- `GET /api/ready`: HTTP 200 only after a bounded, read-only query on `public.clients` succeeds using the server-side Supabase connection; otherwise HTTP 503. Response includes only a generic `status` and `service`, never keys or raw DB errors. Query timeout is 4 seconds.
+- CI uses fake Supabase inputs, so the runtime smoke test **expects 503** for readiness while `/api/health` remains 200. The two endpoints must differ in that environment.
+- Before production promotion, verify `/api/ready` = 200 at the correct preview origin against the authorized existing database. A 200 is connectivity evidence, **not** proof of migrations, RLS, two-client isolation, private storage or email delivery. Avoid configuring an external platform to restart the application solely because the database is temporarily unavailable; prefer liveness for process restarts and readiness for deployment gates.

@@ -2,6 +2,7 @@
 
 Newest first, one line per piece of work. Rule: `AGENTS.md` › Work log rule.
 Format: `YYYY-MM-DD | agent | branch → PR | status | what | next step`
+- 2026-10-16 | ChatGPT | main | active | Add real DB readiness endpoint and negative CI check using dummy Supabase credentials | validate GitHub CI and update final handoff
 - 2026-10-16 | ChatGPT | main | active | Catch admin file UI mutations, avoid double clicks, show actual read/action errors rather than empty states | validate CI and document results
 - 2026-10-16 | ChatGPT | main | active | Preserve tenant membership roles on repeated admin invites; fail visibly on failed account search | verify CI and two-client staging after access
 - 2026-10-16 | ChatGPT | main | active | Enforce accurate Supabase admin-ops reads, mutation existence checks, and mission source checks | verify CI, update handoff and real hosting blockers

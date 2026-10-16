@@ -158,3 +158,7 @@ Check current GitHub Actions before claiming this newest fix passed. The authori
 ## 2026-10-16 — File admin error UI
 
 The `src/routes/_authenticated/admin/files.tsx` screen now guards edit/publish/archive server calls with a serialized action runner, disables duplicate clicks, catches errors and presents French/English alerts. It also distinguishes failed file/history queries from valid empty results. Verify GitHub Actions on the new UI commit; without a DRONE AIR-connected Supabase instance, live form/workflow acceptance remains blocked. Refrain from enabling production deployment.
+
+## 2026-10-16 — Separate database readiness
+
+Added `src/routes/api/ready.ts`: a server-only, read-only, 4-second bounded query of DRONE AIR `clients`. HTTP 200 means the actual DB can answer; 503 indicates failure. The endpoint never exposes secrets or detailed Supabase errors. `scripts/smoke-http.mjs` now expects 503 with the deliberately fake CI credentials. The production ready state cannot be verified without the real project. Check newest GitHub Actions run to validate the route and smoke; prior code CI for invitation `38852562996` passed. Production webhook must remain disabled.
