@@ -62,3 +62,8 @@ The administrator file page now wraps metadata/visibility/archive writes in a gu
 ## 2026-10-16 — Separate process liveness from database readiness
 
 The public `/api/health` endpoint reports process liveness and build revision. The new `/api/ready` endpoint performs a bounded head-only query of `clients` using server credentials and returns HTTP 503 when data access fails. No details about connection errors are exposed publicly. CI with fake Supabase values must not report ready. This does not authorize switching traffic before tenant-isolation and release checks pass.
+
+
+## 2026-10-16 — Bound optional Gmail requests
+
+The mission lead is stored before optional Gmail notifications. OAuth token exchange and Gmail send HTTP calls must respect finite deadlines (5 and 8 seconds respectively) so a stalled external provider cannot hold the HTTP request indefinitely. Retry behavior remains bounded (at most two attempts) and delivery failure remains recorded as failure rather than a success claim. The change does not configure or verify Gmail sender credentials.

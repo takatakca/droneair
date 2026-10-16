@@ -84,3 +84,8 @@ A separate `/api/ready` endpoint checks actual backend database connectivity wit
 - `dd56dbb`: independent database readiness probe `/api/ready` and CI fake-database HTTP 503 check, CI [38852863989](https://github.com/takatakca/droneair/actions/runs/38852863989) SUCCESS.
 
 The gated production workflow is **skipped** and production is **not verified**. A previously committed `.env` remains in public Git history, credentials must be rotated, Supabase access `ngdcmpywualyphgrutir` is denied to the current connector and no dedicated DRONE AIR Coolify service is verified.
+
+
+## 2026-10-16 — Email network boundedness
+
+Google OAuth token refresh and Gmail sends now have explicit abort deadlines so they do not hang indefinitely after a mission has been stored. Unit tests for those deadlines were added; GitHub CI and actual authorized sender delivery must be verified separately. No external Gmail credentials were accessed during this change.

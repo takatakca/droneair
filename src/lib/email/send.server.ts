@@ -1,5 +1,6 @@
 /** Server-only Gmail API dispatch for DRONE AIR transactional messages. */
 import { COMPANY } from "@/lib/company";
+import { fetchEmailProvider, GMAIL_OAUTH_TIMEOUT_MS, GMAIL_SEND_TIMEOUT_MS } from "@/lib/email/http.server";
 
 export type EmailEventType =
   | "internal_notification"
@@ -99,7 +100,7 @@ async function gmailAccessToken(): Promise<string> {
     throw new Error("gmail_not_configured");
   }
 
-  const response = await fetch(GOOGLE_TOKEN_ENDPOINT, {
+  const response = await fetchEmailProvider(GOOGLE_TOKEN_ENDPOINT, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
@@ -108,7 +109,7 @@ async function gmailAccessToken(): Promise<string> {
       refresh_token: refreshToken,
       grant_type: "refresh_token",
     }),
-  });
+  }, GMAIL_OAUTH_TIMEOUT_MS);
 
   if (!response.ok) {
     throw new Error(`gmail_oauth_${response.status}`);
@@ -154,7 +155,7 @@ export async function sendMissionEmail(input: {
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
     try {
       const accessToken = await gmailAccessToken();
-      const response = await fetch(GMAIL_SEND_ENDPOINT, {
+      const response = await fetchEmailProvider(GMAIL_SEND_ENDPOINT, {
         method: "POST",
         headers: {
           authorization: `Bearer ${accessToken}`,
@@ -169,7 +170,7 @@ export async function sendMissionEmail(input: {
             messageId: input.idempotencyKey.replace(/[^a-zA-Z0-9._-]/g, "-"),
           }),
         }),
-      });
+      }, GMAIL_SEND_TIMEOUT_MS);
 
       if (response.ok) {
         const payload = (await response.json()) as { id?: string };

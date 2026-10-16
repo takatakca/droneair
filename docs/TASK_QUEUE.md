@@ -99,3 +99,11 @@ GitHub Actions runs 38774629494 (Bun boot and HTTP smoke), 38775210246 (SHA-chec
 - [x] Add CI HTTP smoke proving fake Supabase settings return readiness 503.
 - [x] GitHub CI 38852863989 PASS: liveness 200, readiness 503 with dummy credentials.
 - [ ] Verify readiness 200 against the authorized existing DRONE AIR preview database.
+
+
+## 2026-10-16 — Optional transactional email availability
+
+- [x] Add finite HTTP deadlines to Google OAuth token refresh and Gmail sends.
+- [x] Add regression test verifying the request receives an abort signal.
+- [ ] Confirm GitHub CI (typecheck, unit tests and Docker smoke) for provider timeout commit.
+- [ ] Verify actual sender delivery and saved mission behavior under provider outages using authorized preview.

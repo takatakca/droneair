@@ -184,3 +184,8 @@ Before release, exercise admin invitation twice for an account whose `client_mem
 ## Verified CI / readiness evidence — 2026-10-16
 
 CI run [38852863989](https://github.com/takatakca/droneair/actions/runs/38852863989) successfully exercised `/api/health` (liveness HTTP 200) and `/api/ready` (HTTP 503 using CI's fake Supabase project). Admin server behavior tests and UI compilation passed CI 38852451732, 38852562996, 38852681875. None of these workflows establishes real database connectivity or a deployed origin. A dedicated production resource, key rotation, verified DNS/TLS and a positive readiness check with real credentials remain prerequisites.
+
+
+### Gmail network outage behavior (2026-10-16)
+
+OAuth token exchanges use a 5-second HTTP abort deadline and Gmail send requests use an 8-second deadline; each notification has at most two attempts. The request still waits for optional AI/email after storing the lead, so a high-latency AI+email combination can take longer than either single deadline. Before release, simulate Google provider timeouts using controlled preview conditions and ensure persistent mission storage, appropriate delivery failure status and no false email-success message. Delivery must be tested with authorized credentials, not CI placeholders.

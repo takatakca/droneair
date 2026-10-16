@@ -170,3 +170,8 @@ Last application SHA validated: `dd56dbb963f03627cb53aa64df47af1708f3597f`. Rele
 **Access needed:** authorization on the existing Supabase project, controlled credential rotation, access to the dedicated DRONE AIR Coolify application (not another project's app), DNS/TLS authority, Google Workspace sender proof and owner-controlled production approval. Never paste secrets into Git.
 
 **Exact next step:** first inspect newest `main` CI and any changes by other agents; then inspect/apply the pending identity privilege migration on the correct authorized Supabase instance, verify two-client RLS and private buckets, perform end-to-end missions and invitations, configure the dedicated Coolify resource with the actual build SHA/public variables/runtime secrets and validate `/api/ready` 200 before production. Leave issue #2 open until real deployment, delivery and rollback are proven.
+
+
+## 2026-10-16 — Optional email provider deadlines
+
+Added `src/lib/email/http.server.ts`, `tests/email-provider-timeouts.test.ts`, and modified `src/lib/email/send.server.ts` to limit actual OAuth/Gmail outbound HTTP calls to 5 and 8 seconds. Existing two-attempt behavior, lead storage-first contract and failure reporting remain. This commit was pushed to `main`; **check the exact latest GitHub CI run** for validation. No live Gmail email was sent or verified. Previous checkpoint `b719f9f61a4f226a0a3731398e44526c5cde2d09` passed CI run 38853048865. Continue external production gates unchanged.
