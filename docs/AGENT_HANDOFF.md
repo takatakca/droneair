@@ -202,3 +202,19 @@ All passed build, strict TypeScript, lint, Bun tests, Docker image build and rea
 **Currently active task / blockers:** production acceptance, not another CI repair. Historical committed keys need owner-controlled rotation. The existing Supabase project `ngdcmpywualyphgrutir` is inaccessible to this connection; live migration history, private bucket/RLS, two-client denial tests and mission persistence have not been proven. No authorized dedicated DRONE AIR Coolify resource, DNS/TLS, production sender/delivery, or release rollback evidence is available. TAKATAK identity integration requires a separate approved contract.
 
 **Exact next action:** verify the latest `main` SHA and this documentation commit's GitHub CI; obtain authorized DRONE AIR Supabase access (without creating a billable project); review and apply pending least-privilege migration after backup; rotate historical secrets; validate two real client accounts and signed files; configure a DRONE AIR-only Coolify app and `DRONE_AIR_PRODUCTION_ORIGIN` under a protected production environment; verify correct public build SHA, `/api/ready`, DNS/TLS, email and rollback. Enable the gated CD switch only after owner-approved release security gates. Update issue #2 with evidence, never claim unverified production.
+
+## 2026-10-26 — Non-production Coolify preview (Claude)
+
+- **Coolify application:** `droneair-preview` (uuid `ovag3pomaa7qqz4ohq3pmfbs`), project "DRONE AIR", server vps2 (`209.145.49.63`). It builds `main` with `Dockerfile.coolify` (port 3000) on every push through the Coolify GitHub App. Temporary address: `http://ovag3pomaa7qqz4ohq3pmfbs.209.145.49.63.sslip.io` (plain HTTP).
+- **Placeholder values, as in CI:** `VITE_SUPABASE_URL=https://example.supabase.co` and a placeholder publishable key (build-time). Placeholder `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` and `SUPABASE_SERVICE_ROLE_KEY` are marked **runtime-only** in Coolify, not build args. The preview cannot reach any real database. No Gmail or Gemini secrets are set.
+- **Evidence on commit `f651597`:**
+  - Coolify deployment finished.
+  - `node scripts/smoke-http.mjs http://ovag3pomaa7qqz4ohq3pmfbs.209.145.49.63.sslip.io` passes: `/` and `/en` HTTP 200, oversized and wrong-type mission requests rejected, `/api/ready` reports the fake database unavailable.
+  - `/api/health` returns `{"status":"alive","service":"drone-air","revision":null}`.
+  - Chromium (fr-CA) renders `/`, `/en` and `/contact` without page errors.
+- **Coolify health check disabled:** the `oven/bun` runtime image has no `curl` or `wget`, so Coolify's in-container probe failed even though the server was listening. Next: add a Bun-based Docker `HEALTHCHECK` (or install curl), then re-enable it.
+- **`revision` is null:** Coolify does not pass `DRONE_AIR_GIT_SHA`; it provides `SOURCE_COMMIT` when "include source commit in build" is on. Next: let `Dockerfile.coolify` fall back to `SOURCE_COMMIT`.
+- **Live `drone-air.ca` is unchanged.** It is the MochaHost reseller account `droneair` (`209.42.24.129`, Passenger `app/.output/server/index.mjs`, an older build). On that site `/en` renders a nearly empty page, while the preview serves the full English page.
+- **The gated `deploy-coolify.yml` stays disabled.** The Coolify auto-deploy above only reaches the temporary preview address, never the production domain.
+
+**Next exact action:** the owner provides the real public `VITE_SUPABASE_*` values and the runtime secrets (after rotation) in Coolify, then completes the P0 database gates. After that: attach `drone-air.ca` + `www`, switch only the website A records to `209.145.49.63` (mail stays at MochaHost), redeploy for TLS, and verify on the real domain with `scripts/smoke-http.mjs`.
