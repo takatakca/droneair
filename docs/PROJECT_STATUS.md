@@ -107,3 +107,7 @@ The signed download server function now fails explicitly if the administrator-ro
 - `5623eb64` private signed-download role lookup failure check and file-state tests, CI [38953654188](https://github.com/takatakca/droneair/actions/runs/38953654188): **success**.
 - Public `https://drone-air.ca/`, `/api/health` and `/api/ready` could not be fetched from the available public verification interface; that does **not** establish worldwide DNS status or a functioning production deployment.
 - The connected Supabase project lookup still responds **permission denied** for `ngdcmpywualyphgrutir`. The migration remains unapplied and tenant verification incomplete. Production is **not** verified.
+
+## 2026-10-26 — Preview hosting
+
+A non-production Coolify application (`droneair-preview`, vps2) auto-builds `main` with CI placeholder Supabase values. Commit `f651597` builds and passes `scripts/smoke-http.mjs`. **Production is unchanged:** `drone-air.ca` is still the older MochaHost build.

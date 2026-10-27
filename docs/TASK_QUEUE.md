@@ -15,10 +15,10 @@ Acceptance: evidence captured from the actual Supabase project, failed cross-ten
 
 ## P1 — Hosting and live release (blocked by unknown environment)
 
-- [ ] Locate/confirm a dedicated DRONE AIR Coolify/Contabo (or actual provider) service and linked deployment branch.
+- [x] Locate/confirm a dedicated DRONE AIR Coolify/Contabo (or actual provider) service and linked deployment branch. (2026-10-26: `droneair-preview` on vps2, branch `main`; preview only)
 - [ ] Configure public `VITE_SUPABASE_*` Docker **build** arguments with valid project values.
 - [ ] Configure `SUPABASE_*`, Google OAuth, optional Gemini and service keys as **runtime-only** secrets.
-- [ ] Deploy to a non-production preview, verify build/runtime and DNS/TLS before switching the production domain.
+- [ ] Deploy to a non-production preview, verify build/runtime and DNS/TLS before switching the production domain. (2026-10-26: build/runtime verified with placeholder values and `smoke-http.mjs` PASS; real values, DNS/TLS pending)
 - [ ] Prove live `/api/health`, French/English pages, form persistence, admin/client portal and private file flow.
 - [ ] Verify sender identity with a real delivered test email, or truthfully document notifications as disabled.
 - [x] Commit a disabled-by-default GitHub Actions workflow that can request deployment **only** after successful `main` CI.

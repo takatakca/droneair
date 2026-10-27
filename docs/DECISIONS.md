@@ -82,3 +82,7 @@ A role lookup error during a signed client-file download is not equivalent to "t
 ## 2026-10-16 — Latest verification is CI evidence, not release approval
 
 GitHub runs 38953188965, 38953413909 and 38953654188 all passed after the provider, gated deploy and signed download changes. The production deployment workflow was explicitly skipped, and public domain/health/ready could not be verified using available external access. These results are technical source/build checks only, not proof of tenant isolation, database migration, email sender or production release.
+
+## 2026-10-26 — A Coolify preview with placeholders is build evidence only
+
+The preview runs `main` with the same fake public values as CI, so no real client data can be reached from an unreviewed environment. It shows that the image builds and serves on the real host. It is not a release: real values, the P0 database gates, the domain and TLS still decide promotion, and only the website A records move (mail stays at MochaHost).

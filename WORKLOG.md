@@ -2,6 +2,7 @@
 
 Newest first, one line per piece of work. Rule: `AGENTS.md` › Work log rule.
 Format: `YYYY-MM-DD | agent | branch → PR | status | what | next step`
+- 2026-10-26 | Claude | claude/coolify-preview → PR #3 | PR #3 open | Coolify preview `droneair-preview` (vps2) auto-builds main with CI placeholders; f651597 passes smoke-http.mjs; drone-air.ca unchanged | owner: real public values + runtime secrets after rotation, P0 DB gates, then switch website A records only
 - 2026-10-16 | ChatGPT | main | done (CI PASS 38953654188) | Fail closed on signed download admin role lookup failures; test private file-state rules | complete two-client RLS and signed URL acceptance on authorized DB
 - 2026-10-16 | ChatGPT | main | done (CI PASS 38953413909, gated CD skipped) | Require canonical production origin before webhook; verify actual deployed SHA, readiness and bilingual routes before reporting CD success | configure only after security gates and authorized Coolify resource
 - 2026-10-16 | ChatGPT | main | done (CI PASS 38953188965) | Add 5-second OAuth and 8-second Gmail HTTP deadlines with regression tests | verify real OAuth sender and mission flow in authorized preview
