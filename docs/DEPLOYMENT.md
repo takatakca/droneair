@@ -214,3 +214,6 @@ Provider HTTP timeout regression passed [CI 38953188965](https://github.com/taka
 
 - Coolify's container health check is off, because the Bun runtime image has no `curl`/`wget`. Use `scripts/smoke-http.mjs <origin>` instead, or add a Bun-based `HEALTHCHECK`.
 - Before promotion: replace the build values with the real project's public values and set runtime secrets as **runtime-only** variables (the build-time flag off in Coolify). Then attach the domain and point only the website A records to `209.145.49.63`.
+
+## Production domain on Coolify (2026-10-27)
+`drone-air.ca` and `www` point to Coolify vps2 (`209.145.49.63`); the application is `droneair`. Mail stays at MochaHost. The build still uses CI placeholder Supabase values: set build: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` (real project `ngdcmpywualyphgrutir`, replacing the placeholders; needs a rebuild); runtime-only: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (after rotation), `GOOGLE_GMAIL_CLIENT_ID`, `GOOGLE_GMAIL_CLIENT_SECRET`, `GOOGLE_GMAIL_REFRESH_TOKEN`, `GMAIL_SENDER_EMAIL`, optional `GEMINI_API_KEY`. Promotion evidence (release gates above) is still required.
