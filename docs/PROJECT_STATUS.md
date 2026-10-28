@@ -111,3 +111,6 @@ The signed download server function now fails explicitly if the administrator-ro
 ## 2026-10-26 — Preview hosting
 
 A non-production Coolify application (`droneair-preview`, vps2) auto-builds `main` with CI placeholder Supabase values. Commit `f651597` builds and passes `scripts/smoke-http.mjs`. **Production is unchanged:** `drone-air.ca` is still the older MochaHost build.
+
+## 2026-10-27 — Domain on Coolify
+`drone-air.ca` is served by Coolify (`droneair`, vps2) from `main` with placeholder Supabase values. Public pages work; data features wait for the real values and the P0 gates.
