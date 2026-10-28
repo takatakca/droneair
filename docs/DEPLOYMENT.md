@@ -212,7 +212,7 @@ Provider HTTP timeout regression passed [CI 38953188965](https://github.com/taka
 
 `droneair-preview` (uuid `ovag3pomaa7qqz4ohq3pmfbs`) on Coolify server vps2 follows steps 1–2 above with **CI placeholder** build values, so it proves build and runtime only, not database behaviour. It is auto-deployed from `main` to `http://ovag3pomaa7qqz4ohq3pmfbs.209.145.49.63.sslip.io`; `drone-air.ca` is not attached.
 
-- Coolify's container health check is off, because the Bun runtime image has no `curl`/`wget`. Use `scripts/smoke-http.mjs <origin>` instead, or add a Bun-based `HEALTHCHECK`.
+- Since 2026-10-28 `Dockerfile.coolify` has a Bun-based `HEALTHCHECK` on `/api/health` (the image has no `curl`/`wget`), and Coolify uses it when present. Keep Coolify's own curl-based health check off. `/api/health.revision` reports `DRONE_AIR_GIT_SHA`, else Coolify's `SOURCE_COMMIT`; if it stays `null`, turn on "Include source commit in build" for the application.
 - Before promotion: replace the build values with the real project's public values and set runtime secrets as **runtime-only** variables (the build-time flag off in Coolify). Then attach the domain and point only the website A records to `209.145.49.63`.
 
 ## Production domain on Coolify (2026-10-27)

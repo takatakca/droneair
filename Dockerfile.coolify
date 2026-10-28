@@ -24,13 +24,19 @@ FROM oven/bun:1 AS runtime
 WORKDIR /app
 
 # The revision is public metadata, NOT a secret.
-# A build must supply the exact checked-out Git commit SHA.
+# CI supplies DRONE_AIR_GIT_SHA; Coolify supplies SOURCE_COMMIT (its
+# "Include source commit in build" setting). /api/health reports the first full SHA.
 ARG DRONE_AIR_GIT_SHA=unverified
-ENV DRONE_AIR_GIT_SHA=${DRONE_AIR_GIT_SHA}
+ARG SOURCE_COMMIT
+ENV DRONE_AIR_GIT_SHA=${DRONE_AIR_GIT_SHA} SOURCE_COMMIT=${SOURCE_COMMIT}
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000
 
 COPY --from=build --chown=bun:bun /app/.output ./.output
 
 USER bun
 EXPOSE 3000
+# The Bun image has no curl/wget, so probe liveness with Bun itself.
+# Coolify uses a Dockerfile HEALTHCHECK when one is present.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD ["bun", "-e", "fetch('http://127.0.0.1:3000/api/health').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"]
 CMD ["bun", ".output/server/index.mjs"]

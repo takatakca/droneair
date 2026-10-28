@@ -1,15 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { releaseRevision } from "@/lib/release-revision";
 
 /** Process liveness only. Database and external providers are checked separately. */
 export const Route = createFileRoute("/api/health")({
   server: {
     handlers: {
       GET: () => {
-        const configuredRevision = process.env["DRONE_AIR_GIT_SHA"] ?? "";
-        // Never represent an unset/placeholder value as a deployed Git commit.
-        const revision = /^[0-9a-f]{40}$/i.test(configuredRevision)
-          ? configuredRevision.toLowerCase()
-          : null;
+        const revision = releaseRevision(process.env);
         return new Response(JSON.stringify({ status: "alive", service: "drone-air", revision }), {
           status: 200,
           headers: {
