@@ -62,7 +62,9 @@ DNS/TLS configuration is provider-specific and must be verified at the actual de
 
 ## Email
 
-Transactional email uses the Google Workspace/Gmail API with server-side OAuth refresh credentials. Configure `GOOGLE_GMAIL_CLIENT_ID`, `GOOGLE_GMAIL_CLIENT_SECRET`, `GOOGLE_GMAIL_REFRESH_TOKEN`, and `GMAIL_SENDER_EMAIL` in the deployment secret manager.
+Transactional email uses **Resend** when the runtime-only secret `RESEND_API_KEY` is set (optional `RESEND_SENDER_EMAIL`, default `info@drone-air.ca`). Otherwise it falls back to the Google Workspace/Gmail API with server-side OAuth refresh credentials (`GOOGLE_GMAIL_CLIENT_ID`, `GOOGLE_GMAIL_CLIENT_SECRET`, `GOOGLE_GMAIL_REFRESH_TOKEN`, `GMAIL_SENDER_EMAIL`). With neither, missions are still stored and each email event records `email_not_configured`. `mission_email_events.provider` records `resend` or `gmail`.
+
+`drone-air.ca` has no Google Workspace (2026-10-28: MX `mail.drone-air.ca` at MochaHost, SPF without Google), so Resend is the intended provider. Add `drone-air.ca` as a domain in Resend and publish the records Resend shows in the DNS zone: the DKIM TXT `resend._domainkey`, plus the MX and SPF TXT records on `send`. The apex MX stays at MochaHost, so incoming mail is unchanged. Then set `RESEND_API_KEY` in Coolify as a runtime-only variable and restart.
 
 Production email is only **PRODUCTION VERIFIED** after a real message is successfully sent as `info@drone-air.ca` and received. Mission intake must remain successful even when notification email is unavailable.
 
@@ -216,4 +218,4 @@ Provider HTTP timeout regression passed [CI 38953188965](https://github.com/taka
 - Before promotion: replace the build values with the real project's public values and set runtime secrets as **runtime-only** variables (the build-time flag off in Coolify). Then attach the domain and point only the website A records to `209.145.49.63`.
 
 ## Production domain on Coolify (2026-10-27)
-`drone-air.ca` and `www` point to Coolify vps2 (`209.145.49.63`); the application is `droneair`. Mail stays at MochaHost. The build still uses CI placeholder Supabase values: set build: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` (real project `ngdcmpywualyphgrutir`, replacing the placeholders; needs a rebuild); runtime-only: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (after rotation), `GOOGLE_GMAIL_CLIENT_ID`, `GOOGLE_GMAIL_CLIENT_SECRET`, `GOOGLE_GMAIL_REFRESH_TOKEN`, `GMAIL_SENDER_EMAIL`, optional `GEMINI_API_KEY`. Promotion evidence (release gates above) is still required.
+`drone-air.ca` and `www` point to Coolify vps2 (`209.145.49.63`); the application is `droneair`. Mail stays at MochaHost. The build still uses CI placeholder Supabase values: set build: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` (real project `ngdcmpywualyphgrutir`, replacing the placeholders; needs a rebuild); runtime-only: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (after rotation), `RESEND_API_KEY` (since 2026-10-28, replacing the Gmail OAuth set `GOOGLE_GMAIL_CLIENT_ID`, `GOOGLE_GMAIL_CLIENT_SECRET`, `GOOGLE_GMAIL_REFRESH_TOKEN`, `GMAIL_SENDER_EMAIL`), optional `GEMINI_API_KEY`. Promotion evidence (release gates above) is still required.
