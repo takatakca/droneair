@@ -2,7 +2,7 @@
 
 Newest first, one line per piece of work. Rule: `AGENTS.md` › Work log rule.
 Format: `YYYY-MM-DD | agent | branch → PR | status | what | next step`
-- 2026-10-28 | Claude | claude/resend-email → PR | PR open | Transactional email through Resend when RESEND_API_KEY is set (drone-air.ca has no Google Workspace); Gmail kept as fallback; provider recorded per email event | owner verifies drone-air.ca in Resend (DKIM + send MX/SPF), sets RESEND_API_KEY in Coolify, test mission
+- 2026-10-28 | Claude | claude/resend-email → PR #6 | PR #6 open | Transactional email through Resend when RESEND_API_KEY is set (drone-air.ca has no Google Workspace); Gmail kept as fallback; provider recorded per email event | owner verifies drone-air.ca in Resend (DKIM + send MX/SPF), sets RESEND_API_KEY in Coolify, test mission
 - 2026-10-27 | Claude | claude/domain-on-coolify → PR #4 | PR #4 open | drone-air.ca switched to Coolify (app renamed droneair), placeholder Supabase; HTTPS health + /en OK; mail unchanged | owner sets real VITE_/runtime values, rebuild, smoke-http.mjs on https://drone-air.ca, P0 DB gates
 - 2026-10-26 | Claude | claude/coolify-preview → PR #3 | done: merged 776fc3f | Coolify preview `droneair-preview` (vps2) auto-builds main with CI placeholders; f651597 passes smoke-http.mjs; drone-air.ca unchanged | owner: real public values + runtime secrets after rotation, P0 DB gates, then switch website A records only
 - 2026-10-16 | ChatGPT | main | done (CI PASS 38953654188) | Fail closed on signed download admin role lookup failures; test private file-state rules | complete two-client RLS and signed URL acceptance on authorized DB
