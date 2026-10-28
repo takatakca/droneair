@@ -189,7 +189,7 @@ export const Route = createFileRoute("/api/public/mission-request")({
           mission_request_id: string;
           event_type: EmailEventType;
           recipient: string;
-          provider: string;
+          provider: string | null;
           status: string;
           provider_message_id?: string;
           error_code?: string;
@@ -255,7 +255,7 @@ export const Route = createFileRoute("/api/public/mission-request")({
           mission_request_id: inserted.id,
           event_type: "internal_notification",
           recipient: COMPANY.email,
-          provider: "gmail",
+          provider: internalResult.provider ?? null,
           status: internalResult.status,
           ...(internalResult.providerMessageId ? { provider_message_id: internalResult.providerMessageId } : {}),
           ...(internalResult.errorCode ? { error_code: internalResult.errorCode } : {}),
@@ -276,7 +276,7 @@ export const Route = createFileRoute("/api/public/mission-request")({
           mission_request_id: inserted.id,
           event_type: "customer_acknowledgment",
           recipient: emailData.email,
-          provider: "gmail",
+          provider: ackResult.provider ?? null,
           status: ackResult.status,
           ...(ackResult.providerMessageId ? { provider_message_id: ackResult.providerMessageId } : {}),
           ...(ackResult.errorCode ? { error_code: ackResult.errorCode } : {}),
