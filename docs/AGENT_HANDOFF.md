@@ -226,3 +226,14 @@ All passed build, strict TypeScript, lint, Bun tests, Docker image build and rea
 - **Evidence:** over HTTPS with a valid certificate, `https://drone-air.ca/api/health` is alive and `/en` returns the full English page (33 KB); `www` redirects. The old MochaHost app had no environment variables, so nothing was lost in the move.
 - **Still placeholder values, so the production release gates are NOT met:** mission intake, the client portal, private files and email do not work. Values to set in Coolify: build: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` (real project `ngdcmpywualyphgrutir`, replacing the placeholders; needs a rebuild); runtime-only: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (after rotation), `GOOGLE_GMAIL_CLIENT_ID`, `GOOGLE_GMAIL_CLIENT_SECRET`, `GOOGLE_GMAIL_REFRESH_TOKEN`, `GMAIL_SENDER_EMAIL`, optional `GEMINI_API_KEY`. Then redeploy and run `node scripts/smoke-http.mjs https://drone-air.ca`.
 - **Next exact action:** the owner sets those values, then completes the P0 database gates in `docs/TASK_QUEUE.md`. Remove the reseller account `droneair` only after downloading `backup-10.26.2026_16-26-14_droneair.tar.gz` from its home folder.
+
+## 2026-10-29 — Commit in /api/health on Coolify, Bun health check, owner checklist (Claude)
+- **`docs/OWNER_ACTIONS.md`** is the hands-on checklist, with the same numbers as the private Drive main file. Items are labelled 🔧 OWNER (manual) or 🤖 CLAUDE (agent). Start with O-06 → O-08.
+- **`src/lib/release-revision.ts`:** `/api/health` reports `DRONE_AIR_GIT_SHA` (CI build argument) or Coolify's `SOURCE_COMMIT`, and only ever a full 40-character SHA. "Include source commit in build" is on for the `droneair` Coolify app. Tested in `tests/release-revision.test.ts`.
+- **`Dockerfile.coolify`:** a `HEALTHCHECK` uses Bun's `fetch`, because the image has no curl or wget, so Docker and Coolify can see container health. Coolify's own curl-based check stays off.
+- **Verified locally:**
+  - `bun test tests`: 27/27 pass.
+  - `vite build`, then `tsc --noEmit`: 0 errors.
+  - The built server with `SOURCE_COMMIT=<sha>` reports `revision:<sha>`.
+  - The health-check command exits 0 with the server up and 1 with nothing listening.
+- **Next exact action:** after the merge, Claude checks that `https://drone-air.ca/api/health` shows the merged commit and that the container is healthy (C-08). The owner does O-06 → O-08.

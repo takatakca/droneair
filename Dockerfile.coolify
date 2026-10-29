@@ -33,4 +33,7 @@ COPY --from=build --chown=bun:bun /app/.output ./.output
 
 USER bun
 EXPOSE 3000
+# The Bun image has no curl/wget, so the liveness probe uses Bun itself (Docker and Coolify read it).
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD ["bun", "-e", "fetch('http://127.0.0.1:' + (process.env.PORT || 3000) + '/api/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
 CMD ["bun", ".output/server/index.mjs"]

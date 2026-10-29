@@ -37,7 +37,7 @@ Acceptance: public production URL serves the expected commit SHA and critical fl
 - [x] Add an automated HTTP smoke test for the built container and both public languages.
 - [x] Confirm container runtime boot and smoke tests PASS using Bun (Node 22 previously failed with Bun undefined); run 38774629494 PASS.
 - [x] Confirm CI-built Docker /api/health revision matches the Git SHA; run 38775210246 PASS.
-- [ ] Confirm the actual Coolify production /api/health revision matches the deployed Git SHA once a dedicated app exists.
+- [ ] Confirm the actual Coolify production /api/health revision matches the deployed Git SHA once a dedicated app exists. (2026-10-29: code + Coolify setting ready in the open PR; verify after merge — C-08)
 - [ ] Review media optimization and cross-tenant end-to-end integration tests in staging.
 - [ ] Run a real security-oriented acceptance test of the pending database migration.
 - [ ] Add any missing production health/observability only after discovering the real deployment platform.
