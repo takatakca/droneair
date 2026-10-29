@@ -217,3 +217,6 @@ Provider HTTP timeout regression passed [CI 38953188965](https://github.com/taka
 
 ## Production domain on Coolify (2026-10-27)
 `drone-air.ca` and `www` point to Coolify vps2 (`209.145.49.63`); the application is `droneair`. Mail stays at MochaHost. The build still uses CI placeholder Supabase values: set build: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` (real project `ngdcmpywualyphgrutir`, replacing the placeholders; needs a rebuild); runtime-only: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (after rotation), `GOOGLE_GMAIL_CLIENT_ID`, `GOOGLE_GMAIL_CLIENT_SECRET`, `GOOGLE_GMAIL_REFRESH_TOKEN`, `GMAIL_SENDER_EMAIL`, optional `GEMINI_API_KEY`. Promotion evidence (release gates above) is still required.
+
+## Health and revision on Coolify (2026-10-29)
+`Dockerfile.coolify` has a Bun-based `HEALTHCHECK` on `/api/health`. The Coolify app has "include source commit in build" on, so `/api/health.revision` shows the deployed commit. The owner's steps (real Supabase values, migration, email decision) are in `docs/OWNER_ACTIONS.md`.
