@@ -1,6 +1,11 @@
-/** Server-only Gmail API dispatch for DRONE AIR transactional messages. */
+/** Server-only Resend or Gmail API dispatch for DRONE AIR transactional messages. */
 import { COMPANY } from "@/lib/company";
-import { fetchEmailProvider, GMAIL_OAUTH_TIMEOUT_MS, GMAIL_SEND_TIMEOUT_MS } from "@/lib/email/http.server";
+import {
+  fetchEmailProvider,
+  GMAIL_OAUTH_TIMEOUT_MS,
+  GMAIL_SEND_TIMEOUT_MS,
+  RESEND_SEND_TIMEOUT_MS,
+} from "@/lib/email/http.server";
 
 export type EmailEventType =
   | "internal_notification"
@@ -13,13 +18,28 @@ export const FROM = `${COMPANY.name} <${COMPANY.email}>`;
 
 const GMAIL_SEND_ENDPOINT = "https://gmail.googleapis.com/gmail/v1/users/me/messages/send";
 const GOOGLE_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token";
+const RESEND_SEND_ENDPOINT = "https://api.resend.com/emails";
 const MAX_ATTEMPTS = 2;
+
+export type EmailProvider = "resend" | "gmail";
 
 export interface SendResult {
   status: "sent" | "failed";
+  provider?: EmailProvider;
   providerMessageId?: string;
   errorCode?: string;
   errorSummary?: string;
+}
+
+type Env = Record<string, string | undefined>;
+
+interface MissionEmail {
+  to: string;
+  subject: string;
+  html: string;
+  text: string;
+  idempotencyKey: string;
+  label: EmailEventType;
 }
 
 let cachedToken: { value: string; expiresAt: number } | null = null;
@@ -28,9 +48,39 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function required(name: string): string | null {
-  const value = process.env[name]?.trim();
+function required(name: string, env: Env = process.env): string | null {
+  const value = env[name]?.trim();
   return value || null;
+}
+
+/**
+ * Resend when `RESEND_API_KEY` is set (drone-air.ca has no Google Workspace),
+ * otherwise Gmail when its OAuth credentials are complete, otherwise none.
+ */
+export function selectEmailProvider(env: Env = process.env): EmailProvider | null {
+  if (required("RESEND_API_KEY", env)) return "resend";
+  if (
+    required("GOOGLE_GMAIL_CLIENT_ID", env) &&
+    required("GOOGLE_GMAIL_CLIENT_SECRET", env) &&
+    required("GOOGLE_GMAIL_REFRESH_TOKEN", env)
+  ) {
+    return "gmail";
+  }
+  return null;
+}
+
+/** Resend API request body. The sender domain must be verified in Resend. */
+export function resendPayload(input: MissionEmail, env: Env = process.env) {
+  const sender = required("RESEND_SENDER_EMAIL", env) ?? COMPANY.email;
+  return {
+    from: `${COMPANY.name} <${sender}>`,
+    to: [input.to],
+    reply_to: COMPANY.email,
+    subject: input.subject,
+    html: input.html,
+    text: input.text,
+    tags: [{ name: "event", value: input.label }],
+  };
 }
 
 function bytesToBase64(value: string): string {
@@ -126,32 +176,85 @@ async function gmailAccessToken(): Promise<string> {
 }
 
 /**
- * Sends one transactional email through Google Workspace/Gmail.
+ * Sends one transactional email through Resend or Google Workspace/Gmail
+ * (see `selectEmailProvider`).
  *
- * A deterministic Message-ID is generated from the mission idempotency key.
- * Temporary Gmail failures receive one bounded retry. The caller always stores
- * the mission first, so email failure never loses a lead.
+ * The mission idempotency key becomes the Resend `Idempotency-Key` or a
+ * deterministic Gmail Message-ID. Temporary provider failures receive one
+ * bounded retry. The caller always stores the mission first, so email failure
+ * never loses a lead.
  */
-export async function sendMissionEmail(input: {
-  to: string;
-  subject: string;
-  html: string;
-  text: string;
-  idempotencyKey: string;
-  label: EmailEventType;
-}): Promise<SendResult> {
-  if (
-    !required("GOOGLE_GMAIL_CLIENT_ID") ||
-    !required("GOOGLE_GMAIL_CLIENT_SECRET") ||
-    !required("GOOGLE_GMAIL_REFRESH_TOKEN")
-  ) {
-    return {
-      status: "failed",
-      errorCode: "gmail_not_configured",
-      errorSummary: "Google Workspace Gmail OAuth is not configured",
-    };
+export async function sendMissionEmail(input: MissionEmail): Promise<SendResult> {
+  const provider = selectEmailProvider();
+  if (provider === "resend") return sendWithResend(input);
+  if (provider === "gmail") return sendWithGmail(input);
+  return {
+    status: "failed",
+    errorCode: "email_not_configured",
+    errorSummary: "No email provider is configured (RESEND_API_KEY or Google Workspace Gmail OAuth)",
+  };
+}
+
+async function sendWithResend(input: MissionEmail): Promise<SendResult> {
+  const apiKey = required("RESEND_API_KEY") ?? "";
+  const body = JSON.stringify(resendPayload(input));
+
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+    try {
+      const response = await fetchEmailProvider(RESEND_SEND_ENDPOINT, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${apiKey}`,
+          "content-type": "application/json",
+          // Resend keeps the key for 24 hours, so the retry below cannot send twice.
+          "idempotency-key": input.idempotencyKey.slice(0, 256),
+        },
+        body,
+      }, RESEND_SEND_TIMEOUT_MS);
+
+      if (response.ok) {
+        const payload = (await response.json()) as { id?: string };
+        return {
+          status: "sent",
+          provider: "resend",
+          ...(payload.id ? { providerMessageId: payload.id } : {}),
+        };
+      }
+
+      const retryable = (response.status === 429 || response.status >= 500) && attempt < MAX_ATTEMPTS;
+      if (!retryable) {
+        return {
+          status: "failed",
+          provider: "resend",
+          errorCode: `resend_${response.status}`,
+          errorSummary: `Resend rejected the message with HTTP ${response.status}`,
+        };
+      }
+
+      await sleep(750 * attempt);
+    } catch (error) {
+      if (attempt >= MAX_ATTEMPTS) {
+        const message = error instanceof Error ? error.message : "resend_unexpected_error";
+        return {
+          status: "failed",
+          provider: "resend",
+          errorCode: message.slice(0, 80),
+          errorSummary: message.slice(0, 300),
+        };
+      }
+      await sleep(500 * attempt);
+    }
   }
 
+  return {
+    status: "failed",
+    provider: "resend",
+    errorCode: "resend_exhausted",
+    errorSummary: "Resend retry attempts exhausted",
+  };
+}
+
+async function sendWithGmail(input: MissionEmail): Promise<SendResult> {
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
     try {
       const accessToken = await gmailAccessToken();
@@ -176,6 +279,7 @@ export async function sendMissionEmail(input: {
         const payload = (await response.json()) as { id?: string };
         return {
           status: "sent",
+          provider: "gmail",
           ...(payload.id ? { providerMessageId: payload.id } : {}),
         };
       }
@@ -184,6 +288,7 @@ export async function sendMissionEmail(input: {
       if (!retryable) {
         return {
           status: "failed",
+          provider: "gmail",
           errorCode: `gmail_${response.status}`,
           errorSummary: `Gmail API rejected the message with HTTP ${response.status}`,
         };
@@ -195,6 +300,7 @@ export async function sendMissionEmail(input: {
         const message = error instanceof Error ? error.message : "gmail_unexpected_error";
         return {
           status: "failed",
+          provider: "gmail",
           errorCode: message.slice(0, 80),
           errorSummary: message.slice(0, 300),
         };
@@ -204,5 +310,10 @@ export async function sendMissionEmail(input: {
     }
   }
 
-  return { status: "failed", errorCode: "gmail_exhausted", errorSummary: "Gmail retry attempts exhausted" };
+  return {
+    status: "failed",
+    provider: "gmail",
+    errorCode: "gmail_exhausted",
+    errorSummary: "Gmail retry attempts exhausted",
+  };
 }

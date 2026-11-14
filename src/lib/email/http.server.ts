@@ -1,9 +1,10 @@
 /**
- * Bounds all Gmail/OAuth HTTP calls. A saved mission must not leave the
- * request waiting indefinitely for an optional email provider.
+ * Bounds all email provider HTTP calls (Resend, Gmail/OAuth). A saved mission
+ * must not leave the request waiting indefinitely for an optional email provider.
  */
 export const GMAIL_OAUTH_TIMEOUT_MS = 5_000;
 export const GMAIL_SEND_TIMEOUT_MS = 8_000;
+export const RESEND_SEND_TIMEOUT_MS = 8_000;
 
 /**
  * The fetch implementation must honor AbortSignal (global fetch does).
