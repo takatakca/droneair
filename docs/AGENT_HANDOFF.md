@@ -237,3 +237,10 @@ All passed build, strict TypeScript, lint, Bun tests, Docker image build and rea
   - The built server with `SOURCE_COMMIT=<sha>` reports `revision:<sha>`.
   - The health-check command exits 0 with the server up and 1 with nothing listening.
 - **Next exact action:** after the merge, Claude checks that `https://drone-air.ca/api/health` shows the merged commit and that the container is healthy (C-08). The owner does O-06 → O-08.
+## 2026-10-28 — transactional email through Resend (Claude)
+- **Why:** `drone-air.ca` has no Google Workspace (MX `mail.drone-air.ca` at MochaHost, SPF without Google), so the Gmail OAuth sender could not be set up for `info@drone-air.ca`.
+- **Change:** `src/lib/email/send.server.ts` sends through Resend when `RESEND_API_KEY` is set, otherwise through Gmail when its OAuth set is complete, otherwise records `email_not_configured`. The mission idempotency key is sent as Resend's `Idempotency-Key`, so the single retry on 429/5xx cannot deliver twice. `mission_email_events.provider` now records the provider actually used (the column is free text, so no migration is needed). Tests: `tests/email-provider-selection.test.ts`.
+- **Checks:** `bun test tests` 28 pass; build, `tsc --noEmit` and eslint pass.
+- **Next exact action (owner):** add `drone-air.ca` in Resend and publish its DKIM (`resend._domainkey`) and `send` MX/SPF records in the zone; set `RESEND_API_KEY` (runtime-only) in Coolify; restart; submit a test mission and check both emails and `mission_email_events.status = sent`.
+
+
